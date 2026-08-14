@@ -10,5 +10,5 @@
     "outDir": "dist",
     "types": ["node", "aws-lambda"]
   },
-  "include": ["src", "tests"]
+  "include": ["src"]
 }

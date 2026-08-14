@@ -1,44 +1,36 @@
-const DOCUMENT_POLL_INTERVAL_MS = 1500;
-const DOCUMENT_POLL_ATTEMPTS = 80;
-const JOB_POLL_INTERVAL_MS = 650;
-const JOB_POLL_ATTEMPTS = 20;
+const DOCUMENT_POLL = { intervalMs: 1500, attempts: 80 };
+const ANSWER_POLL = { intervalMs: 650, attempts: 30 };
 
-/** Thin axios wrapper over the HTTP API. Every call carries the session's user id. */
+/** Calls the HTTP API with axios, carrying this browser's user id on every request. */
 export class ApiClient {
   constructor(userId, baseUrl = window.APP_CONFIG?.apiUrl ?? "http://localhost:3000") {
-    this.userId = userId;
     this.http = window.axios.create({
       baseURL: baseUrl.replace(/\/$/, ""),
       headers: { "content-type": "application/json", "x-user-id": userId },
     });
   }
 
-  /** Lists the documents stored under this session's prefix. */
   async listDocuments() {
-    const response = await this.http.get("/documents");
+    const { data } = await this.http.get("/documents");
 
-    return response.data.documents ?? [];
+    return data.documents ?? [];
   }
 
   /** Asks the backend for a short-lived presigned S3 PUT URL. */
   async createUpload(contentType) {
-    const response = await this.http.post("/documents/upload-url", { contentType });
+    const { data } = await this.http.post("/documents/upload-url", { contentType });
 
-    return response.data;
+    return data;
   }
 
   /**
-   * Uploads the PDF straight to S3. This request is deliberately made with a bare axios
-   * instance: the presigned URL is signed for content-type only, so no app headers go with it.
+   * Uploads the PDF straight to S3. Sent with a bare axios call on purpose: the URL is
+   * signed for content-type only, so none of the app's own headers should travel with it.
    */
   async uploadToS3(uploadUrl, file, onProgress) {
     await window.axios.put(uploadUrl, file, {
       headers: { "content-type": "application/pdf" },
-      onUploadProgress: (event) => {
-        if (onProgress && event.total) {
-          onProgress(Math.round((event.loaded / event.total) * 100));
-        }
-      },
+      onUploadProgress: ({ loaded, total }) => total && onProgress(Math.round((loaded / total) * 100)),
     });
   }
 
@@ -47,60 +39,47 @@ export class ApiClient {
     await this.http.post("/documents/process", { documentId, key });
   }
 
-  /** Polls the document list until the given document is READY (or fails / times out). */
-  async waitForDocument(documentId, onUpdate) {
-    for (let attempt = 0; attempt < DOCUMENT_POLL_ATTEMPTS; attempt += 1) {
+  /** Polls the document list until extraction has produced the text object. */
+  async waitForDocument(documentId) {
+    return poll(DOCUMENT_POLL, async () => {
       const document = (await this.listDocuments()).find((record) => record.documentId === documentId);
 
-      onUpdate(document);
-
-      if (document?.status === "READY") {
-        return document;
-      }
-
-      if (document?.status === "FAILED") {
-        throw new Error("Document processing failed");
-      }
-
-      if (attempt < DOCUMENT_POLL_ATTEMPTS - 1) {
-        await pause(DOCUMENT_POLL_INTERVAL_MS);
-      }
-    }
-
-    throw new Error("Document processing timed out");
-  }
-
-  /** Submits a question. Retrieval runs inline; the answer is fetched by polling the job. */
-  async ask(documentId, question) {
-    const response = await this.http.post("/questions", { documentId, question });
-
-    return response.data;
-  }
-
-  /** Fetches one job's current state. 202 means the answer is not ready yet. */
-  async getJob(jobId) {
-    const response = await this.http.get(`/questions/${jobId}`, {
-      validateStatus: (status) => status === 200 || status === 202,
+      return document?.status === "READY" ? document : undefined;
     });
-
-    return response.data;
   }
 
-  /** Polls a job until it leaves PROCESSING (or the attempt budget runs out). */
-  async waitForJob(jobId) {
-    let result = await this.getJob(jobId);
+  /** Submits a question. Retrieval runs inline; the model answers asynchronously. */
+  async ask(documentId, question) {
+    const { data } = await this.http.post("/questions", { documentId, question });
 
-    for (let attempt = 0; attempt < JOB_POLL_ATTEMPTS && result.status === "PROCESSING"; attempt += 1) {
-      await pause(JOB_POLL_INTERVAL_MS);
-      result = await this.getJob(jobId);
-    }
+    return data;
+  }
 
-    return result;
+  /** Polls one question until the worker has written its answer. */
+  async waitForAnswer(jobId) {
+    return poll(ANSWER_POLL, async () => {
+      const { data } = await this.http.get(`/questions/${jobId}`, {
+        validateStatus: (status) => status === 200 || status === 202,
+      });
+
+      return data.status === "COMPLETED" ? data : undefined;
+    });
   }
 }
 
-function pause(milliseconds) {
-  return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+/** Repeats `attempt` until it returns a value, or gives up. */
+async function poll({ intervalMs, attempts }, attempt) {
+  for (let index = 0; index < attempts; index += 1) {
+    const result = await attempt();
+
+    if (result) {
+      return result;
+    }
+
+    await new Promise((resolve) => window.setTimeout(resolve, intervalMs));
+  }
+
+  throw new Error("Timed out waiting for the backend");
 }
 
 /** Pulls a useful message out of an axios error. */

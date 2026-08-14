@@ -1,32 +1,29 @@
+import { randomUUID } from "node:crypto";
 import type { APIGatewayProxyEventV2 } from "aws-lambda";
 import { Logger } from "@aws-lambda-powertools/logger";
-import { AppConstants } from "../../constants/app-constants.js";
-import type { ApiResponse, QuestionRequest, RetrievalDebug } from "../../types/domain.js";
-import { AppConfig } from "../../utils/app-config.js";
-import { LlmService } from "../../services/llm/llm-service.js";
-import { DocumentService } from "../../services/documents/document-service.js";
-import { S3Storage } from "../../services/storage/s3-storage.js";
-import { MountedFileStorage } from "../../services/storage/mounted-file-storage.js";
-import { TextSearchService } from "../../services/text/text-search-service.js";
-import { HttpResponse, IdGenerator, S3KeyBuilder, UserIdentity, Validation } from "../../utils/core-utils.js";
+import { AppConfig } from "../../config.js";
+import { type ApiResponse, error, json, parseBody, requireString } from "../../http/api-response.js";
+import { LlmService } from "../../llm/llm-service.js";
+import { DocumentRetriever } from "../../retrieval/document-retriever.js";
+import { MountedDocuments } from "../../storage/mounted-documents.js";
+import { S3Keys } from "../../storage/s3-keys.js";
+import { S3Store } from "../../storage/s3-store.js";
+import type { QuestionAnswer, QuestionRequest } from "../../types.js";
+import { userIdFromHeaders } from "../../user-id.js";
 
-/** Owns the synchronous API boundary for asking questions and polling answers. */
+/**
+ * POST /questions runs retrieval inline and queues the model call.
+ * GET /questions/{jobId} reports the answer once the worker has written it.
+ */
 export class QuestionsHandler {
-  private readonly documents = new DocumentService(new MountedFileStorage());
-  private readonly jobs = new S3Storage(AppConfig.jobsBucket());
-  private readonly llm = new LlmService(AppConfig.llmProvider(), AppConfig.llmModel());
-  private readonly text = new TextSearchService();
-  private readonly ids = new IdGenerator();
-  private readonly keys = new S3KeyBuilder();
-  private readonly identity = new UserIdentity();
-  private readonly response = new HttpResponse();
-  private readonly validation = new Validation();
+  private readonly jobs = new S3Store(AppConfig.jobsBucket());
+  private readonly mount = new MountedDocuments();
+  private readonly retriever = new DocumentRetriever(new LlmService(AppConfig.llmProvider(), AppConfig.llmModel()));
   private readonly logger = new Logger({ serviceName: "questions-api" });
 
-  /** Routes question submission and question-status requests. */
-  public async handle(event: APIGatewayProxyEventV2): Promise<ApiResponse<unknown>> {
+  public async handle(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
     try {
-      // Awaited so a rejection lands in this catch instead of escaping as a 500.
+      // Awaited so a rejection is caught here and answered as a 400.
       if (event.requestContext.http.method === "GET") {
         return await this.status(event);
       }
@@ -35,74 +32,50 @@ export class QuestionsHandler {
         return await this.ask(event);
       }
 
-      return this.response.error(405, "Only GET and POST are supported");
-    } catch (error: unknown) {
-      return this.response.error(400, error instanceof Error ? error.message : "Unable to process question");
+      return error(405, "Only GET and POST are supported");
+    } catch (cause: unknown) {
+      return error(400, cause instanceof Error ? cause.message : "Unable to process question");
     }
   }
 
-  private async ask(event: APIGatewayProxyEventV2): Promise<ApiResponse<unknown>> {
-    const correlationId = event.requestContext.requestId;
+  private async ask(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+    const userId = userIdFromHeaders(event.headers);
+    const body = parseBody<{ documentId?: string; question?: string }>(event.body);
+    const documentId = requireString(body.documentId, "documentId");
+    const question = requireString(body.question, "question");
+    const jobId = `question-${randomUUID()}`;
 
-    this.logger.appendKeys({ correlationId });
+    this.logger.appendKeys({ correlationId: event.requestContext.requestId, documentId, jobId });
 
-    const userId = this.identity.fromHeaders(event.headers);
-    const { documentId, question } = this.validation.parseJson<{ documentId: string; question: string }>(
-      event.body ?? "{}",
-      "body",
-    );
-    let terms = await this.llm.expand(question);
-    const filePath = await this.documents.extractedTextPath(userId, documentId);
-    let result = await this.text.search(filePath, documentId, question, terms);
-
-    if (result.matches.length === 0) {
-      terms = await this.llm.expand(question, true);
-      result = await this.text.search(filePath, documentId, question, terms);
-    }
-
-    const jobId = this.ids.create(AppConstants.questionIdPrefix);
-
-    this.logger.appendKeys({ documentId, jobId });
-
-    const debug: RetrievalDebug = { question, queryTerms: terms, ...result, selectedPassages: [] };
+    const filePath = this.mount.requirePath(S3Keys.extractedText(userId, documentId));
+    const passages = await this.retriever.retrieve(filePath, documentId, question);
     const request: QuestionRequest = {
       jobId,
-      correlationId,
       userId,
       documentId,
       question,
-      candidates: result.candidates,
-      retrievalDebug: debug,
+      passages,
       createdAt: new Date().toISOString(),
     };
 
-    await this.jobs.putJson(this.keys.requestKey(userId, jobId), request);
+    await this.jobs.putJson(S3Keys.questionRequest(userId, jobId), request);
+    this.logger.info("Question queued", { passages: passages.length });
 
-    this.logger.info("Question request queued");
-
-    return this.response.json(202, { jobId, correlationId, debug });
+    return json(202, { jobId });
   }
 
-  private async status(event: APIGatewayProxyEventV2): Promise<ApiResponse<unknown>> {
-    const userId = this.identity.fromHeaders(event.headers);
-    const id = event.pathParameters?.jobId;
-
-    if (!id) {
-      return this.response.error(400, "question id is required");
-    }
-
-    const request = await this.jobs.getJsonIfPresent<QuestionRequest>(this.keys.requestKey(userId, id));
-
-    if (!request) {
-      return this.response.error(404, "Question not found");
-    }
-
-    const answer = await this.jobs.getJsonIfPresent(this.keys.responseKey(userId, id));
+  private async status(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+    const userId = userIdFromHeaders(event.headers);
+    const jobId = requireString(event.pathParameters?.jobId, "jobId");
+    const answer = await this.jobs.readJson<QuestionAnswer>(S3Keys.questionAnswer(userId, jobId));
 
     if (answer) {
-      return this.response.json(200, answer);
+      return json(200, answer);
     }
 
-    return this.response.json(202, { jobId: id, status: "PROCESSING", retrievalDebug: request.retrievalDebug });
+    // No answer object yet. Distinguish "still working" from "never existed".
+    return (await this.jobs.exists(S3Keys.questionRequest(userId, jobId)))
+      ? json(202, { jobId, status: "PROCESSING" })
+      : error(404, "Question not found");
   }
 }

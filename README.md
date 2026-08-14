@@ -1,32 +1,48 @@
-# TraceRAG: DB-less RAG with S3 Files + ripgrep
+# TraceRAG: RAG with ripgrep instead of a vector database
 
-This is a full-stack demo of document Q&A without embeddings, a vector database, BM25, OpenSearch, or a retrieval index.
+Document Q&A with no embeddings, no vector store, no OpenSearch, and no retrieval index of any kind.
 
-The retrieval path is:
+S3 Files mounts an S3 bucket as a POSIX filesystem, so a Lambda function can run `ripgrep` directly over the
+documents. That one fact removes the entire indexing half of a normal RAG stack:
 
 ```text
-PDF → page-preserving text in S3 → S3 Files mount → ripgrep → dynamic passages → lexical scoring → LLM reranking → answer
+PDF → page-marked text in S3 → S3 Files mount → ripgrep → passages → lexical ranking → LLM answer
 ```
+
+Upload a PDF, ask it a question. That is the whole app.
 
 ## Project layout
 
 ```text
-template.yaml                 SAM/CloudFormation infrastructure
-src/handlers/api              HTTP business handlers
-src/handlers/s3-events        S3 event business handlers
-src/services/llm              the single LangChain provider/model service
-src/services/storage          abstract storage contract and S3 implementation
-src/services/text             PDF extraction, ripgrep, and passage creation
-src/utils/core-utils.ts       shared helpers grouped in one file
-src/constants                 shared configuration constants
-frontend                      static HTML/CSS/JS demo UI (no framework, no build step)
+template.yaml            SAM/CloudFormation infrastructure
+frontend/                static HTML, CSS, and ES modules — no framework, no build step
+
+src/
+  config.ts              every environment variable, read in one place
+  types.ts               domain types
+  user-id.ts             the browser-minted UUID that namespaces each visitor
+  handlers/              Lambda entry points, thin: parse, delegate, respond
+  http/                  request parsing and JSON responses
+  storage/               S3 keys, the S3 client, and the S3 Files mount
+  documents/             upload, listing, and PDF text extraction
+  retrieval/             the ripgrep pipeline
+  llm/                   the single LangChain provider/model service
 ```
 
-Every handler, service, and utility is represented by a class. Lambda entry points in `src/handlers/index.ts` create the handlers and delegate to their `handle` method.
+The interesting directory is `retrieval/`, split by responsibility:
+
+| File                    | Responsibility                                                         |
+| ----------------------- | ---------------------------------------------------------------------- |
+| `ripgrep-search.ts`     | builds the search expression, runs `rg`, returns matching line numbers |
+| `passage-builder.ts`    | groups nearby matches, pads them with context, merges overlaps         |
+| `passage-scorer.ts`     | ranks passages by term weight, coverage, and match proximity           |
+| `document-retriever.ts` | orchestrates the three, with one broader retry                         |
 
 ## Sessions
 
-There is no Cognito, no email, and no login. The browser mints a UUID on first load with `crypto.randomUUID()`, keeps it in `localStorage`, and sends it as the `x-user-id` header on every HTTP call and as `?userId=` on the WebSocket connect. The backend validates it as a UUID and uses it as an S3 key segment, so every user's documents and jobs live under their own prefix:
+No Cognito, no email, no login. The browser generates a UUID on first load, keeps it in `localStorage`, and
+sends it as `x-user-id`. The backend validates it and uses it as an S3 key segment, so each visitor gets their
+own namespace:
 
 ```text
 documents/<userId>/<documentId>/original.pdf
@@ -36,34 +52,45 @@ llm-requests/<userId>/<jobId>.json
 llm-responses/<userId>/<jobId>.json
 ```
 
-Opening the app on another machine produces a new UUID and therefore an empty library. Clearing site data has the same effect, and the header's **new** button mints a fresh id on demand. This id is a namespace, not an authentication claim: the API is unauthenticated, so anyone who knows an id can read that namespace. Do not put real data in a deployment of this demo.
+Opening the app elsewhere gives you a new UUID and an empty library. This is a namespace, not authentication:
+the API is unauthenticated, so anyone with an id can read that namespace. Do not put real data in this demo.
+
+## How a question flows
+
+1. `POST /documents/upload-url` returns a presigned URL; the browser PUTs the PDF straight to S3.
+2. `POST /documents/process` writes a marker object. EventBridge invokes the PDF processor, which reads the
+   PDF through the mount and writes page-marked text beside it.
+3. The UI polls `GET /documents` until the text object exists.
+4. `POST /questions` expands the question into search terms, runs ripgrep over the mounted text, ranks the
+   passages, and writes a request object.
+5. The request object triggers the worker, which asks the model to answer from those passages and writes the
+   answer. The UI polls `GET /questions/{jobId}` until it lands.
+
+Only `llm-requests/` triggers the worker, so writing the answer cannot recurse.
+
+## Design notes
+
+- Passages are line ranges built for one question and never persisted — there is nothing to keep in sync.
+- Query terms are escaped before becoming a ripgrep PCRE2 alternation.
+- Document and job status are derived from which S3 objects exist. There is no database anywhere.
+- The ripgrep Lambda layer is optional; without it the search falls back to the runtime's `grep`.
+- Text extraction prefixes each page with a form feed, because `pdf-parse` joins pages with `\n\n`, which also
+  occurs inside a page and so cannot mark a boundary.
+- Stateless helpers are plain functions; classes are used where there is state or collaborators to inject.
 
 ## Prerequisites
 
-- AWS SAM CLI
-- Node.js 22+
-- Python 3 (only to serve the static frontend locally)
-- `rg` installed locally if you want to run the retrieval command directly (`brew install ripgrep` on macOS)
-- An AWS account and region with the S3 Files CloudFormation resource types available
+- AWS SAM CLI, Node.js 22+, an AWS account in a region with the S3 Files resource types
+- Python 3 only to serve the frontend locally
+- `rg` locally if you want to run the retrieval command by hand (`brew install ripgrep`)
 
 ## Local checks
 
 ```bash
-npm install
-npm run lint
-npm run typecheck
-npm run build
+npm install && npm run lint && npm run typecheck && npm run build
 ```
 
-The frontend has no build step, no `package.json`, and no `node_modules`. It is plain ES modules plus `axios` from a CDN `<script>` tag.
-
-The LLM service uses LangChain integrations for OpenAI, Anthropic, or Amazon Bedrock. Provider and model are passed into `LlmService` at construction time.
-
-## Deploy the backend
-
-The SAM template provisions the two private S3 buckets, a VPC, two private subnets, an S3 gateway endpoint, an S3 Files file system/access point/mount targets, an unauthenticated HTTP API, presigned-upload IAM permissions, Lambda functions, and S3 event filters. It intentionally provisions no Cognito, NAT Gateway, interface VPC endpoint, DynamoDB, OpenSearch, or vector store.
-
-The retrieval Lambda needs a Lambda layer containing the `rg` executable because ripgrep is not part of the managed Node.js runtime. Supply it at deploy time:
+## Deploy
 
 ```bash
 sam build
@@ -71,28 +98,15 @@ sam deploy --guided \
   --parameter-overrides \
   LLMProvider=bedrock \
   LLMModel=amazon.nova-lite-v1:0 \
-  RipgrepLayerArn=arn:aws:lambda:REGION:ACCOUNT:layer:rg:VERSION \
   FrontendOrigin=http://localhost:5173
 ```
 
-For an external provider, create a Secrets Manager secret with this shape:
+For OpenAI or Anthropic, store `{"apiKey":"..."}` in Secrets Manager and pass `LLMSecretArn` plus the
+provider and model. Bedrock needs no secret; the template grants the worker `bedrock:InvokeModel` for the
+configured foundation model.
 
-```json
-{ "apiKey": "your-provider-key" }
-```
-
-Then pass its ARN and provider/model:
-
-```bash
-sam deploy \
-  --parameter-overrides \
-  LLMProvider=openai \
-  LLMModel=gpt-4o-mini \
-  LLMSecretArn=arn:aws:secretsmanager:REGION:ACCOUNT:secret:NAME \
-  RipgrepLayerArn=arn:aws:lambda:REGION:ACCOUNT:layer:rg:VERSION
-```
-
-Bedrock does not need `LLMSecretArn`; the template grants the LLM Lambda invocation permission for the configured foundation model ARN.
+`RipgrepLayerArn` is optional — supply a layer containing the `rg` binary to use real ripgrep instead of the
+`grep` fallback.
 
 ## Run the UI
 
@@ -100,30 +114,10 @@ Bedrock does not need `LLMSecretArn`; the template grants the LLM Lambda invocat
 cp frontend/config.example.js frontend/config.js
 ```
 
-Fill `frontend/config.js` with the `ApiUrl` stack output, then serve the folder:
+Put the `ApiUrl` stack output in `frontend/config.js`, then:
 
 ```bash
 npm run frontend:dev
 ```
 
-That serves `frontend/` on <http://localhost:5173>, which matches the default `FrontendOrigin`. Any static server works; the origin just has to match what the stack allows.
-
-The UI requests a short-lived presigned S3 PUT URL from `POST /documents/upload-url`, uploads the PDF directly to `documents/<userId>/<documentId>/original.pdf`, and calls `POST /documents/process` with that key. The backend verifies the object and writes a processing marker under `processing/`; S3 EventBridge invokes the PDF processor for that marker. The processor reads the source through the mounted S3 Files access point and writes extracted text back to the same S3 bucket through its scoped S3 API permission; the documents and questions APIs read through the mount. After upload, the UI polls `GET /documents` until the extracted text object exists, showing `PROCESSING` and then `READY`. Asking a question writes an LLM request object; the response is written under `llm-responses/`. Only `llm-requests/` triggers the LLM Lambda, so response writes cannot recurse. The UI polls `GET /questions/{jobId}` until the response object appears.
-
-## Design notes
-
-- Retrieval chunks are ranges created for one question and are never persisted.
-- Query terms are escaped before they become a ripgrep PCRE2 OR expression.
-- If the precise expansion returns no matches, one broader query-expansion attempt is made.
-- Document and job status are derived from S3 object existence/listing; there is no database.
-- The S3 Files access point is mounted at `/mnt/documents` on the documents API, retrieval API, and PDF processor; document-bucket access is filesystem-based throughout the backend.
-- Document and job progress reach the browser by polling `GET /documents` and `GET /questions/{jobId}`; the response object's existence is the completion signal.
-
-## Serverless Design Decisions
-
-- S3 Files + VPC-mounted document APIs and processor -> keeps all backend document access file-oriented while keeping source text in S3.
-- S3 gateway endpoint -> lets the VPC Lambda write/read S3 without a NAT Gateway.
-- S3 EventBridge routing -> separates PDF processing from LLM jobs and avoids a bucket/filesystem deployment dependency cycle.
-- S3 objects as request/response state -> removes the need for a retrieval database while preserving an inspectable async workflow.
-- Browser-minted UUID instead of Cognito -> gives per-user isolation of stored files with no identity provider, no sign-in, and no recovery.
-- On-demand, database-free design -> keeps the demo intentionally small and cost-aware.
+That serves `frontend/` on <http://localhost:5173>, matching the default `FrontendOrigin`.
