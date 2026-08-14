@@ -1,0 +1,1031 @@
+[0:00] Hello everyone, I'm Lee and welcome back
+[0:03] to our SAPC02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder, if
+[0:12] these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via Super. Thanks. It's never expected,
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 111. A company runs
+[0:28] an application on a fleet of Amazon EC2
+[0:30] instances that are in private subnets
+[0:32] behind an internet-facing application
+[0:34] load balancer ALB. The ALB is the origin
+[0:38] for an Amazon CloudFront distribution.
+[0:40] An AWS WAF web ACL that contains various
+[0:44] AWS managed rules is associated with the
+[0:47] CloudFront distribution. The company
+[0:49] needs a solution that will prevent
+[0:51] internet traffic from directly accessing
+[0:53] the ALB. Which solution will meet these
+[0:56] requirements with the least operational
+[0:58] requirements with the least operational overhead?
+[1:00] Create a new web ACL that contains the
+[1:02] same rules that the existing web ACL
+[1:04] contains. Associate the new web ACL with
+[1:07] the ALB. B. Associate the existing web
+[1:11] ACL with the ALB. C. Add a security
+[1:15] group rule to the ALB to allow traffic
+[1:17] from the AWS managed prefix list for
+[1:20] CloudFront only. D. Add a security group
+[1:23] rule to the ALB to allow only the
+[1:25] various CloudFront IP address ranges.
+[1:28] This question tests your knowledge of
+[1:29] security domain one and content delivery
+[1:33] network CDN architecture. The security
+[1:36] objective is origin access restriction.
+[1:40] You want to ensure that users cannot
+[1:42] bypass your security perimeter
+[1:44] CloudFront plus WAF by sending HTTP
+[1:47] requests directly to the load balancer's
+[1:49] public IP address. To solve this with
+[1:52] least operational overhead, we need a
+[1:55] dynamic mechanism that updates
+[1:56] automatically when AWS changes its
+[2:00] underlying infrastructure IP ranges.
+[2:03] Option C, add a security group rule
+[2:05] using the managed prefix list is the
+[2:08] correct answer. This is the standard
+[2:10] lowmaintenance best practice for
+[2:12] restricting ALB access to CloudFront.
+[2:14] Managed prefix list. AWS maintains a
+[2:18] managed list PLXX
+[2:21] that contains all the current IP address
+[2:23] ranges used by CloudFront's global edge
+[2:25] servers. Operational efficiency. You
+[2:28] simply add one inbound rule to your ALB
+[2:31] security group. Type https
+[2:35] source com. Aazon
+[2:37] source com. Aazon AWS.global.cloudfront.orgfacing.
+[2:41] AWS automatically keeps this list up to
+[2:44] date. If CloudFront adds new servers or
+[2:47] IP ranges, your security group rule
+[2:49] automatically accepts them without you
+[2:51] lifting a finger. Option D, add security
+[2:54] group rule for CloudFront IP ranges is
+[2:57] incorrect. This is the manual version of
+[2:59] option C and fails the least operational
+[3:02] overhead test. High maintenance.
+[3:05] CloudFront uses thousands of IP
+[3:07] addresses that change frequently. To
+[3:09] implement this manually, you would have
+[3:11] to subscribe to the AWS IP address SNS
+[3:14] topic, write a lambda function to parse
+[3:16] the JSON file, and constantly update
+[3:18] your security group with hundreds of
+[3:20] individual IP sitter blocks. Using the
+[3:22] managed prefix list, option C, automates
+[3:25] all of this complexity. Option A, create
+[3:28] a new web ACL for the ALB is incorrect.
+[3:32] Redundancy. This duplicates costs and
+[3:35] management. you would pay for WAF
+[3:37] processing twice, once at CloudFront,
+[3:40] once at the ALB does not solve the root
+[3:43] cause. Adding WAF to the ALB filters
+[3:46] malicious traffic, but it does not
+[3:48] prevent direct access. A knowledgeable
+[3:51] attacker could still hit the ALB
+[3:53] directly, bypassing the specific
+[3:55] geographic or caching logic you might
+[3:57] have configured at the CloudFront layer.
+[3:59] Option B, associate the existing web ACL
+[4:02] with the ALB is incorrect. Scope
+[4:05] mismatch. An AWSWAF
+[4:08] web ACL is a regional or global
+[4:10] resource. A web ACL created for
+[4:13] CloudFront global scope cannot be
+[4:16] associated with an application load
+[4:18] balancer. Regional scope you would have
+[4:20] to recreate the ACL as a regional
+[4:22] resource as suggested in option A which
+[4:26] brings us back to the redundancy and
+[4:27] cost issues mentioned above.
+[4:29] Furthermore, like option A, this filters
+[4:32] traffic but does not restrict network
+[4:34] access to only CloudFront. Therefore,
+[4:37] the correct solution is C. Question 112.
+[4:41] A company has a new application that
+[4:43] needs to run on five Amazon EC2
+[4:45] instances in a single AWS region. The
+[4:48] application requires high throughput,
+[4:50] low latency network connections between
+[4:52] all of the EC2 instances where the
+[4:55] application will run. There is no
+[4:57] requirement for the application to be
+[4:58] fault tolerant. Which solution will meet
+[5:01] these requirements?
+[5:04] Launch five new EC2 instances into a
+[5:06] cluster placement group. Ensure that the
+[5:09] EC2 instance type supports enhanced
+[5:11] networking. B. Launch five new EC2
+[5:15] instances into an autoscaling group in
+[5:18] the same availability zone. Attach an
+[5:20] extra elastic network interface to each
+[5:22] EC2 instance. C.
+[5:25] Launch five new EC2 instances into a
+[5:28] partition placement group. Ensure that
+[5:30] the EC2 instance type supports enhanced
+[5:33] networking. D. Launch five new EC2
+[5:37] instances into a spread placement group.
+[5:39] Attach an extra elastic network
+[5:41] interface to each EC2 instance. This
+[5:44] question tests your knowledge of compute
+[5:46] performance. Domain 2, specifically
+[5:49] regarding EC2 placement groups and
+[5:52] network optimization strategies. The key
+[5:54] requirements are high throughput, low
+[5:57] latency network connections between all
+[5:59] instances. This implies the instances
+[6:02] need to be physically close to each
+[6:03] other to minimize network hops. No
+[6:06] requirement for fault tolerant. This
+[6:08] suggests we can sacrifice availability
+[6:11] spreading across racks/az
+[6:13] for raw speed. To solve this, we need to
+[6:16] choose the placement group strategy
+[6:18] designed for tightly coupled HPC high
+[6:21] performance computing workloads. Option
+[6:23] A, launch into a cluster placement group
+[6:26] is the correct answer. Cluster placement
+[6:28] groups are specifically designed for
+[6:30] applications that require low network
+[6:33] latency and high network throughput.
+[6:35] Physical locality. This strategy packs
+[6:38] instances close together inside a single
+[6:40] availability zone, often within the same
+[6:43] rack or adjacent racks. This physical
+[6:45] proximity ensures the absolute lowest
+[6:47] latency, typically less than 100 micros,
+[6:51] and the highest bisection bandwidth
+[6:53] between instances. Enhanced networking.
+[6:56] Ensuring the instance type supports
+[6:58] enhanced networking, ENA or Intel
+[7:00] enhanced networking, ENA or Intel 82599VF
+[7:03] is crucial to leverage the 10GBs plus
+[7:05] speeds that the placement group enables.
+[7:08] Trade-off. The downside is reduced fault
+[7:10] tolerance. If the rack fails, all
+[7:13] instances fail, but the prompt
+[7:15] explicitly states no requirement to be
+[7:17] fault tolerant, making this the perfect
+[7:19] fit. Option C, partition placement group
+[7:22] is incorrect. Partition placement groups
+[7:24] are designed for distributed big data
+[7:26] workloads like HDFS,
+[7:29] HB, Cassandra. They spread instances
+[7:32] across logical partitions, different
+[7:35] racks to ensure that a hardware failure
+[7:37] in one partition doesn't affect the
+[7:39] others. While this offers better
+[7:41] throughput than a standard spread, it
+[7:43] prioritizes isolation over the raw
+[7:46] lowest latency possible goal of a
+[7:48] cluster group. Option D, spread
+[7:50] placement group is incorrect. Spread
+[7:52] placement groups are designed for high
+[7:54] availability and fault tolerance. They
+[7:57] strictly place each instance on distinct
+[7:59] hardware racks. This maximizes distance
+[8:02] between instances to reduce correlated
+[8:04] failures, which inherently increases
+[8:07] network latency. This is the exact
+[8:09] opposite of what the low latency
+[8:11] requirement demands. Option B,
+[8:14] autoscaling group with extra ENI is
+[8:16] incorrect. ASG. Simply putting instances
+[8:20] in an ASG in one A doesn't guarantee
+[8:22] they are packed tightly enough for HPC
+[8:24] level latency. They could be on opposite
+[8:27] ends of a massive data center hall.
+[8:29] Extra ENI. Attaching a second elastic
+[8:32] network interface ENI does not increase
+[8:36] bandwidth. The bandwidth limit is
+[8:38] determined by the EC2 instance
+[8:40] determined by the EC2 instance size/type,
+[8:41] not the number of ENIs attached. A
+[8:44] single interface with enhanced
+[8:45] networking is sufficient and superior.
+[8:48] Therefore, the correct solution is a
+[8:51] question 113. An online gaming company
+[8:54] needs to optimize the cost of its
+[8:56] workloads on AWS. The company uses a
+[9:00] dedicated account to host the production
+[9:01] environment for its online gaming
+[9:03] application and an analytics
+[9:05] application. Amazon EC2 instances host
+[9:08] the gaming application and must always
+[9:10] be available. The EC2 instances run all
+[9:13] year. The analytics application uses
+[9:16] data that is stored in Amazon S3. The
+[9:19] analytics application can be interrupted
+[9:21] and resumed without issue. Which
+[9:24] solution will meet these requirements
+[9:26] most cost effectively? A purchase an EC2
+[9:30] instance savings plan for the online
+[9:32] gaming application instances. Use
+[9:34] ondemand instances for the analytics
+[9:37] application. B. Purchase an EC2 instance
+[9:41] savings plan for the online gaming
+[9:43] application instances. Use spot
+[9:45] instances for the analytics application.
+[9:48] C. Use spot instances for the online
+[9:51] gaming application and the analytics
+[9:53] application. Set up a catalog in AWS
+[9:56] service catalog to provision services at
+[9:59] a discount. D. Use on demand instances
+[10:03] for the online gaming application. Use
+[10:05] spot instances for the analytics
+[10:08] application. Set up a catalog in AWS
+[10:11] service catalog to provision services at
+[10:13] a discount. This question tests your
+[10:15] knowledge of cost optimization. Domain
+[10:18] 3, specifically matching compute
+[10:20] purchasing options to workload
+[10:22] characteristics. The key is to separate
+[10:24] the workloads based on their stability
+[10:27] requirements. Gaming app always
+[10:29] available runs all year. This is a
+[10:32] steadystate critical workload. Analytics
+[10:35] app can be interrupted and resumed. This
+[10:39] is a fault tolerant flexible workload.
+[10:42] To solve this, we need to find the
+[10:44] cheapest option for steadystate savings
+[10:46] plan/reserved instances and the cheapest
+[10:49] option for interruptible work spot
+[10:52] instances. Option B, purchase EC2
+[10:54] instance savings plan and use spot
+[10:56] instances is the correct answer. This
+[10:59] combination optimizes both workloads
+[11:02] perfectly. Gaming application savings
+[11:04] plan since the gaming servers run all
+[11:06] year and must always be available. A
+[11:09] savings plan or reserved instance is the
+[11:12] best choice. It offers significant
+[11:14] discounts up to 72% compared to ondemand
+[11:18] pricing in exchange for a one-year or
+[11:20] three-year commitment. It guarantees
+[11:22] capacity indirectly via commitment and
+[11:25] avoids the risk of interruption.
+[11:27] Analytics application spot instances
+[11:30] since the analytics jobs can be
+[11:32] interrupted and resumed. They are the
+[11:34] perfect candidate for Amazon EC2 spot
+[11:37] instances. Spot instances utilize and
+[11:40] used EC2 capacity for up to 90% off the
+[11:43] on- demand price. If AWS reclaims the
+[11:46] instance, the application simply pauses
+[11:48] and resumes later on a new instance,
+[11:51] achieving the absolute lowest possible
+[11:53] cost. Option A, use ondemand instances
+[11:56] for analytics is incorrect. While the
+[11:59] savings plan part is correct for the
+[12:01] gaming app, using ondemand instances for
+[12:03] the analytics app is wasteful. Since the
+[12:06] analytics workload is flexible and
+[12:07] interruptible, paying full price on
+[12:10] demand leaves money on the table. Spot
+[12:13] instances are significantly cheaper.
+[12:15] Option C, use spot instances for
+[12:18] everything is incorrect. You cannot use
+[12:20] spot instances for the gaming
+[12:22] application because the requirement
+[12:23] states it must always be available. Spot
+[12:27] instances can be terminated by AWS with
+[12:30] a 2-minute warning. If your live game
+[12:32] servers are terminated mid-match, it
+[12:34] causes a service outage and poor user
+[12:36] experience, violating the availability
+[12:39] requirement. Option D. Use on demand
+[12:41] instances for gaming is incorrect. Using
+[12:45] ondemand instances for a workload that
+[12:47] runs all year is the most expensive way
+[12:50] to pay for compute. you are missing out
+[12:52] on the massive discounts, eg 50-70%.
+[12:56] Available through savings plans or
+[12:58] reserved instances for steadystate
+[12:59] usage. Therefore, the correct solution
+[13:02] is B. Question 114. A company runs a
+[13:06] software as a service SAS application on
+[13:10] AWS. The application consists of AWS
+[13:13] Lambda functions and an Amazon RDS for
+[13:16] MySQL multi-AZ database. During market
+[13:19] events, the application has a much
+[13:21] higher workload than normal. Users
+[13:23] notice slow response times during the
+[13:26] peak periods because of many database
+[13:28] connections. The company needs to
+[13:30] improve the scalable performance and
+[13:32] availability of the database. Which
+[13:34] solution meets these requirements?
+[13:38] Create an Amazon Cloudatch alarm action
+[13:40] that triggers a Lambda function to add
+[13:42] an Amazon RDS for MySQL read replica
+[13:45] when resource 10 utilization hits a
+[13:47] threshold. B. Migrate the database to
+[13:50] Amazon Aurora and add a read replica.
+[13:53] Add a database connection pool outside
+[13:55] of the Lambda handler function. C.
+[13:58] Migrate the database to Amazon Aurora
+[14:01] and add a read replica. Use Amazon Route
+[14:04] 53 weighted records. D. Migrate the
+[14:08] database to Amazon Aurora and add an
+[14:10] Aurora replica. Configure Amazon RDS
+[14:13] proxy to manage database connection
+[14:16] pools. This question tests your
+[14:18] knowledge of database scalability domain
+[14:20] 2 and application integration domain
+[14:23] three specifically focusing on the
+[14:25] connection storm anti-attern in
+[14:27] serverless architectures. The core issue
+[14:29] is that AWS Lambda scales very quickly
+[14:33] spawning hundreds or thousands of
+[14:35] concurrent executions. But relational
+[14:37] databases like MySQL are not designed to
+[14:40] handle thousands of concurrent open
+[14:42] connections. Each connection consumes
+[14:44] database memory eventually causing it to
+[14:47] slow down or crash. To solve this, we
+[14:50] need a mechanism to decouple the massive
+[14:52] number of Lambda connections from the
+[14:54] limited number of database connections.
+[14:56] Option D, migrate to Aurora and use RDS
+[14:59] proxy is the correct answer. This
+[15:02] solution addresses both the scalability
+[15:04] and connection management issues. Amazon
+[15:07] Aurora Aurora provides superior
+[15:10] performance and availability compared to
+[15:12] standard RDS MySQL. It features
+[15:15] autoscaling storage and low latency
+[15:17] replication Aurora replicas which
+[15:20] improves the read scalability. Amazon
+[15:22] RDS proxy. This is the critical
+[15:25] component. RDS proxy sits between your
+[15:28] Lambda functions and the database. It
+[15:31] maintains a pool of established
+[15:33] connections to the database. When
+[15:35] thousands of lambdas wake up, they talk
+[15:37] to the proxy which efficiently reuses
+[15:40] the small pool of underlying DB
+[15:42] connections. This prevents the many
+[15:44] database connections issue from
+[15:46] overwhelming the database, ensuring
+[15:48] consistent performance during traffic
+[15:50] spikes. Option A, trigger lambda to add
+[15:53] read replicas is incorrect. Latency
+[15:57] creating a new RDS red replica is a slow
+[16:00] operation. minutes cannot react fast
+[16:03] enough to a sudden market event spike.
+[16:06] Connection limit. Adding replicas helps
+[16:08] with read throughput. But if the root
+[16:10] cause is connection exhaustion on the
+[16:12] primary writer or even on replicas,
+[16:15] simply adding more replicas doesn't
+[16:16] solve the fundamental mismatch between
+[16:18] Lambda concurrency and DB connection
+[16:20] limits. Option B, add a connection pool
+[16:23] outside the Lambda handler is incorrect.
+[16:26] Technical limitation. While defining
+[16:28] variables outside the handler, global
+[16:31] scope allows container reuse in Lambda,
+[16:34] it does not create a true shared
+[16:36] connection pool across different Lambda
+[16:38] instances. If you have 1,000 concurrent
+[16:40] Lambda executions, you will still have
+[16:43] 1,000 open database connections because
+[16:45] each isolated Lambda container opens its
+[16:47] own connection. You need an external
+[16:50] component like RDS proxy to pull
+[16:53] connections across different compute
+[16:54] instances. Option C, use route 53
+[16:57] weighted records is incorrect.
+[17:00] weighted records is incorrect. Mislication.
+[17:01] Route 53 weighted records are used for
+[17:04] traffic distribution between regions or
+[17:06] distinct resources. They are not a
+[17:09] database connection pooling mechanism.
+[17:11] Splitting DNS traffic doesn't stop
+[17:13] Lambda from opening too many connections
+[17:15] to the backend database endpoints.
+[17:18] Therefore, the correct solution is D.
+[17:20] Question 115. A company uses an AWS code
+[17:25] commit repository. The company must
+[17:27] store a backup copy of the data that is
+[17:30] in the repository in a second AWS
+[17:32] region. Which solution will meet these
+[17:35] requirements? A. Configure AWS elastic
+[17:39] disaster recovery to replicate the code
+[17:41] commit repository data to the second
+[17:43] region. B. Use AWS backup to backup the
+[17:47] code commit repository on an hourly
+[17:49] schedule. Create a cross region copy in
+[17:52] the second region. C. Create an Amazon
+[17:55] event bridge rule to invoke AWS code
+[17:58] build when the company pushes code to
+[18:00] the repository. Use code build to clone
+[18:02] the repository. Create a dotzip file of
+[18:05] the content. Copy the file to an S3
+[18:08] bucket in the second region. D. Create
+[18:12] an AWS Step Functions workflow on an
+[18:14] hourly schedule to take a snapshot of
+[18:16] the code commit repository. Configure
+[18:18] the workflow to copy the snapshot to an
+[18:21] S3 bucket in the second region. This
+[18:23] question tests your knowledge of
+[18:25] developer tools and disaster recovery
+[18:27] domain 4. The specific challenge is that
+[18:30] AWS code commit does not have a native
+[18:33] built-in cross region replication button
+[18:36] like S3 or Dynamob. You have to build a
+[18:40] custom automation pipeline to achieve
+[18:42] this. To solve this, we need an
+[18:44] event-driven mechanism that detects
+[18:46] changes in the source repository and
+[18:48] copies them to the destination. Option
+[18:51] C, use event bridge and code build to
+[18:53] copy data to S3 is the correct answer.
+[18:56] This is a standard automated pattern for
+[18:59] backing up Git repositories to another
+[19:01] region. The trigger Amazon event bridge
+[19:04] monitors code commit for specific
+[19:06] events. You can configure a rule that
+[19:08] fires whenever a reference created or
+[19:11] reference updated event occurs meaning
+[19:13] someone pushed code. The action the rule
+[19:16] triggers an AWS code build project. The
+[19:19] logic the code build script runs git
+[19:21] commands to clone the repository
+[19:24] packages it into an archive like a.zip
+[19:27] and uses the AWS CLI to CP copy that
+[19:31] file to an Amazon S3 bucket in the
+[19:33] second region. This ensures that every
+[19:35] code change is automatically and
+[19:37] immediately backed up offsite. Option A,
+[19:40] configure AWS elastic disaster recovery
+[19:44] is incorrect. AWS elastic disaster
+[19:47] recovery DRS is a block level
+[19:50] replication service designed for
+[19:51] servers, EC2 instances or onremise VMs.
+[19:56] It replicates the entire operating
+[19:58] system and disk volumes. It cannot
+[20:00] connect to a managed service like code
+[20:02] commit to replicate just the git data.
+[20:04] Option B, use AWS backup is incorrect.
+[20:08] As of the current feature set, AWS
+[20:11] backup support services like EBS, RDS,
+[20:15] Dynamob, EFS, and S3. It does not
+[20:18] natively support AWS code commit
+[20:21] repositories. You cannot select a code
+[20:23] commit repo as a resource in an AWS
+[20:26] backup plan. Option D, create an AWS
+[20:30] Step Functions workflow on an hourly
+[20:32] schedule is incorrect. While you could
+[20:34] technically orchestrate this with Step
+[20:36] Functions, this solution is suboptimal
+[20:39] compared to option C for two reasons.
+[20:41] RPO recovery point objective, this is a
+[20:44] schedule-based approach. Hourly, if
+[20:46] developers push code at 10:05 p.m. and
+[20:49] the region fails at 1:55 p.m., you lose
+[20:52] 50 minutes of work. Option C is
+[20:54] event-driven, meaning the backup happens
+[20:57] immediately after the push, offering a
+[20:59] near zero RPO. Complexity. Step
+[21:03] Functions is a state machine
+[21:04] orchestrator. While it can call AWS
+[21:06] APIs, it doesn't have a native runtime
+[21:09] environment to run git clone or zip
+[21:11] commands easily without invoking a
+[21:12] lambda or code build task. Anyway, code
+[21:15] build option C is the specialized
+[21:18] compute environment for build/scripting
+[21:20] tasks. Therefore, the correct solution
+[21:23] is C. Question 116. A company has an
+[21:27] application that is deployed on Amazon
+[21:29] EC2 instances behind an application load
+[21:32] balancer ALB. The instances are part of
+[21:35] an autoscaling group. The application
+[21:38] has unpredictable workloads and
+[21:40] frequently scales out and in. The
+[21:42] company's development team wants to
+[21:44] analyze application logs to find ways to
+[21:46] improve the application's performance.
+[21:49] However, the logs are no longer
+[21:51] available after instances scale in.
+[21:53] Which solution will give the development
+[21:55] team the ability to view the application
+[21:57] logs after a scale-in event? A. Enable
+[22:01] access logs for the ALB. Store the logs
+[22:04] in an Amazon S3 bucket. B. Configure the
+[22:08] EC2 instances to publish logs to Amazon
+[22:11] Cloudatch logs by using the unified
+[22:13] Cloudatch agent. C. Modify the
+[22:16] autoscaling group to use a step scaling
+[22:19] policy. D. Instrument the application
+[22:22] with AWS X-ray tracing. This question
+[22:25] tests your knowledge of monitoring and
+[22:27] logging domain one specifically
+[22:30] addressing the challenge of ephemeral
+[22:32] storage in dynamic cloud environments.
+[22:34] The core problem is that standard EC2
+[22:36] instance storage EBS root volume or
+[22:39] instance store is tied to the life cycle
+[22:42] of the instance. When an autoscaling
+[22:44] group scales in, it terminates the
+[22:47] instance and deletes the associated
+[22:48] volumes. If your logs are only stored
+[22:51] locally on the disk/var/log/applog,
+[22:55] they are destroyed along with the
+[22:57] server. To solve this, we need a
+[22:59] strategy to decouple log storage from
+[23:01] the instance life cycle by streaming the
+[23:03] data to a centralized durable storage
+[23:05] service. Option B, configure the unified
+[23:08] cloud 5TCH agent is the correct answer.
+[23:12] This is the standard architectural
+[23:14] pattern for logging in AWS. The
+[23:16] mechanism you install the unified
+[23:19] cloudatch agent on your EC2 AMI or via
+[23:22] user data. This agent runs in the
+[23:25] background and tails your application
+[23:26] log files in real time. The persistence
+[23:30] as new log lines are written to the
+[23:32] disk. The agent immediately pushes them
+[23:34] to Amazon Cloudatch logs. The result,
+[23:37] even if the autoscaling group terminates
+[23:39] the instance a second later, the logs
+[23:42] have already been offloaded to
+[23:43] Cloudatch. The development team can
+[23:46] query and analyze these logs
+[23:48] indefinitely regardless of whether the
+[23:50] original server still exists. Option A,
+[23:53] enable ALB access logs is incorrect.
+[23:56] There is a critical distinction between
+[23:58] application logs and access logs. Access
+[24:01] logs, these are generated by the load
+[24:04] balancer itself. They capture metadata
+[24:06] about the request eg client IP1.2.3.4
+[24:11] requested URL/index
+[24:14] html and got a 200. Okay. Application
+[24:18] logs. The prompt asks for application
+[24:21] logs. These are the internal logs
+[24:23] generated by your code. Eg stack traces,
+[24:28] error messages, variable dumps to debug
+[24:31] logic. The ALB cannot see inside your
+[24:34] application logic. So ALB logs will not
+[24:37] help developers find internal
+[24:38] performance bugs or application errors.
+[24:41] Option C, modify the scaling policy, is
+[24:44] incorrect. Changing the scaling policy,
+[24:46] eg from target tracking to step scaling
+[24:50] affects when and how fast instances are
+[24:52] added or removed. It does not change the
+[24:54] fact that when an instance is eventually
+[24:57] removed, its disk is deleted. This
+[25:00] option attempts to tune the scaling
+[25:02] behavior rather than solving the data
+[25:04] persistence problem. Option D,
+[25:06] instrument with AWS X-ray is incorrect.
+[25:09] AWS X-ray is a powerful tool for
+[25:12] distributed tracing and performance
+[25:14] visualization, seeing which component is
+[25:17] slow. However, it is not a
+[25:19] generalpurpose logging solution. Tracing
+[25:22] versus logging. X-ray captures traces
+[25:25] timing data and metadata for a sampled
+[25:28] percentage of requests. It does not
+[25:30] ingest the raw text log files required
+[25:33] for deep application debugging. While
+[25:35] useful, it does not fulfill the specific
+[25:38] requirement to view the application
+[25:40] logs. Therefore, the correct solution is
+[25:42] B. Question 117. A solutions architect
+[25:47] works for a government agency that has
+[25:49] strict disaster recovery requirements.
+[25:52] All Amazon Elastic Block Store, Amazon
+[25:55] EBS snapshots are required to be saved
+[25:58] in at least two additional AWS regions.
+[26:01] The agency also is required to maintain
+[26:04] the lowest possible operational
+[26:05] overhead. Which solution meets these
+[26:08] requirements? A. Configure a policy in
+[26:11] Amazon Data Life Cycle Manager, Amazon
+[26:14] DM to run once daily to copy the EBS
+[26:17] snapshots to the additional regions. B.
+[26:20] Use Amazon Event Bridge to schedule an
+[26:22] AWS Lambda function to copy the EBS
+[26:25] snapshots to the additional regions. C.
+[26:28] Set up AWS backup to create the EBS
+[26:31] snapshots. Configure Amazon S3 cross
+[26:34] region replication to copy the EBS
+[26:36] snapshots to the additional regions. D.
+[26:39] Schedule Amazon EC2 image builder to run
+[26:42] once daily to create an AMI and copy the
+[26:44] AMI to the additional regions. This
+[26:46] question tests your knowledge of
+[26:48] disaster recovery, domain for and
+[26:50] automation, specifically focusing on the
+[26:53] most efficient way to manage EBS
+[26:55] snapshot life cycles across multiple
+[26:57] regions. The key constraints are
+[27:00] multi-reion redundancy. Snapshots must
+[27:02] exist in the source region plus two
+[27:04] additional regions, lowest operational
+[27:07] overhead, avoid custom scripting or
+[27:10] complex manual configurations. Option A,
+[27:13] configure a policy in Amazon Data Life
+[27:16] Cycle Manager. Amazon DM is the correct
+[27:19] answer. Amazon DM is the native tool
+[27:22] designed specifically to automate the
+[27:24] creation, retention, and deletion of EBS
+[27:27] snapshots. Multi-reion copy. A single DM
+[27:31] policy allows you to enable cross region
+[27:33] copy to up to three different
+[27:35] destination regions. You simply check
+[27:37] the boxes for the target regions in the
+[27:39] console. lowest overhead. It is a fully
+[27:43] managed serverless policy engine. You
+[27:46] define the schedule once, eg daily at
+[27:49] midnight. Select the target regions and
+[27:51] AWS handles the orchestration, retries
+[27:55] and encryption handling automatically.
+[27:57] No code is required. Option B, use
+[28:00] Amazon EventBridge and Lambda is
+[28:02] incorrect. This approach requires custom
+[28:05] scripting overhead. You would have to
+[28:07] write python/bodto3
+[28:09] code to call the copy snapshot API for
+[28:11] every snapshot and handle the logic for
+[28:13] two different regions. You would also
+[28:15] need to manage the lambda functions
+[28:17] permissions and monitor for execution
+[28:19] failures. This violates the lowest
+[28:22] operational overhead requirement
+[28:24] compared to the built-in functionality
+[28:26] of DM. Option C, setup AWS backup and
+[28:30] use S3 cross region replication is
+[28:33] incorrect. This option contains a
+[28:35] technical impossibility regarding S3
+[28:38] CRR. How EBS snapshots work? While EBS
+[28:42] snapshots are technically stored in
+[28:44] Amazon S3, they are stored in AWS
+[28:47] managed buckets that you cannot access
+[28:49] directly. You cannot see an EBS snapshot
+[28:51] in your S3 console and therefore you
+[28:54] cannot configure S3 cross region
+[28:56] replication CRR rules on them. You must
+[28:59] use the snapshot copy tools provided by
+[29:02] the EBS or AWS backup service, not S3
+[29:06] bucket level replication tools. Option
+[29:08] D, schedule Amazon EC2 image builder is
+[29:12] incorrect. EC2 image builder is a tool
+[29:15] for automating the creation of golden
+[29:17] AMIs bootable OS images with software
+[29:20] installed, not for routine data backups.
+[29:23] Inefficiency. running a daily image
+[29:26] builder pipeline involves launching a
+[29:28] temporary EC2 instance, running build
+[29:30] components, and cisprepping the OS. This
+[29:33] is extremely heavy, slow, and expensive
+[29:37] just to back up a data volume. It is the
+[29:39] wrong tool for simple disk snapshots.
+[29:42] Therefore, the correct solution is a
+[29:44] question 118. A company has an on-
+[29:48] premises data center and is using
+[29:49] Kubernetes to develop a new solution on
+[29:52] AWS. The company uses Amazon Elastic
+[29:55] Kubernetes Service, Amazon EKS clusters
+[29:59] for its development and test
+[30:00] environments. The EKS control plane and
+[30:03] data plane for production workloads must
+[30:06] reside on premises. The company needs an
+[30:08] AWS managed solution for Kubernetes
+[30:11] management. Which solution will meet
+[30:13] these requirements with the least
+[30:15] operational overhead? A. Install an AWS
+[30:19] Outpost server in the on- premises data
+[30:21] center. Deploy Amazon EKS by using a
+[30:25] local cluster configuration on the
+[30:26] outpost server for the production
+[30:28] workloads. B. Install Amazon EKS
+[30:32] Anywhere on the company's hardware in
+[30:34] the on- premises data center. Deploy the
+[30:36] production workloads on an EKS Anywhere
+[30:39] cluster. C. Install an AWS Outpost
+[30:43] server in the on- premises data center.
+[30:46] Deploy Amazon EKS by using an extended
+[30:49] cluster configuration on the outpost
+[30:51] server for the production workloads. D.
+[30:54] Install an AWS Outpost server in the on-
+[30:57] premises data center. Install Amazon EKS
+[31:00] anywhere on the outpost server. Deploy
+[31:03] the production workloads on an EKS
+[31:05] anywhere cluster. This question tests
+[31:07] your knowledge of hybrid cloud
+[31:09] architectures. Domain 2 specifically
+[31:12] regarding how to extend AWS managed
+[31:15] services like Amazon EKS to on- premises
+[31:18] environments. The critical requirements
+[31:20] are strict locality. Both the control
+[31:23] plane and data plane must reside on
+[31:25] premises likely for latency or
+[31:27] regulatory reasons. Managed solution.
+[31:31] The company wants an AWS managed
+[31:33] experience to minimize overhead. To
+[31:35] solve this, we need to distinguish
+[31:37] between running EKS on your own hardware
+[31:39] versus running it on AWS managed
+[31:41] hardware outposts and how the control
+[31:43] plane is handled in each scenario.
+[31:46] Option A, AWS outposts with local
+[31:49] cluster configuration is the correct
+[31:51] answer. This is the only solution that
+[31:53] meets the requirement for the control
+[31:55] plane to be on premises while
+[31:57] maintaining the AWS managed experience
+[31:59] with the least overhead. AWS outposts.
+[32:03] This brings actual AWS hardware and APIs
+[32:06] to your data center. It is fully managed
+[32:09] by AWS local clusters. EKS on outposts
+[32:14] offers a specific deployment mode called
+[32:16] local clusters. In this mode, the entire
+[32:20] Kubernetes control plane runs locally on
+[32:22] the outposts rack itself. This ensures
+[32:24] that even if the network link to the AWS
+[32:27] region is severed, the cluster remains
+[32:30] fully functional and manageable locally.
+[32:32] This satisfies the control plane must
+[32:35] reside on premises requirement. Option
+[32:38] B, Amazon EKS anywhere on company
+[32:40] hardware is incorrect. Amazon EKS
+[32:43] anywhere allows you to create clusters
+[32:45] on your own infrastructure VMware
+[32:48] vSphere bare metal operational overhead.
+[32:52] While it provides an EKS compatible DRO,
+[32:55] you are responsible for the underlying
+[32:57] hardware maintenance, OS patching and
+[33:00] hypervisor management. AWS Outposts
+[33:03] option A is a fully managed service
+[33:05] where AWS manages the hardware and the
+[33:08] virtualization layer offering
+[33:10] significantly lower operational overhead
+[33:12] for the customer. Option C, AWS outposts
+[33:16] with extended cluster configuration is
+[33:19] incorrect. Control plane location in an
+[33:22] extended cluster deployment on outposts.
+[33:24] The data plane, worker nodes, runs on
+[33:27] premises on the outpost rack, but the
+[33:30] control plane, API server, etc. still
+[33:33] runs in the parent AWS region.
+[33:36] Violation. This violates the specific
+[33:39] requirement that the EKS control plane
+[33:42] must reside on premises. If the internet
+[33:45] connection breaks, an extended cluster
+[33:47] loses its brain. Option D, EKS anywhere
+[33:50] on outposts is incorrect. This is a
+[33:53] redundant and inefficient configuration.
+[33:56] Complexity. Installing EKS anywhere
+[34:00] which is designed for customer managed
+[34:01] hardware on top of outposts which is AWS
+[34:05] managed hardware adds an unnecessary
+[34:08] layer of abstraction. If you have
+[34:10] outposts, you should simply use the
+[34:12] native Amazon EKS on outpost service
+[34:15] option A which is integrated directly
+[34:17] into the AWS console and support model.
+[34:20] Therefore, the correct solution is a
+[34:23] question 119. A large company is running
+[34:26] a popular web application. The
+[34:29] application runs on several Amazon EC2
+[34:31] Linux instances in an autoscaling group
+[34:34] in a private subnet. An application load
+[34:36] balancer is targeting the instances in
+[34:39] the autoscaling group in the private
+[34:40] subnet. AWS Systems Manager session
+[34:43] manager is configured and AWS Systems
+[34:46] Manager agent is running on all the EC2
+[34:49] instances. The company recently released
+[34:52] a new version of the application. Some
+[34:54] EC2 instances are now being marked as
+[34:57] unhealthy and are being terminated. As a
+[35:00] result, the application is running at
+[35:02] reduced capacity. A solution's architect
+[35:05] tries to determine the root cause by
+[35:06] analyzing Amazon Cloudatch logs that are
+[35:09] collected from the application. But the
+[35:11] logs are inconclusive. How should the
+[35:14] solutions architect gain access to an
+[35:16] EC2 instance to troubleshoot the issue?
+[35:18] A. Suspend the autoscaling group's
+[35:22] health check scaling process. Use
+[35:24] session manager to log in to an instance
+[35:26] that is marked as unhealthy. B. Enable
+[35:30] EC2 instance termination protection. Use
+[35:33] session manager to log in to an instance
+[35:35] that is marked as unhealthy. C. Set the
+[35:39] termination policy to oldest instance on
+[35:42] the autoscaling group. Use session
+[35:44] manager to log in to an instance that is
+[35:46] marked and unhealthy. D. Suspend the
+[35:50] autoscaling groups terminate process.
+[35:52] Use session manager to log in to an
+[35:55] instance that is marked as unhealthy.
+[35:57] This question tests your knowledge of
+[35:59] troubleshooting domain 3 and EC2
+[36:02] autoscaling group ASG life cycle
+[36:06] autoscaling group ASG life cycle hooks/processes.
+[36:07] The scenario describes a classic death
+[36:09] loop. The application starts, fails a
+[36:12] health check, and the autoscaling group
+[36:15] immediately kills the instance before
+[36:16] you have time to log in and check the
+[36:18] log files, which might not have even
+[36:20] flushed to Cloudatch yet. To debug this,
+[36:23] you need to pause the killing mechanism
+[36:25] while the instance is in its broken
+[36:27] state. Option D, suspend the autoscaling
+[36:30] groups terminate process is the correct
+[36:32] answer. This is the standard AWS
+[36:35] recommendation for troubleshooting
+[36:37] instances that fail startup or health
+[36:39] checks. The mechanism an autoscaling
+[36:42] group has several processes launch
+[36:45] terminate health check etc that can be
+[36:49] individually suspended. The workflow by
+[36:52] suspending the terminate process you
+[36:54] allow the ASG to continue monitoring
+[36:56] health. When the instance fails the
+[36:58] health check, the ASG marks it as
+[37:00] unhealthy, but it is blocked from
+[37:02] physically deleting the EC2 instance
+[37:04] because the terminate process is paused.
+[37:07] The benefit, the instance remains
+[37:09] running in an unhealthy state. This
+[37:11] gives the solution's architect time to
+[37:13] use session manager to log in, inspect
+[37:16] local configuration files, check memory
+[37:18] usage, or run debugging tools to find
+[37:21] the root cause. Once finished, they can
+[37:23] resume the process to let the cleanup
+[37:25] happen. Option A, suspend the health
+[37:27] check process is incorrect. Masking the
+[37:30] problem. If you suspend the health check
+[37:32] process, the ASG stops listening to the
+[37:35] health signals from EC2 or the ALB. The
+[37:39] ASG will simply assume the instance is
+[37:42] healthy and keep it in the inservice
+[37:43] state. Difficulty. While this keeps the
+[37:46] instance alive, it makes it harder to
+[37:49] identify which specific instance is
+[37:51] failing because the ASG isn't flagging
+[37:53] it. Suspending terminate is superior
+[37:56] because it lets the system flag the
+[37:57] error state unhealthy but stops the
+[38:01] destruction. Option B, enable EC2
+[38:04] instance termination protection is
+[38:06] incorrect. Scope mismatch. The disable
+[38:10] API termination attribute on an EC2
+[38:12] instance protects it from accidental
+[38:14] termination via the AWS console or API.
+[38:18] Eg. A human user clicking terminate ASG
+[38:22] override. This setting does not stop an
+[38:25] autoscaling group from terminating an
+[38:27] instance during a scaling event or
+[38:29] health replacement. The ASG has
+[38:31] permission to bypass this setting or
+[38:33] terminate instances it created
+[38:35] regardless of this flag. Option C, set
+[38:38] termination policy to oldest instance is
+[38:41] incorrect. Purpose termination policies
+[38:44] like oldest instance, newest instance
+[38:47] are used to decide which instance to
+[38:49] pick when the group is scaling in
+[38:51] reducing capacity due to low load
+[38:53] irrelevance. These policies do not apply
+[38:56] to health check replacements. If an
+[38:58] instance is marked unhealthy, the ASG
+[39:01] will terminate that specific instance to
+[39:03] replace it regardless of whether it is
+[39:06] the oldest or newest. Changing this
+[39:08] policy does not stop the termination of
+[39:10] unhealthy nodes. Therefore, the correct
+[39:13] solution is D. Question 120. An online
+[39:17] gaming company needs to rehost its
+[39:19] gaming platform on AWS. The company's
+[39:22] gaming application requires high
+[39:24] performance computing, HPC processing,
+[39:28] and has a leaderboard that changes
+[39:29] frequently. An Ubuntu instance that is
+[39:32] optimized for compute generation hosts a
+[39:34] node.js JS application for game display.
+[39:37] Game state is tracked in an on- premises
+[39:40] Reddus instance. The company needs a
+[39:42] migration strategy that optimizes
+[39:44] application performance. Which solution
+[39:47] will meet these requirements? A. Create
+[39:50] an autoscaling group of M5.Large Amazon
+[39:53] EC2 spot instances behind an application
+[39:56] load balancer. Use an Amazon elastic
+[39:59] cache for Reddus cluster to maintain the
+[40:01] leaderboard. B. Create an autoscaling
+[40:04] group of C5L large Amazon EC2 spot
+[40:07] instances behind an application load
+[40:09] balancer. Use an Amazon open search
+[40:12] service cluster to maintain the
+[40:14] leaderboard. C. Create an autoscaling
+[40:17] group of C5.Large Amazon EC2 on demand
+[40:21] instances behind an application load
+[40:23] balancer. Use an Amazon elastic cache
+[40:25] for Reddus cluster to maintain the
+[40:27] leaderboard. D. Create an autoscaling
+[40:31] group of M5.Large large Amazon EC2 on
+[40:34] demand instances behind an application
+[40:36] load balancer. Use an Amazon Dynamob
+[40:39] table to maintain the leaderboard. This
+[40:41] question tests your knowledge of compute
+[40:43] optimization domain 2 and database
+[40:47] selection for specific workloads. You
+[40:49] need to map the on- premises
+[40:50] requirements, compute optimized and
+[40:53] reddus to their AWS equivalents to
+[40:56] ensure the highest performance. Option
+[40:58] C, create an autoscaling group of
+[41:00] C5.large large instances and use elastic
+[41:02] cache for Reddus is the correct answer.
+[41:05] This solution perfectly matches the
+[41:07] resource needs of the application
+[41:10] compute. HPC the prompt specifies the
+[41:13] application requires HPC processing and
+[41:16] currently runs on instances optimized
+[41:19] for compute. The C family EGC5
+[41:23] in AWS stands for compute optimized.
+[41:27] These instances have a higher ratio of
+[41:29] vCPU to memory and are built on high
+[41:31] performance processors making them the
+[41:34] correct choice for HPC workloads
+[41:36] compared to MF family general purpose
+[41:39] instances database. Reddus the
+[41:41] application currently uses Reddus for
+[41:44] game state and leaderboards. Reddus is
+[41:46] famous for its sorted sets which are
+[41:48] ideal for real-time leaderboards. Amazon
+[41:51] Elasticasheach for Reddus is the fully
+[41:53] managed AWS equivalent offering
+[41:56] submillisecond latency. Migrating from
+[41:58] on-prem Reddus to elasticasheach is a
+[42:01] seamless lift and shift that maintains
+[42:04] performance and data structures.
+[42:06] Availability using ondemand instances
+[42:09] ensures the gaming servers are always
+[42:11] available for players. Spot instances
+[42:13] used in other options can be interrupted
+[42:17] which risks disconnecting players during
+[42:19] a game unless the app is specifically
+[42:21] architected for fault tolerance. Option
+[42:23] A, use M5.Large instances is incorrect.
+[42:27] M5 instances are general purpose. While
+[42:30] they are balanced, they are not
+[42:32] optimized for the HPC processing
+[42:34] requirement explicitly mentioned in the
+[42:37] scenario. Using them would likely result
+[42:39] in lower performance for computebound
+[42:41] tasks. compared to C5 instances. Option
+[42:44] B, use Amazon open search service is
+[42:47] incorrect. Amazon Open Search Service,
+[42:50] formerly Elastic Search, is a search
+[42:52] engine designed for log analytics and
+[42:54] full text search. It is not designed to
+[42:57] be a high-speed inmemory key value store
+[42:59] for tracking real-time game states or
+[43:02] leaderboards. Its latency is
+[43:04] significantly higher than reddus and it
+[43:06] does not support the specific data
+[43:08] structures like redd assorted sets
+[43:10] typically used for leaderboards. Option
+[43:12] D use Amazon Dynamob is incorrect.
+[43:15] Compute mismatch like option A. This
+[43:19] suggests using M5.Large
+[43:21] generalpurpose instances which misses
+[43:24] the optimization opportunity for the HPC
+[43:27] workload database. While DynamoB is a
+[43:30] fast NoSQL database, the application is
+[43:33] already built to use Reddus. Moving to
+[43:36] Dynamob would require refactoring the
+[43:38] application code. Since Elastic Cache
+[43:41] for Reddus is available and offers the
+[43:43] exact performance profile needed in
+[43:45] memory speed, it is the superior choice
+[43:47] for optimizing performance without
+[43:50] unnecessary code rewriting. Therefore,
+[43:52] the correct solution is C. And that
+[43:55] wraps up our 10 questions for today. If
+[43:58] you found this breakdown helpful, please
+[44:00] share it with your friends and
+[44:01] colleagues who share the goal of
+[44:02] conquering the AWS SAP C02
+[44:06] certification. Let's build a strong
+[44:09] collaborative learning community
+[44:11] together. Make sure to join me in the
+[44:13] next video for our next set of
+[44:15] questions. Happy learning.

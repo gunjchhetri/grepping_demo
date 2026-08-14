@@ -1,0 +1,949 @@
+[0:00] Hello everyone, I'm Lee and welcome back
+[0:03] to our SAPC02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder, if
+[0:12] these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via Super. Thanks. It's never expected,
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 91. An education
+[0:27] company is running a web application
+[0:29] used by college students around the
+[0:31] world. The application runs in an Amazon
+[0:34] elastic container service Amazon ECS
+[0:37] cluster in an autoscaling group behind
+[0:39] an application load balancer ALB. A
+[0:43] system administrator detects a weekly
+[0:45] spike in the number of failed login
+[0:47] attempts which overwhelm the
+[0:49] application's authentication service.
+[0:51] All the failed login attempts originate
+[0:53] from about 500 different IP addresses
+[0:55] that change each week. A solution's
+[0:58] architect must prevent the failed login
+[1:00] attempts from overwhelming the
+[1:02] authentication service. Which solution
+[1:04] meets these requirements with the most
+[1:06] operational efficiency.
+[1:09] Use AWS firewall manager to create a
+[1:12] security group and security group policy
+[1:14] to deny access from the IP addresses. B.
+[1:18] Create an AWSWAF web ACL with a rate
+[1:21] based rule and set the rule action to
+[1:23] block. Connect the web ACL to the ALB.
+[1:27] C. Use AWS firewall manager to create a
+[1:30] security group and security group policy
+[1:32] to allow access only to specific CI
+[1:35] ranges. D. Create an AWS WAF web ACL
+[1:40] with an IP set match rule and set the
+[1:42] rule action to block. Connect the web
+[1:45] ACL to the ALB. This question tests your
+[1:48] knowledge of security domain one and
+[1:50] edge services specifically focusing on
+[1:53] mitigating application layer layer 7
+[1:56] attacks like brute force or HTTP floods.
+[1:59] The scenario describes a classic
+[2:02] distributed attack pattern. High volume
+[2:05] the attacks overwhelm the authentication
+[2:07] service. Distributed sources 500
+[2:10] different IP addresses. dynamic nature.
+[2:14] The IPs change each week. To solve this
+[2:17] with operational efficiency, we need a
+[2:20] solution that automatically adapts to
+[2:22] the changing IPs without requiring
+[2:24] manual updates to a block list. Option
+[2:26] B, create an AWSWAF web ACL with a
+[2:30] ratebased rule is the correct answer.
+[2:32] This is the automated set it and forget
+[2:35] it solution. Rate based rules. Instead
+[2:38] of listing specific IPs, you define a
+[2:41] threshold. Eg. Block any IP that makes
+[2:44] more than 100 requests to /lo in a
+[2:47] 5-minute window. The mechanism AWSWAF
+[2:51] automatically tracks the request rate
+[2:53] for every IP address. If an attacker,
+[2:56] one of the 500 IPs, exceeds the limit,
+[2:59] WAF automatically adds them to a block
+[3:02] list. When their rate drops, they are
+[3:04] automatically removed. Efficiency. This
+[3:08] handles the changing IPs requirement
+[3:10] perfectly because the rule targets
+[3:11] behavior speed of requests rather than
+[3:14] identity specific IP addresses. No
+[3:18] manual intervention is required when the
+[3:20] botnet rotates its IPs next week. Option
+[3:23] D. Create an AWS WAF web ACL with an IP
+[3:27] set match rule is incorrect. This
+[3:29] solution relies on a static block list.
+[3:32] Operational overhead because the IPs
+[3:35] change each week. The security team
+[3:37] would have to manually analyze logs,
+[3:40] extract the new 500 IPs, and update the
+[3:43] WAF IP set every single week. This is
+[3:46] high maintenance and reactive. You only
+[3:48] block them after you detect the change.
+[3:51] Whereas option B is proactive and
+[3:53] automated. Option A, use Firewall
+[3:56] Manager to create a security group is
+[3:58] Manager to create a security group is incorrect.
+[3:59] There are two major technical issues
+[4:01] here. Security groups are allow only.
+[4:04] You cannot create a deny rule in a
+[4:06] standard AWS security group. You can
+[4:09] only specify who is allowed in. Note
+[4:12] network ACL's allow deny rules, but they
+[4:15] are stateless and managing 500 rules is
+[4:18] cumbersome. Firewall manager. While
+[4:20] firewall manager helps administer rules
+[4:23] across accounts, it does not change the
+[4:25] fundamental behavior of security groups.
+[4:27] It is not the right tool for mitigating
+[4:29] dynamic layer 7 application attacks.
+[4:32] Option C, allow access only to specific
+[4:35] CI ranges is incorrect. This is a
+[4:39] whitelisting approach. Feasibility. The
+[4:42] application is used by college students
+[4:45] around the world. It is impossible to
+[4:47] know and whitelist every IP address or
+[4:49] ISP range for every student globally.
+[4:52] This would result in blocking legitimate
+[4:54] users, false positives, and effectively
+[4:57] shutting down the application.
+[4:59] Therefore, the correct solution is B.
+[5:01] Question 92. A company is migrating to
+[5:04] the cloud. It wants to evaluate the
+[5:07] configurations of virtual machines in
+[5:09] its existing data center environment to
+[5:11] ensure that it can size new Amazon EC2
+[5:13] instances accurately. The company wants
+[5:16] to collect metrics such as CPU, memory,
+[5:18] and disk utilization, and it needs an
+[5:20] inventory of what processes are running
+[5:22] on each instance. The company would also
+[5:25] like to monitor network connections to
+[5:27] map communications between servers which
+[5:29] would enable the collection of this data
+[5:32] most cost effectively.
+[5:34] Use AWS application discovery service
+[5:37] and deploy the data collection agent to
+[5:39] each virtual machine in the data center.
+[5:41] B. Configure the Amazon Cloudatch agent
+[5:45] on all servers within the local
+[5:46] environment and publish metrics to
+[5:48] Amazon Cloudatch logs. C. Use AWS
+[5:52] application discovery service and enable
+[5:54] agentless discovery in the existing
+[5:56] virtualization environment. D. Enable
+[6:00] AWS application discovery service in the
+[6:02] AWS management console and configure the
+[6:05] corporate firewall to allow scans over a
+[6:07] VPN. This question tests your knowledge
+[6:10] of migration and modernization domain 4,
+[6:13] specifically the cess phase of
+[6:15] migration. The goal is to perform a deep
+[6:18] dive discovery of on premises servers to
+[6:20] plan for a move to AWS. The key
+[6:23] requirements are the specific data
+[6:25] points needed, CPU/memory
+[6:27] utilization, running processes, and
+[6:30] network connections, dependencies. To
+[6:33] answer this correctly, you must
+[6:35] distinguish between the two modes of the
+[6:37] AWS application discovery service,
+[6:40] agent-based versus agentless. Option A,
+[6:43] use AWS application discovery service
+[6:46] with agents is the correct answer. This
+[6:49] solution is the only one that meets all
+[6:51] the data collection requirements. Deep
+[6:53] visibility. The AWS application
+[6:56] discovery agent is software installed
+[6:58] inside the OS of the on- premises
+[7:00] servers. Because it runs locally, it has
+[7:03] the privileges to see process IDs, PIDs,
+[7:07] and network socket connections.
+[7:09] Dependency mapping. It captures outbound
+[7:12] network traffic allowing you to
+[7:13] visualize which servers talk to which
+[7:15] DBs. Dependency mapping cost-effective.
+[7:19] The application discovery service itself
+[7:21] is free to use. You only pay for the S3/
+[7:25] Athena Kinesis resources used to store
+[7:28] and analyze the data. Option C, use AWS
+[7:31] application discovery service agentless
+[7:33] discovery is incorrect. The agentless
+[7:36] connector, an OVA virtual appliance
+[7:39] installed on VMware VCenter, is great
+[7:42] for highle inventory. Eg. I have 500
+[7:45] VMs. Here are their IP addresses and
+[7:48] host names. However, because it operates
+[7:51] at the hypervisor level outside the OS,
+[7:53] it cannot see inside the VM. It cannot
+[7:56] inspect running processes or map
+[7:58] granular network connections between
+[8:00] applications. It fails the specific data
+[8:03] requirements of the prompt. Option B,
+[8:06] configure Amazon Cloudatch agent is
+[8:08] incorrect. While the Cloudatch agent can
+[8:11] be installed on premises to send metrics
+[8:13] to AWS, it is designed for monitoring
+[8:16] health, not for migration planning.
+[8:18] Missing features. Cloudatch agent sends
+[8:20] performance metrics, CPU, RAM, but it
+[8:24] does not natively generate network
+[8:26] dependency maps or process inventories
+[8:28] in the structured format needed for
+[8:30] migration planning tools like AWS
+[8:32] Migration Hub. cost. Storing
+[8:35] highresolution custom metrics in
+[8:37] Cloudatch is generally more expensive
+[8:39] than using the dedicated discovery
+[8:41] service. Option D, enable ADS and scan
+[8:44] overVPN is incorrect. This is not a
+[8:47] valid technical workflow. AWS
+[8:50] application discovery service is not a
+[8:52] network scanner like MAP that scans your
+[8:55] data center from the AWS cloud side over
+[8:58] a VPN. You must install a collector
+[9:01] agent or agentless inside your data
+[9:04] center to push data out to AWS.
+[9:06] Therefore, the correct solution is a
+[9:09] question 93. A company hosts a web
+[9:12] application on AWS in the US East1
+[9:15] region. The application servers are
+[9:17] distributed across three availability
+[9:19] zones behind an application load
+[9:21] balancer. The database is hosted in a
+[9:24] MySQL database on an Amazon EC2
+[9:27] instance. A solutions architect needs to
+[9:29] design a cross region data recovery
+[9:31] solution using AWS services with an RTO
+[9:34] of less than 5 minutes and an RPO of
+[9:36] less than 1 minute. The solutions
+[9:38] architect is deploying application
+[9:40] servers in US West 2 and has configured
+[9:43] Amazon Route 53 health checks and DNS
+[9:45] failover to US West 2. Which additional
+[9:48] step should the solutions architect
+[9:50] take? A. Migrate the database to an
+[9:53] Amazon RDS for MySQL instance with a
+[9:56] cross region read replica in US West 2.
+[9:59] B. Migrate the database to an Amazon
+[10:02] Aurora global database with the primary
+[10:04] in US East one and the secondary in US
+[10:06] West 2. C. Migrate the database to an
+[10:10] Amazon RDS for MySQL instance with a
+[10:13] multi-AZ deployment. D. Create a MySQL
+[10:17] standby database on an Amazon EC2
+[10:19] instance in US West 2. This question
+[10:22] tests your knowledge of disaster
+[10:23] recovery domain 4 and database migration
+[10:27] strategies specifically focusing on
+[10:29] strict recovery time objective RTO and
+[10:32] recovery point objective RPO
+[10:35] constraints. The critical requirements
+[10:37] here are cross region DR. The solution
+[10:41] must span US east one and US west 2 RTO
+[10:45] 5 minutes. You need to be able to
+[10:47] promote the secondary database and
+[10:49] accept writes very quickly. RPO 1
+[10:51] minute. You cannot lose more than 60
+[10:54] seconds of data. To solve this, we need
+[10:57] a database service capable of extremely
+[10:59] fast replication over long distances and
+[11:02] rapid failover capabilities. Option B,
+[11:04] migrate to Amazon Aurora Global Database
+[11:07] is the correct answer. Aurora global
+[11:10] database is the premium solution for
+[11:12] cross region doctor RPO. It uses
+[11:15] dedicated infrastructure to replicate
+[11:17] storage physically between regions with
+[11:19] typical latency of less than 1 second,
+[11:22] easily meeting the less than 1 minute
+[11:24] RPO RTO. It supports cross region
+[11:28] failover. Promoting a secondary region
+[11:31] to primary typically takes less than 1
+[11:33] minute, easily meeting the less than 5
+[11:36] minutes RTO. This is the only managed
+[11:39] option listed that guarantees
+[11:40] performance within these tight
+[11:42] constraints at a global scale. Option A,
+[11:44] RDS for MySQL with cross region read
+[11:47] replica is incorrect. While RDS cross
+[11:50] region read replicas are a valid DR
+[11:53] strategy, they are often too slow for
+[11:55] these specific constraints. RPO, it
+[11:58] relies on asynchronous logical
+[12:00] replication. Bin log high latency or
+[12:03] heavy write loads can cause replica lag
+[12:06] to drift significantly, potentially
+[12:08] violating the 1 minute RPO. RTO
+[12:12] promoting a standard RDS red replica to
+[12:14] a standalone instance is not
+[12:16] instantaneous. It can take several
+[12:18] minutes to reboot and recover, risking
+[12:20] the 5minute RTO limit compared to
+[12:23] Aurora's rapid promotion. Option C, RDS
+[12:26] multi-AZ deployment is incorrect.
+[12:28] Multi-AZ is a high availability HA
+[12:31] feature, not a disaster recovery DR
+[12:35] feature. multi-AZ replicates
+[12:37] synchronously to a standby in a
+[12:38] different availability zone within the
+[12:40] same region. Eg us east 1 A to US East
+[12:47] 1B. It provides zero protection against
+[12:50] a full regional failure of US East one.
+[12:53] Option D, MySQL standby on EC2 in US
+[12:56] West 2 is incorrect. This is a
+[12:59] self-managed approach. While you
+[13:01] technically could configure MySQL
+[13:03] replication yourself to meet these
+[13:04] numbers, it requires massive operational
+[13:07] overhead to manage the replication
+[13:09] tunnels, monitor lag, and manually
+[13:11] script the failover process. Compared to
+[13:13] the managed click to promote capability
+[13:16] of Aurora global database, this adds
+[13:18] unnecessary complexity and risk.
+[13:21] Therefore, the correct solution is B.
+[13:24] Question 94. A solutions architect is
+[13:27] preparing to deploy a new security tool
+[13:29] into several previously unused AWS
+[13:32] regions. The solutions architect will
+[13:34] deploy the tool by using an AWS cloud
+[13:37] for stack set. The stack sets template
+[13:40] contains an IM role that has a custom
+[13:42] name. Upon creation of the stack set, no
+[13:45] stack instances are created
+[13:47] successfully. What should the solutions
+[13:49] architect do to deploy the stack
+[13:51] successfully? A. Enable the new regions
+[13:55] in all relevant accounts. Specify the
+[13:57] capability namedamed im capability
+[14:00] during the creation of the stack set. B.
+[14:04] Use the service quotas console to
+[14:06] request a quota increase for the number
+[14:08] of cloud formation stacks in each new
+[14:09] region in all relevant accounts. Specify
+[14:12] the capability im capability during the
+[14:15] creation of the stack set. C. Specify
+[14:19] the capability underscore named
+[14:20] underscore im capability and the
+[14:22] selfc_managed permissions model during
+[14:24] the creation of the stack set. D.
+[14:28] Specify an administration role ARN and
+[14:30] the capability im capability during the
+[14:33] creation of the stack set. This question
+[14:35] tests your knowledge of automating
+[14:37] infrastructure deployment domain one and
+[14:40] AWS account management specifically
+[14:43] regarding cloud formation safeguards and
+[14:45] region management. There are two
+[14:47] distinct hurdles preventing this
+[14:48] deployment and the correct answer must
+[14:51] address both. Option A, enable new
+[14:54] regions and specify capability named_im
+[14:57] is the correct answer. This solution
+[15:00] addresses the two root causes of the
+[15:02] failure. Region status. The prompt
+[15:05] mentions previously and used AWS
+[15:08] regions. Many newer AWS regions,
+[15:11] so-called opt-in regions like Hong Kong,
+[15:14] Cape Town, or Milan, are disabled by
+[15:17] default. Before you can deploy any
+[15:19] resources to them via stack sets or
+[15:22] otherwise, you must explicitly enable
+[15:24] these regions in the account settings.
+[15:26] If the region is disabled, the stack set
+[15:29] operation will fail to create instances
+[15:31] their im capabilities. When a cloud
+[15:33] formation template creates an IM
+[15:35] resource like a role, you generally need
+[15:38] to acknowledge capability IM. However,
+[15:41] if you assign a custom name to that
+[15:43] resource, eg ro name my security tool ro
+[15:48] AWS requires a more specific
+[15:50] acknowledgement capability_.
+[15:53] This is a safety mechanism to prevent
+[15:55] you from accidentally replacing a
+[15:57] critical role or escalating privileges
+[15:59] with a predictable name. Without this
+[16:02] specific flag, the deployment fails.
+[16:04] Option B, request quota increase and
+[16:07] capability im is incorrect. Quotas. The
+[16:11] default quota for cloud formation stacks
+[16:13] is usually high 200 plus per region. It
+[16:17] is highly unlikely that a previously
+[16:19] unused region would hit a stack limit on
+[16:21] the very first deployment. Capability.
+[16:24] As mentioned above, capability im is
+[16:27] insufficient when the template includes
+[16:29] custom names. It must be capability
+[16:32] named_im. Option C, use selfc_managed
+[16:36] permissions model is incorrect. While
+[16:39] capability named_im is correct here,
+[16:42] changing the permissions model to
+[16:44] selfcore managed does not solve the
+[16:46] issue of the regions being disabled.
+[16:48] Stackets offers two models. service
+[16:51] managed, integrated with AWS
+[16:53] organizations, and self-managed. Neither
+[16:56] model can deploy resources into a region
+[16:59] that has not been enabled at the account
+[17:01] level. Option D, use capability im is
+[17:04] incorrect. This fails for the same
+[17:07] reason as option B. The specific
+[17:09] validation error from cloud formation
+[17:11] will state that capability_amed_am
+[17:14] is required because the template
+[17:16] contains resources with custom names.
+[17:18] providing the generic capability im will
+[17:21] not satisfy this checkpoint 6.
+[17:23] Therefore, the correct solution is a
+[17:26] question 95. A company has an
+[17:29] organization in AWS organizations. The
+[17:32] company is using AWS control tower to
+[17:35] deploy a landing zone for the
+[17:37] organization. The company wants to
+[17:39] implement governance and policy
+[17:41] enforcement. The company must implement
+[17:43] a policy that will detect Amazon RDSDB
+[17:46] instances that are not encrypted at rest
+[17:48] in the company's production OU. Which
+[17:50] solution will meet this requirement? A.
+[17:54] Turn on mandatory guardrails in AWS
+[17:57] control tower. Apply the mandatory
+[17:59] guardrails to the production OU. B.
+[18:03] Enable the appropriate guardrail from
+[18:05] the list of strongly recommended
+[18:06] guardrails in AWS control tower. Apply
+[18:10] the guardrail to the production OU. C.
+[18:13] Use AWS config to create a new mandatory
+[18:16] guardrail. Apply the rule to all
+[18:19] accounts in the production OU. D. Create
+[18:22] a custom SCP in AWS control tower. Apply
+[18:26] the SCP to the production OU. This
+[18:29] question tests your knowledge of
+[18:30] management and governance domain one.
+[18:33] Specifically regarding how AWS control
+[18:36] tower classifies and applies its
+[18:38] controls. formerly known as guardrails.
+[18:40] The key objective here is to detect
+[18:42] non-compliant resources detective
+[18:45] control regarding RDS encryption. To
+[18:48] answer this correctly, you must
+[18:50] understand the categorization of control
+[18:52] tower controls. Mandatory, strongly
+[18:55] recommended and elective. Option B,
+[18:58] enable the appropriate guardrail from
+[19:00] the list of strongly recommended
+[19:02] guardrails is the correct answer. AWS
+[19:05] control tower categorizes controls based
+[19:08] on their criticality and commonality.
+[19:10] The specific control, the rule detect
+[19:13] whether RDSDB instances are encrypted at
+[19:15] rest is classified by AWS as a strongly
+[19:18] recommended control. It is based on the
+[19:21] AWS config rule RDS storage encrypted
+[19:24] application. Unlike mandatory controls
+[19:27] which are on by default, strongly
+[19:29] recommended controls must be explicitly
+[19:31] enabled and applied to an organizational
+[19:33] unit. U this fits the requirement
+[19:36] perfectly. Option A, turn on mandatory
+[19:40] guardrails is incorrect. Mandatory
+[19:43] controls in control tower are enabled
+[19:45] automatically by default when you set up
+[19:47] the landing zone. You cannot turn them
+[19:49] on or apply them selectively. They are
+[19:52] always on for the entire landing zone.
+[19:54] often implemented as SCPs. Furthermore,
+[19:57] mandatory controls usually focus on the
+[20:00] integrity of the control tower
+[20:01] environment itself, eg disallow deletion
+[20:05] of log archive bucket, not specific
+[20:07] resource configurations like RDS
+[20:10] encryption. Option C, use AWS config to
+[20:13] create a new mandatory guardrail is
+[20:15] incorrect. This terminology is mixed up.
+[20:18] While control tower uses AWS config
+[20:21] under the hood for detective controls,
+[20:23] you do not create guardrails directly in
+[20:26] the AWS config console. If you are
+[20:28] managing the environment via control
+[20:30] tower, you should use the control tower
+[20:32] console to manage these controls
+[20:34] centrally. Creating a standalone config
+[20:36] rule manually would work technically,
+[20:39] but it bypasses the control tower
+[20:41] governance framework and dashboard,
+[20:43] adding operational overhead. Option D,
+[20:45] create a custom SCP is incorrect.
+[20:48] Mechanism mismatch service control
+[20:51] policies. SCPs are preventative
+[20:54] controls. They stop an action from
+[20:56] happening. The prompt specifically asks
+[20:58] to detect instances. Detective control.
+[21:02] An SCP would prevent the creation of
+[21:04] unencrypted DBs, but it would not detect
+[21:07] existing ones. Customization. While you
+[21:10] can create custom SCPs in control tower,
+[21:13] using a pre-built strongly recommended
+[21:16] control is the standard managed way to
+[21:18] solve this common compliance requirement
+[21:20] without writing custom JSON. Therefore,
+[21:23] the correct solution is B. Question 96.
+[21:26] A solutions architect must create a
+[21:28] business case for migration of a
+[21:30] company's on premises data center to the
+[21:32] AWS cloud. The solutions architect will
+[21:35] use a configuration management database
+[21:38] CMDB export of all the company's servers
+[21:41] to create the case. Which solution will
+[21:44] meet these requirements most cost
+[21:46] effectively? A. Use AWS
+[21:49] wellarchchitected tool to import the
+[21:51] CMDB data to perform an analysis and
+[21:54] generate recommendations. B. Use
+[21:57] migration evaluator to perform an
+[21:59] analysis. Use the data import template
+[22:02] to upload the data from the CMDB export.
+[22:05] C. Implement resource matching rules.
+[22:08] Use the CMDB export and the AWS price
+[22:11] list bulk API to query CMDB data against
+[22:14] AWS services in bulk. D. Use AWS
+[22:19] application discovery service to import
+[22:21] the CMDB data to perform an analysis.
+[22:24] This question tests your knowledge of
+[22:26] migration and modernization. Domain 4
+[22:29] specifically regarding the assess phase
+[22:31] where you build a TCO total cost of
+[22:33] ownership business case. The key inputs
+[22:36] here are create a business case and use
+[22:39] a CMDB export. You need a tool that can
+[22:42] digest a flat file CSV/ Excel of server
+[22:46] inventory and output a cost projection.
+[22:49] Option B, use migration evaluator is the
+[22:52] correct answer. 6789
+[22:55] AWS migration evaluator formerly TSO
+[22:59] logic is the dedicated service for
+[23:01] building migration business cases
+[23:03] functionality. It provides a specific
+[23:06] feature called quick inventory or data
+[23:08] import where you can download a standard
+[23:10] template fill it with your CMDB data CPU
+[23:14] RAM storage OS and upload it output. The
+[23:19] tool analyzes this data to provide a
+[23:21] directional business case, including
+[23:23] estimated costs for running those
+[23:25] workloads on AWS and potential savings
+[23:28] compared to on premises. It is designed
+[23:30] exactly for this snapshot analysis
+[23:33] without needing to install agents.
+[23:35] Option A, use AWS wellarchchitected tool
+[23:38] is incorrect. The AWS wellarchchitected
+[23:41] tool is a framework for reviewing the
+[23:43] architecture of workloads already
+[23:45] designed or running on AWS against the
+[23:47] six pillars security, reliability, etc.
+[23:52] It does not have a feature to import a
+[23:54] CMDB CSV to calculate pricing or
+[23:57] migration costs. It is a qualitative
+[23:59] review tool, not a quantitative
+[24:01] financial modeling tool. Option C, use
+[24:04] AWS price list bulk API is incorrect.
+[24:08] This is a do-it-yourself DIY approach.
+[24:11] While technically possible, it requires
+[24:13] significant development effort to write
+[24:15] a script that parses the CMDB, maps
+[24:18] every server to an equivalent EC2
+[24:20] instance type, queries the price list
+[24:22] API, and aggregates the costs. This
+[24:24] violates the most costeffective
+[24:26] principle in terms of time and effort
+[24:29] when a free tool migration evaluator
+[24:32] already does this automatically. Option
+[24:34] D, use AWS application discovery service
+[24:38] is incorrect. AWS application discovery
+[24:41] service is primarily used for deep dive
+[24:43] discovery via agents or agentless
+[24:45] connectors to map dependencies. While it
+[24:48] has an import feature, its primary
+[24:50] purpose is to feed data into migration
+[24:52] hub for tracking or to plan migration
+[24:54] waves, not specifically to generate a
+[24:56] financial business case document.
+[24:58] Migration evaluator is the specialized
+[25:00] tool for the financial aspect business
+[25:03] case. Therefore, the correct solution is
+[25:05] B. Question 97. A solutions architect
+[25:09] must update an application environment
+[25:11] within AWS elastic beantock using a
+[25:14] blue/green deployment methodology. The
+[25:17] solutions architect creates an
+[25:18] environment that is identical to the
+[25:20] existing application environment and
+[25:22] deploys the application to the new
+[25:24] environment. What should be done next to
+[25:26] complete the update? A. Redirect to the
+[25:30] new environment using Amazon Route 53.
+[25:33] B. Select the swap environment URLs
+[25:36] option. C. Replace the autoscaling
+[25:40] launch configuration. D. Update the DNS
+[25:44] records to point to the green
+[25:45] environment. This question tests your
+[25:47] knowledge of deployment strategies.
+[25:49] Domain 3. Specifically, how to execute a
+[25:52] blue/green deployment using AWS elastic
+[25:56] beantoalk. The scenario puts you right
+[25:58] at the final step. You have your blue
+[26:00] environment live and your green
+[26:02] environment new version tested and
+[26:05] waiting. You need to flip the switch. To
+[26:08] answer this correctly, you must know the
+[26:10] specific terminology and features native
+[26:12] to the elastic beantock console/appi
+[26:15] that facilitate this cut over. Option B,
+[26:18] select the swap environment URLs option
+[26:21] is the correct answer. This is the
+[26:23] native one-click feature built into
+[26:25] Elastic Beantock specifically for
+[26:27] blue/green deployments. How it works?
+[26:30] Elastic Beantock swaps the name records
+[26:33] of the two environments. For example, if
+[26:35] your production URL is mapp.com
+[26:38] pointing to env.elasticbeantock.com
+[26:42] and your new environment is
+[26:44] and your new environment is env.elasticbeantock.com.
+[26:47] Clicking swap URLs instantly maps
+[26:50] mapp.com to env. Zero downtime. This
+[26:55] change happens at the DNS layer
+[26:56] controlled by AWS, ensuring an immediate
+[27:00] and seamless transition for users. Roll
+[27:02] back. If issues arise, you can simply
+[27:05] click swap URLs again to revert traffic
+[27:08] back to the old environment instantly.
+[27:10] Option A, redirect using Amazon Route 53
+[27:14] is incorrect. While you can manually
+[27:17] update Route 53 records to point to a
+[27:19] new environment, it is not the standard
+[27:21] or recommended method when using Elastic
+[27:24] Beantoalk's built-in blue/green
+[27:26] workflow. Route 53 changes rely on TTL
+[27:29] time to live propagation, which means
+[27:32] some users might still be directed to
+[27:34] the old environment for minutes or
+[27:35] hours. The swap URLs feature handles the
+[27:38] aliasing instantly at the name level,
+[27:41] avoiding propagation delays for the
+[27:42] Beanstalk endpoint itself. Option C,
+[27:46] replace the autoscaling launch
+[27:47] configuration is incorrect. This action
+[27:50] describes an in place deployment like a
+[27:53] rolling update or immutable deployment
+[27:55] within a single environment. It involves
+[27:58] replacing instances one by one or in
+[28:00] batches. This contradicts the prompt
+[28:03] which explicitly states that a separate
+[28:05] environment has already been created.
+[28:07] Blue/green topology. Option D. update
+[28:11] the DNS records to point to the green
+[28:13] environment is incorrect. This is a
+[28:15] generic answer that technically
+[28:17] describes what happens, but it misses
+[28:20] the specific AWS feature name. In an
+[28:22] exam context, usually the specific
+[28:25] service feature option B, swap
+[28:28] environment URLs, is the correct answer
+[28:30] over the generic manual action.
+[28:32] Furthermore, manually updating DNS
+[28:35] records is more errorprone than letting
+[28:37] the managed service handle the swap.
+[28:39] Therefore, the correct solution is B.
+[28:42] Question 98. A company has a web
+[28:45] application that uses Amazon API
+[28:47] gateway, AWS Lambda, and Amazon Dynamo
+[28:51] DB. A recent marketing campaign has
+[28:53] increased demand. Monitoring software
+[28:56] reports that many requests have
+[28:58] significantly longer response times than
+[29:00] before the marketing campaign. A
+[29:02] solutions architect enabled Amazon
+[29:04] Cloudatch logs for API gateway and
+[29:06] noticed that errors are occurring on 20%
+[29:09] of the requests. In Cloudatch, the
+[29:11] Lambda function throttles metric
+[29:13] represents 1% of the requests and the
+[29:15] errors metric represents 10% of the
+[29:17] requests. Application logs indicate that
+[29:20] when errors occur, there is a call to
+[29:23] Dynamo DB. What change should the
+[29:25] solutions architect make to improve the
+[29:27] current response times as the web
+[29:29] application becomes more popular?
+[29:32] Increase the concurrency limit of the
+[29:34] Lambda function. B. Implement DynamoB
+[29:38] autoscaling on the table. C. Increase
+[29:42] the API gateway throttle limit. D.
+[29:45] Recreate the DynamoB table with a better
+[29:48] partition primary index. This question
+[29:50] tests your ability to troubleshoot
+[29:52] performance bottlenecks. Domain three.
+[29:55] In a serverless architecture, you must
+[29:57] correlate multiple metrics to find the
+[30:00] weakest link. Here is the forensic
+[30:02] analysis. High latency. This suggests
+[30:06] something is timing out or retrying.
+[30:08] Lambda throttles 1%. This is very low.
+[30:11] It means the compute layer lambda is
+[30:13] scaling fine and is not the primary
+[30:15] bottleneck. App logs. The smoking gun is
+[30:19] here. When errors occur, there is a call
+[30:22] to Dynamo DB. When DynamoB hits its
+[30:25] provisioned limits, it throws a
+[30:27] provision throughput exceeded exception.
+[30:30] The AWS SDK inside your Lambda function
+[30:33] automatically catches this and retries
+[30:35] with exponential backoff. These retries
+[30:38] cause the significantly longer response
+[30:40] times. Eventually, the retries run out.
+[30:43] the lambda fails causing the 10% error
+[30:45] rate and API gateway returns an error
+[30:49] part of the 20%. Option B implement
+[30:52] DynamoB autoscaling is the correct
+[30:54] answer. The root cause is that the
+[30:56] database cannot keep up with the traffic
+[30:58] surge from the marketing campaign. The
+[31:00] fix enabling Dynamob autoscaling allows
+[31:04] the table to automatically increase its
+[31:06] read/write capacity units rcu/wcu
+[31:11] in response to actual traffic load. The
+[31:13] result, the database stops throttling
+[31:16] requests. The Lambda function no longer
+[31:19] has to retry, reducing latency, and no
+[31:22] longer crashes, reducing errors. This is
+[31:25] the intended way to handle variable
+[31:27] traffic patterns. Option A, increase the
+[31:30] concurrency limit of the Lambda function
+[31:32] is incorrect. The throttle's metric is
+[31:35] only 1%. This indicates that Lambda is
+[31:39] generally available to handle requests.
+[31:41] Increasing concurrency would actually
+[31:43] make the situation worse. If you allow
+[31:46] more Lambda functions to run
+[31:47] simultaneously, they will send even more
+[31:50] requests to the already struggling
+[31:51] Dynamob table, increasing the contention
+[31:54] and error rate. Option C, increase the
+[31:56] API gateway throttle limit is incorrect.
+[32:00] API gateway throttling usually results
+[32:02] in a 429 too many requests response to
+[32:05] the client immediately. While this might
+[32:07] be part of the 20% total errors,
+[32:10] increasing the gate size at the front
+[32:11] door API gateway does not fix the fact
+[32:14] that the backend Dynamob is clogged. You
+[32:17] are just letting more traffic in to
+[32:19] fail. Option D, recreate the Dynamo DB
+[32:23] table with a better partition key is
+[32:25] incorrect. While hot partitions can
+[32:28] cause throttling, this is a nuclear
+[32:30] option. Rearchitecting the schema and
+[32:32] migrating data is a massive effort,
+[32:35] undifferentiated heavy lifting. Given
+[32:37] that the issue is a general increase in
+[32:39] traffic due to a marketing campaign, the
+[32:42] first and most cost-effective step is
+[32:43] simply to add capacity autoscaling. You
+[32:46] would only redesign the table if
+[32:48] autoscaling failed to resolve the issue,
+[32:51] implying a specific hotkey problem.
+[32:53] Therefore, the correct solution is B.
+[32:56] Question 99. An adventure company has
+[32:59] launched a new feature on its mobile
+[33:01] app. Users can use the feature to upload
+[33:03] their hiking and rafting photos and
+[33:05] videos anytime. The photos and videos
+[33:08] are stored in Amazon S3 standard storage
+[33:10] in an S3 bucket and are served through
+[33:13] Amazon CloudFront. The company needs to
+[33:15] optimize the cost of the storage. A
+[33:18] solutions architect discovers that most
+[33:20] of the uploaded photos and videos are
+[33:22] accessed infrequently after 30 days.
+[33:25] However, some of the uploaded photos and
+[33:27] videos are accessed frequently after 30
+[33:30] days. The solutions architect needs to
+[33:32] implement a solution that maintains
+[33:34] millisecond retrieval availability of
+[33:36] the photos and videos at the lowest
+[33:38] possible cost. Which solution will meet
+[33:41] these requirements? A. Configure S3
+[33:44] intelligent tiering on the S3 bucket. B.
+[33:48] Configure an S3 life cycle policy to
+[33:50] transition image objects and video
+[33:52] objects from S3 standard to S3 Glacier
+[33:55] deep archive after 30 days. C. Replace
+[33:58] Amazon S3 with an Amazon Elastic file
+[34:01] system. Amazon EFS file system that is
+[34:04] mounted on Amazon EC2 instances. D. Add
+[34:08] a cache control max age header to the S3
+[34:11] image objects and S3 video objects. Set
+[34:14] the header to 30 days. This question
+[34:17] tests your knowledge of cost
+[34:18] optimization domain 3, specifically
+[34:22] focusing on Amazon S3 storage classes
+[34:24] and life cycle management. The key to
+[34:27] this problem lies in the unpredictable
+[34:29] access pattern described. The pattern
+[34:32] after 30 days most data is cold but some
+[34:35] is hot. You cannot predict which
+[34:37] specific photos will become viral hot
+[34:41] and which will be forgotten cold. The
+[34:43] constraint millisecond retrieval
+[34:45] availability is non-negotiable. To solve
+[34:48] this, we need a storage class that
+[34:50] automatically adapts to changing access
+[34:53] patterns without performance penalties.
+[34:55] Option A, configure S3 intelligent
+[34:57] tiering is the correct answer. S3
+[35:00] intelligent tiering is the perfect fit
+[35:02] for data with unknown or changing access
+[35:04] patterns. How it works? It monitors
+[35:08] access patterns at the object level. If
+[35:10] an object hasn't been accessed for 30
+[35:12] days, it moves it to the infrequent
+[35:14] access tier. Lower cost. If that object
+[35:18] is accessed again later, viral photo, it
+[35:21] automatically moves it back to the
+[35:22] frequent access tier. No retrieval fee.
+[35:25] Performance. Crucially, it maintains
+[35:28] millisecond latency and high throughput
+[35:30] across both frequent and infrequent
+[35:32] access tiers, meeting the performance
+[35:35] requirement cost. It saves money on the
+[35:38] majority of files that go cold without
+[35:40] punishing you with retrieval fees for
+[35:42] the few files that stay hot. Option B,
+[35:45] transition to S3 Glacier Deep Archive is
+[35:48] incorrect. This violates the performance
+[35:51] requirement. Retrieval time. Glacier
+[35:54] Deep Archive has a retrieval time of 12
+[35:56] hours standard or 48 hours bulk. Even
+[36:01] expedited retrievalss take minutes. This
+[36:03] fails the millisecond retrieval
+[36:06] availability constraint completely.
+[36:08] Retrieval cost. Retrieving data from
+[36:11] Glacier is expensive. If some photos are
+[36:14] accessed frequently, the retrieval fees
+[36:16] would skyrocket. Option C, replace S3
+[36:20] with Amazon EFS is incorrect. cost.
+[36:24] Amazon EFS is significantly more
+[36:26] expensive than S3 standard storage,
+[36:29] approximate 10x per GB. Moving massive
+[36:32] amounts of media files to EFS would
+[36:34] likely increase costs, not optimize
+[36:37] them. Complexity. Managing EC2 instances
+[36:41] and mounting file systems adds
+[36:42] unnecessary operational overhead
+[36:45] compared to using native S3 storage
+[36:47] classes. Option D, add cache control
+[36:50] headers is incorrect. Wrong layer. Cache
+[36:53] control headers instruct downstream
+[36:55] caches like CloudFront or the user's
+[36:58] browser how long to keep a copy. They do
+[37:01] not change the storage cost of the
+[37:03] original object sitting in the S3
+[37:05] bucket. You are still paying full S3
+[37:07] standard price for the master copy. So
+[37:09] this does not solve the root problem of
+[37:11] storage cost optimization. Therefore,
+[37:14] the correct solution is a question 100.
+[37:17] A company's compliance audit reveals
+[37:19] that some Amazon elastic block store.
+[37:22] Amazon EBS volumes that were created in
+[37:25] an AWS account were not encrypted. A
+[37:28] solution's architect must implement a
+[37:30] solution to encrypt all new EBS volumes
+[37:33] at rest. Which solution will meet this
+[37:35] requirement with the least effort?
+[37:38] Create an Amazon event bridge rule to
+[37:41] detect the creation of unencrypted EBS
+[37:43] volumes? Invoke an AWS Lambda function
+[37:46] to delete non-compliant volumes. B. Use
+[37:50] AWS audit manager with data encryption.
+[37:53] C. Create an AWS config rule to detect
+[37:57] the creation of a new EBS volume.
+[38:00] Encrypt the volume by using AWS systems
+[38:03] manager automation. D. Turn on EBS
+[38:06] encryption by default in all AWS
+[38:09] regions. This question tests your
+[38:11] knowledge of data protection, domain
+[38:14] one, and EC2 management. The goal is to
+[38:17] enforce encryption for future resources,
+[38:19] all new EBS volumes with the absolute
+[38:23] least effort, zero coding. To solve
+[38:26] this, you need to use the native set it
+[38:28] and forget it feature provided by the
+[38:30] EC2 service rather than building a
+[38:32] custom detection/rediation pipeline.
+[38:35] Option D, turn on EBS encryption by
+[38:37] default is the correct answer. AWS
+[38:40] offers a specific account level setting
+[38:43] called EBS encryption by default. How it
+[38:46] works? When you enable this setting for
+[38:48] a region, every new EBS volume created
+[38:51] in that region is automatically
+[38:53] encrypted using your default KMS key. It
+[38:56] applies to volumes created via the
+[38:57] console, CLI, SDK, or autoscaling
+[39:02] groups. Effort. It requires a single API
+[39:06] call or checking a box in the EC2
+[39:08] console per region. It requires no
+[39:10] maintenance, no lambda functions, and no
+[39:13] config rules. This is the definition of
+[39:16] least effort. Option A, event bridge and
+[39:19] lambda is incorrect. This is a reactive
+[39:23] detective solution that requires custom
+[39:25] coding complexity. You would have to
+[39:27] write and maintain Python/node.js
+[39:30] JS code to catch the create volume event
+[39:33] and issue a delete volume API call.
+[39:35] Destructive. Deleting the volume
+[39:38] immediately is a harsh remediation that
+[39:40] could disrupt legitimate deployments
+[39:42] rather than fixing them. Encrypting
+[39:44] them. Option B. Use AWS Audit Manager is
+[39:47] incorrect. AWS Audit Manager is a tool
+[39:51] for collecting evidence for compliance
+[39:52] audits. Eg. Show me proof that all
+[39:56] volumes are encrypted. It is a reporting
+[39:58] tool, not an enforcement tool. Cannot
+[40:01] actively encrypt a new volume when a
+[40:03] user creates it. Option C, AWS config
+[40:07] with systems manager automation is
+[40:10] incorrect. While this is a valid pattern
+[40:12] for auto remediation, it represents
+[40:14] significantly more effort than option D.
+[40:17] Workflow. You would need to set up a
+[40:19] config rule encrypted volumes. Configure
+[40:22] an SSM automation document to snapshot
+[40:25] the unencrypted volume. copy it with
+[40:27] encryption and reattach it and manage
+[40:30] permissions. Why bother? Why build a
+[40:33] complex robot to fix unencrypted volumes
+[40:35] after they are created when you can
+[40:37] simply prevent them from being created
+[40:39] unencrypted in the first place? Option
+[40:41] D. Therefore, the correct solution is D.
+[40:44] And that wraps up our 10 questions for
+[40:46] today. If you found this breakdown
+[40:48] helpful, please share it with your
+[40:50] friends and colleagues who share the
+[40:52] goal of conquering the AWS SAP C02
+[40:56] certification. Let's build a strong
+[40:59] collaborative learning community
+[41:00] together. Make sure to join me in the
+[41:03] next video for our next set of
+[41:05] questions. Happy learning.

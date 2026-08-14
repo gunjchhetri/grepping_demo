@@ -1,0 +1,1073 @@
+[0:00] Hello everyone.
+[0:01] I'm Lee and welcome back to our SAP C02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder.
+[0:11] If these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via super thanks. It's never expected
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 131.
+[0:27] A company has a critical application in
+[0:29] which the data tier is deployed in a
+[0:31] single AWS region. The data tier uses an
+[0:34] Amazon DynamoDB table and an Amazon
+[0:37] Aurora MySQL DB cluster. The current
+[0:40] Aurora MySQL engine version supports a
+[0:42] global database. The application tier is
+[0:45] already deployed in two regions. Company
+[0:48] policy states that critical applications
+[0:50] must have application tier components
+[0:52] and data tier components deployed across
+[0:54] two regions. The RTO and RPO must be no
+[0:57] more than a few minutes each. A
+[0:59] solutions architect must recommend a
+[1:02] solution to make the data tier compliant
+[1:04] with company policy. Which combination
+[1:06] of steps will meet these requirements?
+[1:09] Choose two. A.
+[1:11] Add another region to the Aurora MySQL
+[1:14] DB cluster. B.
+[1:16] Add another region to each table in the
+[1:18] Aurora MySQL DB cluster. C.
+[1:22] Set up scheduled cross-region backups
+[1:24] for the DynamoDB table and the Aurora
+[1:26] MySQL DB cluster. D.
+[1:29] Convert the existing DynamoDB table to a
+[1:32] global table by adding another region to
+[1:34] its configuration. E. Use Amazon Route
+[1:37] 53 application recovery controller to
+[1:39] automate database backup and recovery to
+[1:41] the secondary region. This question
+[1:43] tests your knowledge of disaster
+[1:45] recovery, domain four, and multi-region
+[1:48] architecture. The critical constraints
+[1:51] here are scope. Data must reside in two
+[1:54] regions. RTO {slash} RPO
+[1:57] must be no more than a few minutes. This
+[2:00] effectively rules out traditional backup
+[2:02] {slash} restore strategies, which
+[2:04] typically take hours.
+[2:06] Technology stack. You are dealing with
+[2:08] Aurora MySQL and DynamoDB. Option A, add
+[2:12] another region to the Aurora MySQL DB
+[2:15] cluster, is the correct answer. Aurora
+[2:17] global database.
+[2:19] This feature is purpose-built for
+[2:21] low-latency global disaster recovery. By
+[2:24] choosing to add another region, you
+[2:26] convert your existing regional cluster
+[2:28] into an Aurora global database.
+[2:30] Performance. It utilizes dedicated
+[2:33] infrastructure to perform physical
+[2:35] replication at the storage layer. This
+[2:37] results in an RPO replication lag of
+[2:40] typically less than 1 second and an RTO
+[2:43] failover time of less than 1 minute.
+[2:46] This easily satisfies the few minutes
+[2:48] requirement. Option D, convert the
+[2:51] existing DynamoDB table to a global
+[2:53] table, is the correct answer. DynamoDB
+[2:57] global tables.
+[2:58] This is the fully managed, multi-region,
+[3:01] active-active solution for DynamoDB.
+[3:04] Mechanism. When you add a new region to
+[3:06] an existing table configuration,
+[3:09] DynamoDB automatically sets up
+[3:11] asynchronous replication of all data
+[3:13] changes to that new region. Performance.
+[3:16] Replication usually occurs within a
+[3:18] second, ultra-low RPO. And since the
+[3:21] data is live in both regions, the RTO is
+[3:24] near zero. Option B, add another region
+[3:27] to each table in Aurora, is incorrect.
+[3:31] Architectural error. In Amazon Aurora,
+[3:34] you cannot replicate individual tables
+[3:36] to another region in isolation. You
+[3:38] replicate the entire DB cluster. The
+[3:41] global database feature operates at the
+[3:43] storage volume level, the cluster level,
+[3:46] not at the individual table level.
+[3:48] Option C, set up scheduled cross-region
+[3:51] backups, is incorrect. Violates RTO
+[3:54] {slash} RPO. Scheduled backups, e.g.
+[3:58] hourly or daily, inherently have a high
+[4:01] RPO. You lose all data generated since
+[4:04] the last backup. Furthermore, the
+[4:06] process of restoring a backup in a
+[4:08] different region takes significant time,
+[4:10] high RTO, which would certainly exceed
+[4:13] the few minutes limit required by
+[4:14] company policy. This is a backup and
+[4:17] restore strategy, which is too slow for
+[4:19] critical applications requiring warm
+[4:21] standby or active-active performance.
+[4:24] Option E, use Route 53 application
+[4:27] recovery controller, is incorrect. Wrong
+[4:30] tool. Route 53 application recovery
+[4:33] controller, ARC, is used to manage
+[4:35] readiness checks and coordinate traffic
+[4:37] shifting, DNS updates, during a
+[4:40] failover. It is not a data replication
+[4:43] tool. You still need the underlying data
+[4:45] replication mechanisms like Aurora
+[4:47] global database or global tables in
+[4:50] place before ARC can help you manage the
+[4:52] failover process. Therefore, the correct
+[4:54] combination is A and D. Question 132.
+[4:59] A company is currently in the design
+[5:01] phase of an application that will need
+[5:02] an RPO of less than 5 minutes and an RTO
+[5:05] of less than 10 minutes. The solutions
+[5:08] architecture team is forecasting that
+[5:10] the database will store approximately 10
+[5:12] terabytes of data. As part of the
+[5:14] design, they are looking for a database
+[5:17] solution that will provide the company
+[5:19] with the ability to fail over to a
+[5:20] secondary region. Which solution will
+[5:23] meet these business requirements at the
+[5:25] lowest cost? A.
+[5:27] Deploy an Amazon Aurora DB cluster and
+[5:30] take snapshots of the cluster every 5
+[5:32] minutes. Once a snapshot is complete,
+[5:35] copy the snapshot to a secondary region
+[5:37] to serve as a backup in the event of a
+[5:39] failure. B.
+[5:41] Deploy an Amazon RDS instance with a
+[5:44] cross-region read replica in a secondary
+[5:46] region. In the event of a failure,
+[5:49] promote the read replica to become the
+[5:51] primary. C.
+[5:53] Deploy an Amazon Aurora DB cluster in
+[5:55] the primary region and another in a
+[5:57] secondary region. Use AWS DMS to keep
+[6:01] the secondary region in sync. D.
+[6:04] Deploy an Amazon RDS instance with a
+[6:07] read replica in the same region. In the
+[6:09] event of a failure, promote the read
+[6:11] replica to become the primary. This
+[6:14] question tests your knowledge of
+[6:15] disaster recovery, domain four, and
+[6:18] database migration strategies.
+[6:20] Specifically balancing strict RTO
+[6:22] {slash} RPO requirements with cost
+[6:25] efficiency. The critical constraints are
+[6:28] RPO 5 minutes {slash} RTO less than 10
+[6:31] minutes. The solution must be fast.
+[6:34] Traditional backup {slash} restore
+[6:35] methods for 10 terabytes of data are too
+[6:38] slow. Cross-region failover. The
+[6:40] solution must survive a full regional
+[6:42] failure. Lowest cost. Avoid premium
+[6:46] features like Aurora global database if
+[6:49] standard features, RDS read replicas,
+[6:52] meet the requirements. Option B, deploy
+[6:55] an Amazon RDS instance with a
+[6:56] cross-region read replica, is the
+[6:59] correct answer. This is the standard
+[7:01] cost-effective pattern for cross-region
+[7:03] DR that meets these specific time
+[7:05] limits. Meeting RPO less than 5 minutes.
+[7:09] RDS read replicas use asynchronous
+[7:11] replication. While there is lag, it is
+[7:14] typically in the range of seconds or
+[7:16] milliseconds, rarely exceeding a minute
+[7:18] under normal conditions. This easily
+[7:21] satisfies the less than 5 minutes data
+[7:23] loss limit. Meeting RTO less than 10
+[7:27] minutes. In a disaster, you can promote
+[7:29] a read replica to be a stand-alone
+[7:31] primary DB instance. This process
+[7:33] generally takes a few minutes to
+[7:35] complete, reboot and recovery, which
+[7:38] fits comfortably within the 10-minute
+[7:40] RTO limit. Cost. Standard RDS MySQL
+[7:44] {slash} PostgreSQL is generally cheaper
+[7:46] than Aurora and standard cross-region
+[7:49] replication is a built-in feature that
+[7:51] doesn't require extra infrastructure
+[7:53] like DMS servers. Option A, take
+[7:56] snapshots every 5 minutes and copy to
+[7:58] secondary region, is incorrect.
+[8:01] Feasibility. Taking a snapshot of a 10
+[8:03] terabytes database every 5 minutes is
+[8:06] technically impractical and likely
+[8:07] impossible due to IO impact. RTO
+[8:10] impossible due to IO impact. RTO violation.
+[8:11] Restoring a 10 terabytes snapshot in the
+[8:14] secondary region would take hours,
+[8:16] massively violating the less than 10
+[8:18] minutes RTO requirement. You cannot
+[8:21] hydrate 10 terabytes of data in minutes.
+[8:24] Option C, use Aurora and AWS DMS for
+[8:27] sync, is incorrect. Complexity and cost.
+[8:31] Running two separate clusters and
+[8:32] managing an AWS DMS,
+[8:35] database migration service, replication
+[8:38] instance adds significant complexity and
+[8:40] cost. Compute cost for DMS instance plus
+[8:43] replication traffic. Better native
+[8:45] replication traffic. Better native option.
+[8:46] Aurora has a native global database
+[8:48] feature, not listed here, but superior
+[8:51] to DMS or cross-region replication.
+[8:54] Using DMS for homogeneous Aurora to
+[8:57] Using DMS for homogeneous Aurora to Aurora
+[8:58] replication is generally an anti-pattern
+[9:00] when native replication exists. Option B
+[9:03] achieves the goal more simply and
+[9:05] cheaply with standard RDS. Option D,
+[9:08] deploy RDS with a read replica in the
+[9:10] same region, is incorrect. Constraint
+[9:13] same region, is incorrect. Constraint violation.
+[9:14] The prompt explicitly asks for the
+[9:16] ability to failover to a secondary
+[9:18] region. Keeping the replica in the same
+[9:21] region, even a different availability
+[9:23] zone, provides high availability, HA,
+[9:26] but does not provide disaster recovery,
+[9:29] DR, against a full regional outage.
+[9:32] Therefore, the correct solution is B.
+[9:35] Question 133.
+[9:37] A company is running a web application
+[9:39] in a VPC. The web application runs on a
+[9:42] group of Amazon EC2 instances behind an
+[9:45] application load balancer, ALB. The ALB
+[9:49] is using AWS WAF. An external customer
+[9:54] needs to connect to the web application.
+[9:56] The company must provide IP addresses to
+[9:59] all external customers. Which solution
+[10:01] will meet these requirements with the
+[10:03] least operational overhead? A,
+[10:06] replace the ALB with a network load
+[10:09] balancer, NLB. Assign an elastic IP
+[10:12] address to the NLB. B,
+[10:15] allocate an elastic IP address. Assign
+[10:18] the elastic IP address to the AL.
+[10:20] Provide the elastic IP address to the
+[10:22] customer. C,
+[10:25] create an AWS Global Accelerator
+[10:27] standard accelerator. Specify the ALB as
+[10:31] the accelerator's endpoint. Provide the
+[10:33] accelerator's IP addresses to the
+[10:35] customer. D,
+[10:37] configure an Amazon CloudFront
+[10:39] distribution. Set the ALB as the origin.
+[10:43] Ping the distribution's DNS name to
+[10:45] determine the distribution's public IP
+[10:47] address. Provide the IP address to the
+[10:50] customer. This question tests your
+[10:52] knowledge of networking and content
+[10:54] knowledge of networking and content delivery.
+[10:55] Domain two. The core technical challenge
+[10:58] is providing static IP addresses for an
+[11:00] application hosted behind an application
+[11:03] load balancer, ALB. By default, ALBs
+[11:06] rely on DNS for traffic distribution
+[11:09] because their underlying IP addresses
+[11:11] change dynamically as they scale. You
+[11:13] cannot assign a static IP directly to an
+[11:16] ALB. The requirement is to give the
+[11:18] customer a fixed IP, likely for firewall
+[11:21] allow listing, without rebuilding the
+[11:23] entire architecture. Option C, create an
+[11:26] AWS Global Accelerator standard
+[11:28] accelerator, is the correct answer. AWS
+[11:32] Global Accelerator is the standard
+[11:34] solution for placing a static entry
+[11:36] point in front of dynamic AWS resources.
+[11:39] Static anycast IPs.
+[11:41] When you create an accelerator, AWS
+[11:44] provisions two static IPv4 addresses
+[11:47] that act as the front door to your
+[11:48] application. These IPs never change.
+[11:51] Seamless integration.
+[11:53] You simply add the existing application
+[11:55] load balancer as an endpoint behind the
+[11:58] accelerator. WAF preservation. Since the
+[12:01] traffic is just routed through the
+[12:03] accelerator to the ALB, your existing
+[12:06] AWS WAF configuration on the ALB remains
+[12:09] fully functional and effective. This
+[12:12] meets the least operational overhead
+[12:14] requirement because you don't need to
+[12:15] re-architect the load balancer or
+[12:17] security layer. Option A, replace the
+[12:20] ALB with a network load balancer, NLB,
+[12:24] is incorrect. While NLBs do support
+[12:27] static elastic IP addresses,
+[12:29] this solution fails on two counts. Loss
+[12:32] of WAF.
+[12:34] AWS WAF can attach to an application
+[12:37] load balancer, API Gateway, or
+[12:40] CloudFront. It cannot attach directly to
+[12:42] a network load balancer, which operates
+[12:45] at layer four. Replacing the ALB with an
+[12:48] NLB would remove the WAF protection
+[12:50] explicitly mentioned in the scenario.
+[12:53] High overhead.
+[12:54] Migrating from an ALB, layer seven, to
+[12:57] an NLB, layer four, is a complex
+[13:00] process. You would lose layer seven
+[13:02] routing rules, path-based routing, etc.,
+[13:06] and have to reconfigure SSL termination,
+[13:09] adding significant operational overhead.
+[13:11] Option B, assign an elastic IP to the
+[13:14] ALB, is incorrect. This is a technical
+[13:17] impossibility. By design, you cannot
+[13:20] assign an elastic IP address to an
+[13:22] application load balancer. ALBs are
+[13:25] designed to scale horizontally by adding
+[13:27] and removing internal nodes, so their IP
+[13:30] addresses are dynamic. You must use the
+[13:33] DNS name, e.g.,
+[13:34] DNS name, e.g., my-load-balancer.us-east-1.elb.
+[13:40] amazon.aws.com,
+[13:42] or use Global Accelerator, option C, to
+[13:45] bridge this gap. Option D, ping the
+[13:47] CloudFront distribution, is incorrect.
+[13:50] Dynamic IPs.
+[13:52] Amazon CloudFront uses a massive range
+[13:54] of IP addresses that rotate frequently.
+[13:57] Pinging the DNS name only gives you the
+[14:00] IP of the specific edge location you
+[14:02] connected to at that moment. It does not
+[14:04] give you a permanent IP for the customer
+[14:07] to whitelist. The customer's firewall
+[14:09] would break as soon as the DNS resolves
+[14:12] to a different edge server. Correct
+[14:14] CloudFront method. To use IPs with
+[14:16] CloudFront, customers must whitelist the
+[14:19] entire AWS IP JSON range for CloudFront,
+[14:23] which is burdensome, not a single static
+[14:25] IP. Therefore, the correct solution is
+[14:28] C. Question 134.
+[14:31] A company has an application that
+[14:33] generates reports and stores them in an
+[14:35] Amazon S3 bucket. When a user accesses
+[14:38] their report, the application generates
+[14:40] a signed URL to allow the user to
+[14:42] download the report. The company's
+[14:44] security team has discovered that the
+[14:46] files are public and that anyone can
+[14:48] download them without authentication.
+[14:51] The company has suspended the generation
+[14:53] of new reports until the problem is
+[14:55] resolved. Which set of actions will
+[14:57] immediately remediate the security issue
+[15:00] without impacting the application's
+[15:02] normal workflow?
+[15:04] Create an AWS Lambda function that
+[15:06] applies a deny all policy for users who
+[15:09] are not authenticated. Create a
+[15:11] scheduled event to invoke the Lambda
+[15:13] function. B,
+[15:15] review the AWS Trusted Advisor bucket
+[15:18] permissions check and implement the
+[15:19] recommended actions. C,
+[15:22] run a script that puts a private ACL on
+[15:25] all of the objects in the bucket. D,
+[15:28] use the block public access feature in
+[15:30] Amazon S3 to set the ignore public ACLs
+[15:33] option to true on the bucket. This
+[15:35] question tests your knowledge of
+[15:36] security, domain one,
+[15:38] 18, and specifically Amazon S3 data
+[15:41] protection mechanisms. The core conflict
+[15:43] here is the intended access method,
+[15:46] pre-signed URLs, which work even on
+[15:49] private objects.
+[15:50] The security flaw, the objects are
+[15:52] currently accessible via public URLs,
+[15:55] likely due to public ACLs accidentally
+[15:58] applied to the files.
+[15:59] The constraint, immediately remediate
+[16:01] and without impacting the application's
+[16:03] normal workflow. Option D, use S3 block
+[16:06] public access to set ignore public ACLs
+[16:09] to true, is the correct answer. This is
+[16:12] the fastest and most reliable kill
+[16:14] switch for accidental public access via
+[16:17] ACLs. How pre-signed URLs work.
+[16:20] Pre-signed URLs rely on the creator's
+[16:23] IAM permissions. As long as the
+[16:25] application IAM role has permission to
+[16:27] read the object, the signed URL will
+[16:30] work, even if the object is private. The
+[16:32] fix, by enabling block public access,
+[16:35] specifically ignore public ACLs,
+[16:38] S3 instantly ignores any access control
+[16:41] lists, ACLs, that grant public access to
+[16:44] objects in that bucket. It forces the
+[16:46] objects to be private. The workflow,
+[16:49] since the application uses pre-signed
+[16:51] URLs, legitimate users can still
+[16:54] download their reports. The pre-signed
+[16:56] URL bypasses the private status because
+[16:59] it carries a signature. However, random
+[17:02] internet users trying to access the
+[17:04] public link will get an access denied
+[17:06] error. Option A, create a Lambda
+[17:09] function to deny unauthenticated users,
+[17:12] is incorrect. Complexity and latency.
+[17:15] Writing, testing, and scheduling a
+[17:17] Lambda function takes time. It is not an
+[17:20] immediate fix. Reactive versus
+[17:23] immediate fix. Reactive versus proactive.
+[17:24] A scheduled Lambda is reactive. It
+[17:27] creates a window of exposure between the
+[17:29] time a file is uploaded publicly and the
+[17:31] time the Lambda runs to lock it down.
+[17:33] Option B, review AWS Trusted Advisor, is
+[17:37] incorrect. Manual process. Trusted
+[17:40] Advisor provides recommendations, but it
+[17:42] does not automatically fix the issue
+[17:45] immediately. You would still have to
+[17:47] manually go to the bucket and apply the
+[17:49] fix. Not a control. Trusted Advisor is a
+[17:52] reporting tool, not a security
+[17:54] enforcement layer. Option C, run a
+[17:57] script to put a private ACL on all
+[17:59] objects, is incorrect. Race condition.
+[18:02] Running a script, AWS S3 API put object
+[18:06] Running a script, AWS S3 API put object ACL,
+[18:08] iterates through objects one by one. For
+[18:10] a bucket with millions of reports, this
+[18:13] could take hours. During that time,
+[18:15] files remain exposed. Future prevention.
+[18:18] This only fixes existing files. If the
+[18:21] application keeps uploading new files
+[18:23] with public permissions, as the prompt
+[18:26] suggests, the workflow causes the issue.
+[18:28] The new files will still be public until
+[18:30] you run the script again. Option D
+[18:32] applies a blanket rule that protects
+[18:34] existing and future objects instantly.
+[18:37] Therefore, the correct solution is D.
+[18:40] Question 135.
+[18:42] A company has implemented an ordering
+[18:44] system using an event-driven
+[18:46] architecture. During initial testing,
+[18:49] the system stopped processing orders.
+[18:51] Further log analysis revealed that one
+[18:53] order message in an Amazon Simple Queue
+[18:55] Service, Amazon SQS,
+[18:58] standard queue was causing an error on
+[19:00] the back end and blocking all subsequent
+[19:02] order messages. The visibility timeout
+[19:04] of the queue is set to 30 seconds, and
+[19:07] the back end processing timeout is set
+[19:09] to 10 seconds. A solutions architect
+[19:11] needs to analyze faulty order messages
+[19:14] and ensure that the system continues to
+[19:16] process subsequent messages. Which step
+[19:19] should the solutions architect take to
+[19:21] meet these requirements?
+[19:23] Increase the back end processing timeout
+[19:25] to 30 seconds to match the visibility
+[19:27] timeout. B,
+[19:30] reduce the visibility timeout of the
+[19:32] queue to automatically remove the faulty
+[19:34] message. C,
+[19:36] configure a new SQS FIFO queue as a dead
+[19:39] letter queue to isolate the faulty
+[19:40] messages. D,
+[19:43] configure a new SQS standard queue as a
+[19:45] dead letter queue to isolate the faulty
+[19:47] messages. This question tests your
+[19:49] knowledge of application integration,
+[19:51] domain three, specifically focusing on
+[19:54] handling poison pill messages in Amazon
+[19:57] SQS. The scenario describes a classic
+[19:59] bottleneck. A malformed message is
+[20:02] causing the consumer application to
+[20:04] crash or fail. Because the message isn't
+[20:06] deleted, it becomes visible again after
+[20:09] the timeout, gets picked up again, and
+[20:11] crashes the app again. This loop clogs
+[20:14] the system and prevents valid messages
+[20:16] from being processed. Option D,
+[20:19] configure a new SQS standard queue as a
+[20:21] dead letter queue, DLQ,
+[20:24] is the correct answer. This step solves
+[20:26] both requirements, resuming processing
+[20:29] and enabling analysis. Isolate the
+[20:31] faulty message. You configure a redrive
+[20:34] policy on the source queue. After a
+[20:36] message fails processing a specific
+[20:38] number of times, e.g., max receive count
+[20:42] equals five, SQS automatically moves it
+[20:45] to the dead letter queue, DLQ. Unblock
+[20:48] the system. Once the poison message is
+[20:50] moved to the DLQ, it is no longer in the
+[20:53] main queue. The consumer application can
+[20:56] proceed to process the next valid
+[20:59] messages successfully. Enable analysis.
+[21:02] The faulty message is preserved safely
+[21:04] in the DLQ. Developers can inspect it
+[21:07] later to understand why it caused an
+[21:09] error without disrupting the live
+[21:11] production flow. Queue compatibility.
+[21:14] The source is a standard queue, so the
+[21:15] DLQ must also be a standard queue.
+[21:18] Option A, increase the back end
+[21:20] processing timeout, is incorrect.
+[21:23] Changing the timeout does not fix the
+[21:25] root cause. If a message contains bad
+[21:27] data that causes the code to throw an
+[21:29] data that causes the code to throw an exception,
+[21:30] waiting longer, 30 seconds versus 10
+[21:33] waiting longer, 30 seconds versus 10 seconds,
+[21:34] won't make the code work. It simply
+[21:36] delays the inevitable failure and slows
+[21:38] down the retry loop. Option B, reduce
+[21:41] the visibility timeout, is incorrect.
+[21:44] This makes the problem worse. Reducing
+[21:46] the visibility timeout means the faulty
+[21:49] message will reappear in the queue
+[21:50] faster after it fails. This tightens the
+[21:53] crash loop and increases the load on
+[21:55] your consumers, but it never removes the
+[21:57] bad message from the queue. Option C,
+[22:00] configure a new SQS FIFO queue as a DLQ,
+[22:04] is incorrect. Queue type mismatch.
+[22:07] You strictly cannot mix queue types. A
+[22:09] standard queue can only use a standard
+[22:11] DLQ. A FIFO queue can only use a FIFO
+[22:15] DLQ. Since the prompt specifies the
+[22:17] source is a standard queue,
+[22:20] the DLQ cannot be FIFO. Therefore, the
+[22:22] correct solution is D. Question 136.
+[22:27] A company has a project that is
+[22:29] launching Amazon EC2 instances that are
+[22:31] larger than required. The project's
+[22:33] account cannot be part of the company's
+[22:35] organization in AWS Organizations due to
+[22:38] policy restrictions to keep this
+[22:40] activity outside of corporate IT. The
+[22:43] company wants to allow only the launch
+[22:45] of t3.small EC2 instances by developers
+[22:48] in the project's account. These EC2
+[22:50] instances must be restricted to the US
+[22:53] East 2 region. What should a solutions
+[22:55] architect do to meet these requirements?
+[22:59] Create a new developer account. Move all
+[23:02] EC2 instances, users, and assets into US
+[23:05] East 2. Add the account to the company's
+[23:08] organization in AWS Organizations.
+[23:11] Enforce a tagging policy that denotes
+[23:13] region affinity. B,
+[23:16] create an SCP that denies the launch of
+[23:18] all EC2 instances except t3.small EC2
+[23:21] instances in US East 2. Attach the SCP
+[23:24] to the project's account. C,
+[23:27] create and purchase a t3.small EC2
+[23:30] reserved instance for each developer in
+[23:33] US East 2. Assign each developer a
+[23:35] specific EC2 instance with their name as
+[23:38] the tag. D,
+[23:40] create an IAM policy that allows the
+[23:42] launch of only t3.small EC2 instances in
+[23:45] US East 2. Attach the policy to the
+[23:48] roles and groups that the developers use
+[23:50] in the project's account. This question
+[23:52] tests your knowledge of management and
+[23:54] governance, domain one, and IAM
+[23:57] permission boundaries. The crucial
+[23:59] constraint here is that the account
+[24:01] cannot be part of the company's
+[24:03] cannot be part of the company's organization.
+[24:04] This eliminates centralized governance
+[24:06] tools like service control policies,
+[24:09] SCPs. You must secure the account using
+[24:12] local controls. Option D, create an IAM
+[24:15] policy with conditions, is the correct
+[24:17] answer. Since we cannot use organization
+[24:20] level controls,
+[24:21] we must 20T use identity-based policies
+[24:24] within the account itself. Mechanism,
+[24:27] you can write an IAM policy for the EC2
+[24:30] RunInstances action that uses condition
+[24:32] keys. Instance type restriction,
+[24:35] use the condition EC2
+[24:37] instance type equals t3.small.
+[24:40] Region restriction,
+[24:42] use the condition AWS
+[24:45] requested region equals US East 2.
+[24:48] requested region equals US East 2. Application,
+[24:49] attaching this policy to the developers'
+[24:51] IAM groups or roles ensures that any
+[24:54] attempt to launch a different instance
+[24:55] type or in a different region receives
+[24:57] an access denied error. This effectively
+[25:00] enforces the rule locally. Option A,
+[25:03] move to organization and use tagging
+[25:05] policy, is incorrect. Constraint
+[25:08] policy, is incorrect. Constraint violation.
+[25:09] The prompt explicitly states the account
+[25:12] cannot be part of the company's
+[25:13] organization. This option suggests
+[25:16] adding the account to the organization,
+[25:18] which contradicts the business
+[25:19] requirement. Wrong tool.
+[25:22] A tag policy enforces that resources
+[25:24] have specific tags, e.g., department
+[25:28] have specific tags, e.g., department finance.
+[25:29] It does not prevent the creation of
+[25:31] expensive instance types like
+[25:32] expensive instance types like m5.4xlarge.
+[25:34] Option B, create an SCP, is incorrect.
+[25:38] Prerequisite missing. Service control
+[25:40] Prerequisite missing. Service control policies,
+[25:41] policies, SCPs,
+[25:43] are a feature exclusive to AWS
+[25:45] Organizations. Because the specific
+[25:47] account is stand-alone and not part of
+[25:49] an organization, you physically cannot
+[25:52] create or attach an SCP to it. Option C,
+[25:56] purchase reserved instances, RIs, is
+[25:59] incorrect. Billing versus access.
+[26:02] Reserved instances are a billing
+[26:04] discount mechanism, not an access
+[26:06] control mechanism. Purchasing RIs does
+[26:09] not stop a developer from launching an
+[26:11] on-demand c5.24xlarge
+[26:13] on-demand c5.24xlarge instance.
+[26:14] It just means that the expensive
+[26:15] instance won't get the RI discount. This
+[26:18] fails to meet the requirement to allow
+[26:20] only the launch of t3.small.
+[26:23] Therefore, the correct solution is D.
+[26:25] Question 137.
+[26:28] A company has 10 accounts that are part
+[26:30] of an organization in AWS Organizations.
+[26:33] AWS Config is configured in each
+[26:36] account. All accounts belong to either
+[26:38] the prod OU or the non-prod OU. The
+[26:41] company has set up an Amazon EventBridge
+[26:43] rule in each AWS account to notify an
+[26:46] Amazon Simple Notification Service,
+[26:49] Amazon SNS,
+[26:51] topic when an Amazon EC2 security group
+[26:53] inbound rule is created with 0.0.0.0/0
+[26:58] inbound rule is created with 0.0.0.0/0 as
+[26:59] the source. The company's security team
+[27:01] is subscribed to the SNS topic. For all
+[27:05] accounts in the non-prod OU, the
+[27:07] security team needs to remove the
+[27:08] ability to create a security group
+[27:10] inbound rule that includes 0.0.0.0/0
+[27:15] as the source. Which solution will meet
+[27:18] this requirement with the least
+[27:19] operational overhead?
+[27:22] Modify the EventBridge rule to invoke an
+[27:24] AWS Lambda function to remove the
+[27:26] security group inbound rule and to
+[27:28] publish to the SNS topic. Deploy the
+[27:31] updated rule to the non-prod OU. B,
+[27:34] add the VPC SG open only to authorized
+[27:37] ports AWS Config managed rule to the
+[27:40] non-prod OU. C,
+[27:42] configure an SCP to allow the EC2
+[27:45] configure an SCP to allow the EC2 AuthorizeSecurityGroupIngress
+[27:47] action when the value of the AWS
+[27:50] SourceIp condition key is not 0.0.0.0/0.
+[27:54] Apply the SCP to the non-prod OU.
+[27:56] Apply the SCP to the non-prod OU. D,
+[28:00] configure an SCP to deny the EC2
+[28:03] configure an SCP to deny the EC2 AuthorizeSecurityGroupIngress
+[28:05] action when the value of the AWS
+[28:08] SourceIp condition key is 0.0.0.0/0.
+[28:14] Apply the SCP to the non-prod OU. This
+[28:17] question tests your knowledge of
+[28:18] management and governance, domain one,
+[28:21] specifically leveraging service control
+[28:23] policies, SCPs,
+[28:26] within AWS Organizations to enforce
+[28:28] preventative controls. The key
+[28:30] requirements are objective, remove the
+[28:33] ability to create 0.0.0.0/0
+[28:37] ability to create 0.0.0.0/0 rules.
+[28:39] This requires an immediate blocking
+[28:41] mechanism, not a remediation after the
+[28:43] fact. Scope,
+[28:45] apply only to the non-prod OU.
+[28:48] Constraint, least operational overhead.
+[28:51] Option D, configure an SCP to deny the
+[28:54] action, is the correct answer. This is
+[28:57] the standard, most efficient method to
+[28:59] block specific actions across multiple
+[29:01] accounts. Mechanism,
+[29:04] SCPs act as a top-level permission
+[29:06] filter for accounts. An explicit deny
+[29:08] statement in an SCP always overrides any
+[29:11] allow permissions a user might have in
+[29:13] their local IAM policies. Effectiveness,
+[29:16] by attaching this SCP to the non-prod
+[29:19] OU, you immediately block any API call,
+[29:22] OU, you immediately block any API call, EC2
+[29:24] EC2 AuthorizeSecurityGroupIngress,
+[29:26] attempting to open ports to 0.0.0.0/0.
+[29:31] Users will receive an access denied
+[29:34] error the moment they click save,
+[29:37] stopping the security risk before it is
+[29:39] created. Operational overhead,
+[29:41] you only need to author a single JSON
+[29:44] policy file and attach it to the OU.
+[29:46] There is no code to write, no Lambda
+[29:48] functions to manage, and no individual
+[29:51] account configuration required. Option
+[29:53] A, modify EventBridge to invoke Lambda,
+[29:57] is incorrect. Reactive nature.
+[30:00] This solution implies that the security
+[30:02] group rule is created first, and then
+[30:04] Lambda runs to delete it. During that
+[30:06] short window, seconds or minutes, the
+[30:08] port is open and the system is exposed.
+[30:11] The prompt asks to remove the ability to
+[30:13] create, not delete after creation. High
+[30:17] overhead. Maintaining custom Lambda code
+[30:20] and EventBridge rules across multiple
+[30:21] accounts creates significantly higher
+[30:24] operational overhead compared to a
+[30:26] single SCP. Option B, add an AWS Config
+[30:30] managed rule, is incorrect. Detective
+[30:33] managed rule, is incorrect. Detective nature.
+[30:34] AWS Config rules are used for compliance
+[30:37] auditing. They will flag the security
+[30:39] group as non-compliant after it has been
+[30:41] created, but they do not prevent the
+[30:43] user from creating it in the first
+[30:45] place. Option C, configure an SCP to
+[30:48] allow with conditions, is incorrect.
+[30:51] Misunderstanding of SCP logic. In AWS
+[30:55] organizations, accounts typically have a
+[30:57] default SCP named full AWS access, which
+[31:01] allows everything. Adding a new SCP with
+[31:04] an allow statement does not override the
+[31:06] existing default allow. To make option C
+[31:09] work, a whitelist approach, you would
+[31:11] have to detach the default full AWS
+[31:13] access policy and explicitly list every
+[31:16] single allowed action for the account,
+[31:18] which creates a massive administrative
+[31:20] burden and risk of breaking services.
+[31:22] The correct way to block specific bad
+[31:25] behaviors is using a deny list. Option
+[31:27] D. Therefore, the correct solution is D.
+[31:31] Question 138.
+[31:33] A company is storing data on premises on
+[31:36] a Windows file server. The company
+[31:38] produces 5 GB of new data daily. The
+[31:41] company migrated part of its
+[31:42] Windows-based workload to AWS and needs
+[31:45] the data to be available on a file
+[31:47] system in the cloud. The company already
+[31:49] has established an AWS Direct Connect
+[31:52] connection between the on-premises
+[31:53] network and AWS. Which data migration
+[31:57] strategy should the company use?
+[32:00] Use the file gateway option in AWS
+[32:02] Storage Gateway to replace the existing
+[32:04] Windows file server and point the
+[32:07] existing file share to the new file
+[32:09] gateway. B.
+[32:10] Use AWS DataSync to schedule a daily
+[32:13] task to replicate data between the
+[32:15] on-premises Windows file server and
+[32:17] Amazon FSx. C.
+[32:20] Use AWS Data Pipeline to schedule a
+[32:22] daily task to replicate data between the
+[32:24] on-premises Windows file server and
+[32:26] Amazon Elastic File System, Amazon EFS.
+[32:30] Amazon Elastic File System, Amazon EFS. D.
+[32:31] Use AWS DataSync to schedule a daily
+[32:34] task to replicate data between the
+[32:36] on-premises Windows file server and
+[32:38] Amazon Elastic File System, Amazon EFS.
+[32:42] This question tests your knowledge of
+[32:43] migration and data transfer, domain
+[32:46] four, and selecting the appropriate
+[32:48] storage service for Windows workloads.
+[32:50] There are two key requirements to
+[32:52] address. Compatibility.
+[32:54] The source is a Windows file server and
+[32:57] the destination is a Windows-based
+[32:59] workload. This implies the SMB protocol
+[33:02] is mandatory.
+[33:03] Migration mechanism. An automated
+[33:06] process is needed to sync 5 GB of new
+[33:09] data daily. Option B, use AWS DataSync
+[33:12] to replicate to Amazon FSx, is the
+[33:15] correct answer. This solution correctly
+[33:18] identifies both the appropriate transfer
+[33:20] tool and the destination storage.
+[33:22] Destination, Amazon FSx for Windows file
+[33:25] server since the application runs on
+[33:27] Windows. It expects a file system that
+[33:30] supports the SMB, server message block,
+[33:33] protocol and integrates with Active
+[33:35] Directory. Amazon FSx is the native AWS
+[33:38] service providing a fully managed
+[33:40] Windows file server, ensuring 100%
+[33:43] compatibility with the current workload.
+[33:45] Tool, AWS DataSync. This is the
+[33:48] specialized service for automating
+[33:50] online data migration. DataSync can
+[33:53] connect to the on-premises SMB server,
+[33:55] detect changes, 5 GB per day, and
+[33:59] efficiently replicate them to AWS over
+[34:01] Direct Connect, significantly faster
+[34:04] than manual scripting tools. Option D,
+[34:06] use AWS DataSync to Amazon EFS, is
+[34:09] incorrect. Protocol mismatch. Amazon
+[34:13] EFS, Elastic File System, is an NFS,
+[34:17] network file system, based storage,
+[34:20] primarily designed for Linux. While you
+[34:22] technically can install an NFS client on
+[34:24] Windows, it is not a native solution and
+[34:27] typically lacks full support for Windows
+[34:29] features, ACLs, Active Directory
+[34:32] integration, required by Windows
+[34:34] workloads. FSx is the correct choice for
+[34:37] Windows. Option C, use AWS Data Pipeline
+[34:40] to Amazon EFS, is incorrect. Legacy
+[34:44] tool. AWS Data Pipeline is an older
+[34:47] service, typically used for ETL tasks or
+[34:50] periodic DynamoDB/S3
+[34:53] data movements. It is not optimized for
+[34:55] high-performance file system
+[34:57] synchronization like DataSync. Wrong
+[34:59] destination. As analyzed in option D,
+[35:03] EFS is unsuitable for Windows workloads.
+[35:06] Option A, use file gateway to replace
+[35:08] the server, is incorrect. Purpose
+[35:11] mismatch. File gateway, part of Storage
+[35:14] Gateway, is typically used in hybrid
+[35:16] cloud models to provide a low-latency
+[35:18] on-premises cache for data backed by S3.
+[35:21] Storage type. While it provides an SMB
+[35:24] interface, its back end is Amazon S3
+[35:27] object storage, not a high-performance
+[35:30] file system for cloud-based applications
+[35:32] to access directly with low latency like
+[35:34] FSx. Requirement. The prompt asks for
+[35:38] data to be available on a file system in
+[35:40] the cloud for the migrated application.
+[35:43] File gateway primarily serves on-prem
+[35:45] users accessing cloud storage, which is
+[35:47] the reverse of the requirement.
+[35:49] Therefore, the correct solution is B.
+[35:52] Question 139.
+[35:54] A company is deploying a distributed
+[35:57] in-memory database on a fleet of Amazon
+[35:59] EC2 instances. The fleet consists of a
+[36:02] primary node and eight worker nodes. The
+[36:04] primary node is responsible for
+[36:06] monitoring cluster health, accepting
+[36:08] user requests, distributing user
+[36:11] requests to worker nodes, and sending an
+[36:13] aggregate response back to a client.
+[36:16] Worker nodes communicate with each other
+[36:18] to replicate data partitions. The
+[36:20] company requires the lowest possible
+[36:22] networking latency to achieve maximum
+[36:25] performance. Which solution will meet
+[36:27] these requirements? A.
+[36:30] Launch memory optimized EC2 instances in
+[36:33] a partition placement group. B.
+[36:36] Launch compute optimized EC2 instances
+[36:39] in a partition placement group. C.
+[36:42] Launch memory optimized EC2 instances in
+[36:45] a cluster placement group. D.
+[36:48] Launch compute optimized EC2 instances
+[36:51] in a spread placement group. This
+[36:53] question tests your knowledge of compute
+[36:54] performance, domain two, specifically
+[36:57] matching EC2 instance types to workloads
+[37:00] and understanding placement group
+[37:02] strategies for network optimization.
+[37:04] There are two distinct requirements to
+[37:06] map. Workload type, in-memory database.
+[37:10] Network requirement. Lowest possible
+[37:13] networking latency. Option C, launch
+[37:16] memory optimized instances in a cluster
+[37:18] placement group, is the correct answer.
+[37:21] This solution addresses both
+[37:22] requirements perfectly. Memory optimized
+[37:25] instances, e.g., R or X family in-memory
+[37:29] databases, like Redis or Memcached,
+[37:32] require large amounts of RAM to store
+[37:34] data sets for fast access. Memory
+[37:36] optimized instances are architected
+[37:39] specifically for these memory-intensive
+[37:41] workloads. Cluster placement group. This
+[37:44] strategy packs instances close together
+[37:46] inside a single availability zone, often
+[37:49] within the same rack. This physical
+[37:51] proximity provides the lowest possible
+[37:53] network latency and high per-flow
+[37:55] throughput, which is critical for the
+[37:57] worker nodes communicating with each
+[37:58] other in this scenario. Option A,
+[38:01] partition placement group, is incorrect.
+[38:03] While the instance type, memory
+[38:05] optimized, is correct, the placement
+[38:08] group is suboptimal for this specific
+[38:10] goal. Partition placement groups are
+[38:12] designed for large distributed
+[38:13] workloads, like Hadoop/HDFS,
+[38:17] Kafka, to ensure that instances are
+[38:19] spread across different racks to prevent
+[38:21] correlated hardware failures. While they
+[38:24] offer decent network performance, they
+[38:26] prioritize failure isolation over the
+[38:28] absolute lowest latency provided by
+[38:30] cluster groups. Option B, compute
+[38:33] optimized plus partition, is incorrect.
+[38:36] Instance mismatch. Compute optimized, C
+[38:39] family, instances prioritize CPU power.
+[38:43] While useful for high-performance web
+[38:45] servers or batch processing, they
+[38:47] typically have less RAM per vCPU
+[38:49] compared to memory optimized instances.
+[38:52] Using them for an in-memory database
+[38:54] could lead to memory bottlenecks.
+[38:56] Placement mismatch. As noted in option
+[38:59] A, partition groups are not the best
+[39:01] choice for lowest possible latency.
+[39:04] Option D, compute optimized plus spread,
+[39:07] is incorrect. Instance mismatch. Same
+[39:10] issue as option B, wrong instance
+[39:13] family. Latency impact. Spread placement
+[39:16] groups are designed for maximum high
+[39:18] availability by placing each instance on
+[39:20] distinct hardware racks. This maximizes
+[39:23] the physical distance between instances,
+[39:26] which inherently increases network
+[39:28] latency. This is the exact opposite of
+[39:31] the requirement. Therefore, the correct
+[39:33] solution is C. Question 140. A company
+[39:37] hosts a VPN in an on-premises data
+[39:40] center. Employees currently connect to
+[39:42] the VPN to access files in their Windows
+[39:44] home directories. Recently, there has
+[39:47] been a large growth in the number of
+[39:49] employees who work remotely. As a
+[39:51] result, bandwidth usage for connections
+[39:54] into the data center has begun to reach
+[39:56] 100% during business hours. The company
+[39:59] must design a solution on AWS that will
+[40:02] support the growth of the company's
+[40:03] remote workforce,
+[40:05] reduce the bandwidth usage for
+[40:06] connections into the data center, and
+[40:09] reduce operational overhead. Which
+[40:11] combination of steps will meet these
+[40:13] requirements with the least operational
+[40:15] overhead? Choose two. A,
+[40:18] create an AWS storage gateway volume
+[40:21] gateway. Mount a volume from the volume
+[40:24] gateway to the on-premises file server.
+[40:27] gateway to the on-premises file server. B,
+[40:28] migrate the home directories to Amazon
+[40:30] FSx for Windows file server. C,
+[40:34] migrate the home directories to Amazon
+[40:36] FSx for Lustre. D,
+[40:39] migrate remote users to AWS client VPN.
+[40:42] migrate remote users to AWS client VPN. E,
+[40:43] create an AWS Direct Connect connection
+[40:46] from the on-premises data center to AWS.
+[40:49] This question tests your knowledge of
+[40:51] migration and data transfer, domain
+[40:53] four, and hybrid networking.
+[40:56] Specifically addressing how to resolve
+[40:58] on-premises bandwidth bottlenecks by
+[40:59] offloading workloads to AWS. There are
+[41:02] two core issues to resolve. Storage
+[41:05] bottleneck, Windows home directories are
+[41:07] currently on-premises and consuming
+[41:09] bandwidth when accessed.
+[41:11] Connectivity bottleneck,
+[41:13] the on-premises VPN gateway is
+[41:15] saturated, 100% bandwidth usage. Option
+[41:19] B, migrate to Amazon FSx for Windows
+[41:21] file server, is the correct answer.
+[41:24] Compatibility, since the source is
+[41:26] Windows home directories, Amazon FSx for
+[41:30] Windows file server is the perfect
+[41:32] native solution. It provides a fully
+[41:34] compatible SMB file system with support
+[41:36] for Active Directory and Windows ACLs.
+[41:39] Bandwidth resolution,
+[41:41] by moving the data to AWS,
+[41:43] remote users will access files directly
+[41:46] from the AWS cloud instead of routing
+[41:48] through the corporate internet
+[41:49] connection. This immediately offloads
+[41:52] the bandwidth strain on the data center.
+[41:54] Option D, migrate remote users to AWS
+[41:57] client VPN, is the correct answer.
+[42:00] client VPN, is the correct answer. Scalability,
+[42:01] AWS client VPN is a managed elastic VPN
+[42:05] service that can support thousands of
+[42:07] concurrent users without being limited
+[42:09] by on-premises physical hardware.
+[42:12] Architecture, users connect to the
+[42:14] client VPN endpoint in AWS, and then
+[42:17] access Amazon FSx, from option B,
+[42:21] directly within the VPC. File access
+[42:23] traffic stays entirely within the AWS
+[42:26] traffic stays entirely within the AWS cloud,
+[42:27] bypassing the on-premises infrastructure
+[42:29] completely and solving the 100%
+[42:31] bandwidth usage issue. Option A, use
+[42:34] storage gateway volume gateway, is
+[42:36] incorrect. Mechanism, volume gateway
+[42:39] presents iSCSI block storage to the
+[42:41] on-premises server. The data path still
+[42:44] requires traffic to flow through the
+[42:46] on-premises Windows server to reach the
+[42:48] user. Ineffective, if users still
+[42:51] connect via the on-prem VPN to access
+[42:53] the file server, which mounts the volume
+[42:55] gateway, network traffic still traverses
+[42:58] the corporate internet line. The
+[43:00] bandwidth bottleneck remains unsolved.
+[43:02] Option C, migrate to Amazon FSx for
+[43:05] Lustre, is incorrect. Wrong use case,
+[43:09] FSx for Lustre is a high-performance
+[43:11] parallel file system designed for HPC
+[43:14] and machine learning on Linux. It does
+[43:16] not support the SMB protocol or Windows
+[43:19] user management features, home
+[43:20] directories, required by the scenario.
+[43:23] Option E, create an AWS Direct Connect
+[43:26] connection, is incorrect. Cost and lead
+[43:29] connection, is incorrect. Cost and lead time,
+[43:30] provisioning Direct Connect is expensive
+[43:32] and takes significant time,
+[43:34] and takes significant time, weeks/months,
+[43:36] to install. Fails to solve root cause,
+[43:39] while Direct Connect adds bandwidth,
+[43:41] keeping the file server and VPN endpoint
+[43:43] on-premises is just buying a bigger pipe
+[43:46] rather than re-architecting for a remote
+[43:48] workforce. Furthermore, the requirement
+[43:51] is to reduce bandwidth usage,
+[43:53] not increase capacity. Moving the data
+[43:56] to the cloud, option B plus D, is the
+[43:59] correct way to reduce the load.
+[44:01] Therefore, the correct combination is B
+[44:03] and D. And that wraps up our 10
+[44:05] questions for today. If you found this
+[44:08] breakdown helpful, please share it with
+[44:10] your friends and colleagues who share
+[44:11] the goal of conquering the AWS SAP C02
+[44:16] certification. Let's build a strong
+[44:19] collaborative learning community
+[44:20] together. Make sure to join me in the
+[44:22] next video for our next set of
+[44:24] questions. Happy learning.

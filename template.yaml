@@ -1,0 +1,717 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: DB-less RAG demo using S3 Files, ripgrep, and provider-agnostic LangChain LLMs.
+
+Parameters:
+  LLMProvider:
+    Type: String
+    AllowedValues: [openai, anthropic, bedrock]
+  LLMModel:
+    Type: String
+    Default: demo
+  LLMSecretArn:
+    Type: String
+    Default: ""
+    Description: Secrets Manager ARN containing {"apiKey":"..."}; not needed for Bedrock.
+  RipgrepLayerArn:
+    Type: String
+    Default: ""
+    Description: ARN of a Lambda layer containing the rg binary.
+  FrontendOrigin:
+    Type: String
+    Default: http://localhost:5173
+    Description: Browser origin allowed to call the HTTP API.
+
+Conditions:
+  HasLlmSecret: !Not [!Equals [!Ref LLMSecretArn, ""]]
+  HasRipgrepLayer: !Not [!Equals [!Ref RipgrepLayerArn, ""]]
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Architectures: [arm64]
+    Timeout: 30
+    MemorySize: 512
+    Environment:
+      Variables:
+        LLM_PROVIDER: !Ref LLMProvider
+        LLM_MODEL: !Ref LLMModel
+        LLM_SECRET_ARN: !If [HasLlmSecret, !Ref LLMSecretArn, ""]
+
+Resources:
+  DocumentsBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub
+        - "${StackUuid}-documents"
+        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ["*"]
+            AllowedMethods: [GET, PUT, POST, HEAD]
+            AllowedOrigins: [!Ref FrontendOrigin]
+            ExposedHeaders: [ETag]
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: AbortIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      NotificationConfiguration:
+        EventBridgeConfiguration:
+          EventBridgeEnabled: true
+
+  JobsBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: QuestionWorkerInvokePermission
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub
+        - "${StackUuid}-jobs"
+        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: ExpireQuestionArtifacts
+            Status: Enabled
+            ExpirationInDays: 7
+          - Id: AbortIncompleteMultipartUploads
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:Put
+            Function: !GetAtt QuestionWorkerFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: llm-requests/
+                  - Name: suffix
+                    Value: .json
+
+  RagVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.42.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      Tags:
+        - Key: Name
+          Value: db-less-rag-vpc
+
+  RetrievalSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RagVpc
+      CidrBlock: 10.42.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      MapPublicIpOnLaunch: false
+
+  RetrievalSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref RagVpc
+      CidrBlock: 10.42.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      MapPublicIpOnLaunch: false
+
+  RetrievalRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref RagVpc
+
+  RetrievalRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref RagVpc
+
+  RetrievalRouteTableAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RetrievalRouteTableA
+      SubnetId: !Ref RetrievalSubnetA
+
+  RetrievalRouteTableAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RetrievalRouteTableB
+      SubnetId: !Ref RetrievalSubnetB
+
+  S3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref RagVpc
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.s3
+      VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref RetrievalRouteTableA
+        - !Ref RetrievalRouteTableB
+
+  RetrievalSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allows retrieval Lambda to reach S3 Files over NFS.
+      VpcId: !Ref RagVpc
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
+
+  RetrievalSecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RetrievalSecurityGroup
+      IpProtocol: tcp
+      FromPort: 2049
+      ToPort: 2049
+      SourceSecurityGroupId: !Ref RetrievalSecurityGroup
+
+  S3FilesServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: elasticfilesystem.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+              ArnLike:
+                aws:SourceArn: !Sub "arn:${AWS::Partition}:s3files:${AWS::Region}:${AWS::AccountId}:file-system/*"
+      Policies:
+        - PolicyName: ReadDocumentsForS3Files
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:ListBucketVersions
+                Resource: !GetAtt DocumentsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - s3:AbortMultipartUpload
+                  - s3:DeleteObject*
+                  - s3:GetObject*
+                  - s3:List*
+                  - s3:PutObject*
+                Resource: !Sub "${DocumentsBucket.Arn}/*"
+              - Effect: Allow
+                Action:
+                  - events:DeleteRule
+                  - events:DisableRule
+                  - events:EnableRule
+                  - events:PutRule
+                  - events:PutTargets
+                  - events:RemoveTargets
+                Condition:
+                  StringEquals:
+                    events:ManagedBy: elasticfilesystem.amazonaws.com
+                Resource: !Sub "arn:${AWS::Partition}:events:*:*:rule/DO-NOT-DELETE-S3-Files*"
+              - Effect: Allow
+                Action:
+                  - events:DescribeRule
+                  - events:ListRuleNamesByTarget
+                  - events:ListRules
+                  - events:ListTargetsByRule
+                Resource: !Sub "arn:${AWS::Partition}:events:*:*:rule/*"
+
+  DocumentsS3FileSystem:
+    Type: AWS::S3Files::FileSystem
+    Properties:
+      AcceptBucketWarning: true
+      Bucket: !GetAtt DocumentsBucket.Arn
+      RoleArn: !GetAtt S3FilesServiceRole.Arn
+      Tags:
+        - Key: Name
+          Value: db-less-rag-documents
+
+  S3FilesMountTargetA:
+    Type: AWS::S3Files::MountTarget
+    Properties:
+      FileSystemId: !Ref DocumentsS3FileSystem
+      SubnetId: !Ref RetrievalSubnetA
+      SecurityGroups: [!Ref RetrievalSecurityGroup]
+
+  S3FilesMountTargetB:
+    Type: AWS::S3Files::MountTarget
+    Properties:
+      FileSystemId: !Ref DocumentsS3FileSystem
+      SubnetId: !Ref RetrievalSubnetB
+      SecurityGroups: [!Ref RetrievalSecurityGroup]
+
+  DocumentsS3FilesAccessPoint:
+    Type: AWS::S3Files::AccessPoint
+    Properties:
+      FileSystemId: !Ref DocumentsS3FileSystem
+      PosixUser:
+        Uid: 1000
+        Gid: 1000
+      RootDirectory:
+        Path: /
+      Tags:
+        - Key: Name
+          Value: db-less-rag-lambda-access
+
+  DocumentsS3FilesFileSystemPolicy:
+    Type: AWS::S3Files::FileSystemPolicy
+    Properties:
+      FileSystemId: !Ref DocumentsS3FileSystem
+      Policy:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowQuestionsApiMount
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt QuestionsApiFunctionRole.Arn
+            Action:
+              - s3files:ClientMount
+            Resource: !Ref DocumentsS3FileSystem
+            Condition:
+              StringEquals:
+                s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+          - Sid: AllowDocumentsApiMount
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt DocumentsApiFunctionRole.Arn
+            Action:
+              - s3files:ClientMount
+            Resource: !Ref DocumentsS3FileSystem
+            Condition:
+              StringEquals:
+                s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+          - Sid: AllowDocumentProcessorReadWrite
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt DocumentProcessingFunctionRole.Arn
+            Action:
+              - s3files:ClientMount
+            Resource: !Ref DocumentsS3FileSystem
+            Condition:
+              StringEquals:
+                s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      CorsConfiguration:
+        AllowOrigins: [!Ref FrontendOrigin]
+        AllowHeaders: [content-type, x-user-id]
+        AllowMethods: [GET, POST, OPTIONS]
+  DocumentsApiFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: DocumentsFileSystemAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3files:ClientMount
+                Resource: !Ref DocumentsS3FileSystem
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt DocumentsBucket.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt DocumentsBucket.Arn
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - documents/*
+
+  DocumentsApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata: &BuildMetadata
+      BuildMethod: esbuild
+      BuildProperties:
+        EntryPoints:
+          - handlers/index.ts
+        External:
+          - "@aws-sdk/*"
+        Format: cjs
+        Minify: false
+        Sourcemap: true
+        Target: es2022
+    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
+    Properties:
+      CodeUri: src/
+      Handler: handlers/index.documents
+      Role: !GetAtt DocumentsApiFunctionRole.Arn
+      Environment:
+        Variables:
+          DOCUMENTS_BUCKET: !Ref DocumentsBucket
+      VpcConfig:
+        SecurityGroupIds: [!Ref RetrievalSecurityGroup]
+        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
+      FileSystemConfigs:
+        - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+          LocalMountPath: /mnt/documents
+      Events:
+        ListDocuments:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /documents
+            Method: GET
+
+  DocumentUploadFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: PresignedDocumentUploads
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub "${DocumentsBucket.Arn}/processing/*"
+
+  DocumentUploadFunction:
+    Type: AWS::Serverless::Function
+    Metadata: *BuildMetadata
+    Properties:
+      CodeUri: src/
+      Handler: handlers/index.documentUploads
+      Role: !GetAtt DocumentUploadFunctionRole.Arn
+      Environment:
+        Variables:
+          DOCUMENTS_BUCKET: !Ref DocumentsBucket
+      Events:
+        CreateUploadUrl:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /documents/upload-url
+            Method: POST
+        StartDocumentProcessing:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /documents/process
+            Method: POST
+
+  QuestionsApiFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: QuestionsApiAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: s3files:ClientMount
+                Resource: !Ref DocumentsS3FileSystem
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub "${JobsBucket.Arn}/llm-requests/*"
+              - Effect: Allow
+                Action: s3:GetObject
+                Resource:
+                  - !Sub "${JobsBucket.Arn}/llm-requests/*"
+                  - !Sub "${JobsBucket.Arn}/llm-responses/*"
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt JobsBucket.Arn
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - llm-requests/*
+                      - llm-responses/*
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+
+  QuestionsApiFunction:
+    Type: AWS::Serverless::Function
+    Metadata: *BuildMetadata
+    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
+    Properties:
+      CodeUri: src/
+      Handler: handlers/index.questions
+      Role: !GetAtt QuestionsApiFunctionRole.Arn
+      Environment:
+        Variables:
+          JOBS_BUCKET: !Ref JobsBucket
+          DOCUMENTS_MOUNT_PATH: /mnt/documents
+      VpcConfig:
+        SecurityGroupIds: [!Ref RetrievalSecurityGroup]
+        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
+      FileSystemConfigs:
+        - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+          LocalMountPath: /mnt/documents
+      Layers: !If [HasRipgrepLayer, [!Ref RipgrepLayerArn], !Ref AWS::NoValue]
+      Events:
+        AskQuestion:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /questions
+            Method: POST
+        GetJob:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /questions/{jobId}
+            Method: GET
+
+  DocumentProcessingFunction:
+    Type: AWS::Serverless::Function
+    Metadata: *BuildMetadata
+    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
+    Properties:
+      CodeUri: src/
+      Handler: handlers/index.processDocument
+      Timeout: 120
+      MemorySize: 1024
+      Role: !GetAtt DocumentProcessingFunctionRole.Arn
+      Environment:
+        Variables:
+          DOCUMENTS_BUCKET: !Ref DocumentsBucket
+      VpcConfig:
+        SecurityGroupIds: [!Ref RetrievalSecurityGroup]
+        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
+      FileSystemConfigs:
+        - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
+          LocalMountPath: /mnt/documents
+
+  DocumentProcessingFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: DocumentFileSystemAccess
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3files:ClientMount
+                Resource: !Ref DocumentsS3FileSystem
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                Resource:
+                  - !Sub "${DocumentsBucket.Arn}/documents/*"
+                  - !Sub "${DocumentsBucket.Arn}/processing/*"
+              - Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt DocumentsBucket.Arn
+                Condition:
+                  StringLike:
+                    s3:prefix:
+                      - documents/*
+                      - processing/*
+              - Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+
+  QuestionWorkerFunction:
+    Type: AWS::Serverless::Function
+    Metadata: *BuildMetadata
+    Properties:
+      CodeUri: src/
+      Handler: handlers/index.processJob
+      Timeout: 120
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource:
+                - !Sub
+                  - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-requests/*"
+                  - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+                - !Sub
+                  - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-responses/*"
+                  - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+            - Effect: Allow
+              Action: s3:ListBucket
+              Resource: !Sub
+                - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs"
+                - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+              Condition:
+                StringLike:
+                  s3:prefix:
+                    - llm-requests/*
+                    - llm-responses/*
+            - Effect: Allow
+              Action: s3:PutObject
+              Resource: !Sub
+                - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-responses/*"
+                - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource:
+                !If [
+                  HasLlmSecret,
+                  !Ref LLMSecretArn,
+                  !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:__not_configured__",
+                ]
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${LLMModel}"
+      Environment:
+        Variables:
+          JOBS_BUCKET: !Sub
+            - "${StackUuid}-jobs"
+            - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+
+  DocumentProcessingInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DocumentProcessingFunction
+      Principal: events.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !GetAtt DocumentProcessingEventRule.Arn
+
+  DocumentProcessingEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Routes document-bucket object-created events to the mounted document processor.
+      EventPattern:
+        source:
+          - aws.s3
+        detail-type:
+          - Object Created
+        detail:
+          bucket:
+            name:
+              - !Ref DocumentsBucket
+          object:
+            key:
+              - prefix: processing/
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt DocumentProcessingFunction.Arn
+          Id: DocumentProcessingFunction
+
+  QuestionWorkerInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref QuestionWorkerFunction
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref AWS::AccountId
+      SourceArn: !Sub
+        - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs"
+        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+
+  DocumentsApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DocumentsApiFunction}
+      RetentionInDays: 14
+  QuestionsApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${QuestionsApiFunction}
+      RetentionInDays: 14
+  DocumentProcessingLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${DocumentProcessingFunction}
+      RetentionInDays: 14
+  QuestionWorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${QuestionWorkerFunction}
+      RetentionInDays: 14
+
+Outputs:
+  ApiUrl:
+    Description: HTTP API base URL for the frontend.
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}
+  DocumentsBucketName:
+    Value: !Ref DocumentsBucket
+  JobsBucketName:
+    Value: !Ref JobsBucket
+  S3FilesFileSystemId:
+    Value: !Ref DocumentsS3FileSystem
+  RetrievalFunctionName:
+    Value: !Ref QuestionsApiFunction

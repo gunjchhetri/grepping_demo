@@ -1,0 +1,510 @@
+[0:00] Hello. Today we'll be going through
+[0:01] practice questions 41 to 50 for the AWS
+[0:04] solutions architect professional exam.
+[0:07] Let's begin. A company is processing
+[0:10] videos in the AWS cloud by using Amazon
+[0:13] EC2 instances in an autoscaling group.
+[0:15] It takes 30 minutes to process a video.
+[0:18] Several EC2 instances scale in and out
+[0:21] depending on the number of videos in an
+[0:23] Amazon simple Q service queue. The
+[0:25] company has configured the SQSQ with a
+[0:28] red policy that specifies a target dead
+[0:30] letter Q and a max receive count of one.
+[0:33] The company has set the visibility
+[0:35] timeout for the SQSQ to 1 hour. The
+[0:38] company has set up an Amazon Cloudatch
+[0:40] alarm to notify the development team
+[0:42] when there are messages in the dead
+[0:44] letter Q. Several times during the day,
+[0:46] the development team receives
+[0:48] notification that messages are in the
+[0:50] dead letter Q and that videos have not
+[0:51] been processed properly. and
+[0:53] investigation finds no errors in the
+[0:55] application logs. How can the company
+[0:58] solve this problem?
+[1:01] The correct answer is C. Configure
+[1:04] scalein protection for the instances
+[1:06] during processing. Here's what's
+[1:08] happening. Each video takes 30 minutes
+[1:10] to process. The SQS visibility timeout
+[1:13] is 1 hour, so messages are not
+[1:15] reprocessed prematurely. However,
+[1:17] because the autoscaling group can scale
+[1:19] in at any time, it may terminate
+[1:21] [clears throat] an EC2 instance that is
+[1:23] still processing a message. When the
+[1:25] instance is terminated, the inrogress
+[1:27] message is not deleted from the queue.
+[1:29] And after the visibility timeout
+[1:31] expires, it becomes visible again. Since
+[1:34] max receive count equals to one, the
+[1:36] message is immediately sent to the dead
+[1:38] letter Q on its next receive attempt
+[1:41] even though no error occurred. The fix
+[1:43] is to enable scale-in protection for EC2
+[1:46] instances while they are actively
+[1:47] processing messages. This ensures
+[1:50] autoscaling does not terminate those
+[1:52] instances until they finish processing
+[1:54] and delete their messages from the
+[1:55] queue. As for A, termination protection
+[1:58] prevents manual termination, not
+[2:00] autoscaling termination. It won't help
+[2:02] here. B. Increasing visibility timeout
+[2:05] doesn't prevent premature instance
+[2:07] termination. The root cause is scaling,
+[2:09] not timeout expiration. D. Setting max
+[2:12] receive count to zero disables red
+[2:15] functionality entirely. Messages would
+[2:17] never move to the dead letter Q masking
+[2:20] the issue instead of fixing it.
+[2:22] Therefore, the correct answer is C. A
+[2:24] company is running an application in the
+[2:26] AWS cloud. The application runs on
+[2:29] containers in an Amazon elastic
+[2:31] container service cluster. The ECS tasks
+[2:34] use the Fargate launch type. The
+[2:36] application's data is relational and is
+[2:38] stored in Amazon Aurora MySQL. To meet
+[2:41] regulatory requirements, the application
+[2:43] must be able to recover to a separate
+[2:45] AWS region in the event of an
+[2:47] application failure. In case of a
+[2:49] failure, no data can be lost. Which
+[2:52] solution will meet these requirements
+[2:54] with the least amount of operational
+[2:56] with the least amount of operational overhead?
+[2:58] The correct answer is A. Provision an
+[3:00] Aurora replica in a different region.
+[3:03] Amazon Aurora global database. Natively
+[3:05] supports cross region replication with
+[3:08] nearrealtime synchronization. It is
+[3:10] specifically designed for disaster
+[3:12] recovery and multi-reion high
+[3:14] availability allowing read replicas to
+[3:16] be promoted to standalone clusters if
+[3:18] the primary region fails with no data
+[3:20] loss. This solution requires minimal
+[3:23] setup and very low operational overhead
+[3:25] as Aurora handles the replication and
+[3:27] failover mechanics automatically. Now
+[3:30] we'll move to the incorrect answers. B.
+[3:32] AWS data sync is for file and object
+[3:35] data transfer not relational databases.
+[3:38] It cannot replicate Aurora data
+[3:39] continuously. C. AWSDMS can replicate
+[3:43] data continuously but requires manual
+[3:46] setup maintenance and monitoring making
+[3:48] it more operationally complex than
+[3:50] Aurora's built-in global replication. D.
+[3:53] Amazon DM automates EBS snapshots not
+[3:56] Aurora database backups. Even if used
+[3:59] indirectly, snapshots every 5 minutes
+[4:02] would not meet the zero data loss
+[4:03] requirement. Therefore, the correct
+[4:05] answer is A. A company has a latency
+[4:08] sensitive trading platform that uses
+[4:10] Amazon Dynamo DB as a storage backend.
+[4:13] The company configured the Dynamo DB
+[4:15] table to use on demand capacity mode. A
+[4:18] solution's architect needs to design a
+[4:20] solution to improve the performance of
+[4:22] the trading platform. The new solution
+[4:24] must ensure high availability for the
+[4:27] trading platform. Which solution will
+[4:29] meet these requirements with the least
+[4:31] meet these requirements with the least latency?
+[4:34] The correct answer is B. Create a three
+[4:37] node Dynamo DB accelerator cluster.
+[4:39] Configure an application to read data by
+[4:42] using DEX and to write data directly to
+[4:44] the Dynamo DB table. Amazon Dynamob
+[4:48] Accelerator is a fully managed in-memory
+[4:50] cache designed specifically for Dynamo
+[4:53] DB. It can reduce read latency from
+[4:55] milliseconds to microsconds. Ideal for
+[4:58] latency sensitive workloads such as
+[4:59] trading platforms. To ensure high
+[5:02] availability, a DEX cluster must have at
+[5:04] least three nodes, one primary and two
+[5:07] replicas deployed across multiple
+[5:09] availability zones. In this setup, the
+[5:12] application reads from DEX, achieving
+[5:14] microscond latency. The application
+[5:16] writes directly to Dynamo DB, ensuring
+[5:19] data consistency and durability. The
+[5:21] three node cluster provides fault
+[5:23] tolerance and automatic failover. This
+[5:25] design achieves minimal latency with
+[5:27] high availability and no single point of
+[5:29] failure. Why the other options are
+[5:31] incorrect? A. A two node cluster does
+[5:33] not provide high availability. A minimum
+[5:36] of three nodes is required for quorum
+[5:38] based replication and fault tolerance.
+[5:40] C. Writing via DEAX is not recommended.
+[5:43] Dex is designed primarily for read
+[5:45] acceleration, not for right operations.
+[5:48] D. A single node DEX cluster introduces
+[5:51] a single point of failure and cannot
+[5:52] ensure high availability. Therefore, the
+[5:55] correct answer is B. A global media
+[5:57] company is planning a multi-reion
+[6:00] deployment of an application. Amazon
+[6:02] Dynamo DB global tables will back the
+[6:05] deployment to keep the user experience
+[6:07] consistent across the two continents
+[6:08] where users are concentrated. Each
+[6:11] deployment will have a public ALB. The
+[6:14] company manages public DNS internally.
+[6:17] The company wants to make the
+[6:18] application available through an Apex
+[6:21] domain. Which solution will meet these
+[6:23] requirements with the least effort?
+[6:27] The correct answer is C. Create an AWS
+[6:31] global accelerator accelerator with
+[6:33] multiple endpoint groups that target
+[6:35] endpoints in appropriate AWS regions.
+[6:38] Use the accelerator static IP address to
+[6:40] create a record in public DNS for the
+[6:43] Apex domain.
+[6:45] This solution satisfies all requirements
+[6:47] with minimal effort and optimal
+[6:49] performance. AWS Global Accelerator
+[6:52] provides two static anycast IP addresses
+[6:54] that serve as a single global entry
+[6:56] point for your application. It
+[6:59] automatically routes user traffic to the
+[7:01] nearest healthy endpoint, ensuring low
+[7:03] latency and high availability. You can
+[7:06] directly map the Apex domain to these
+[7:08] static IPs in your company's existing
+[7:10] DNS system. No need to migrate DNS to
+[7:13] Route 53. It provides automatic failover
+[7:16] between regions if one becomes
+[7:18] unavailable. This approach requires no
+[7:21] additional infrastructure and is the
+[7:23] simplest most efficient way to provide a
+[7:25] multi-reion low latency global
+[7:27] application experience. Why the other
+[7:29] options are incorrect? A. You cannot
+[7:32] create a CNAME record for an Apex
+[7:34] domain. DNS standards disallow this.
+[7:37] Route 53's allias records solve this,
+[7:39] but that would require migrating DNS to
+[7:42] Route 53, adding unnecessary effort. B.
+[7:45] An NLB in front of an ALB adds
+[7:48] unnecessary complexity. You still cannot
+[7:50] point a CNAME to an Apex domain and
+[7:53] static IPs alone don't solve global
+[7:55] routing without global accelerator. D.
+[7:58] API gateway and lambda introduce latency
+[8:01] and complexity not suitable for high
+[8:03] performance global routing or large
+[8:05] scale media applications. Therefore, the
+[8:07] correct answer is C. A company is
+[8:10] developing a new serverless API by using
+[8:13] Amazon API gateway and AWS Lambda. The
+[8:16] company integrated the Lambda functions
+[8:18] with API gateway to use several shared
+[8:21] libraries and custom classes. A
+[8:23] solutions architect needs to simplify
+[8:26] the deployment of the solution and
+[8:27] optimize for code reuse. Which solution
+[8:30] will meet these requirements?
+[8:34] The correct answer is D. Deploy the
+[8:36] shared libraries, custom classes, and
+[8:39] code for the APIs Lambda functions to a
+[8:41] Docker image. Upload the image to Amazon
+[8:44] ECR. Configure the API's Lambda
+[8:47] functions to use the Docker image as the
+[8:49] deployment package.
+[8:51] This is the most efficient and modern
+[8:53] way to simplify deployment and enable
+[8:55] code reuse when working with AWS Lambda.
+[8:58] By packaging your Lambda code, shared
+[9:01] libraries, and dependencies into a
+[9:03] single container image, you avoid
+[9:05] managing multiple Lambda layers, keep
+[9:07] all dependencies and configurations
+[9:09] self-contained, simplify deployment
+[9:11] across multiple environments, and stay
+[9:13] within the Lambda limit of up to 10GB
+[9:16] image size, which is ideal for large
+[9:18] dependencies. Amazon ECR serves as the
+[9:21] image registry. And each lambda function
+[9:24] can directly reference the image making
+[9:26] version control, reuse, and deployment
+[9:28] extremely simple. Why the other options
+[9:30] are incorrect? A, you cannot use an S3
+[9:33] store docker image as a lambda layer.
+[9:35] Layers accept only zip archives, not
+[9:38] container images. B. Lambda layers
+[9:41] cannot be based on Docker images. They
+[9:43] can only be zip archives uploaded to
+[9:46] Lambda or S3. C. ECS containers cannot
+[9:49] be used as Lambda layers. That is a
+[9:52] different service. ECS is for longunning
+[9:54] containers, not Lambda integration.
+[9:57] Therefore, the correct answer is D. A
+[9:59] solutions architect must create a
+[10:01] business case for migration of a
+[10:02] company's on premises data center to the
+[10:05] AWS cloud. The solutions architect will
+[10:08] use a configuration management database
+[10:10] export of all the company's servers to
+[10:12] create the case. Which solution will
+[10:14] meet these requirements most
+[10:16] meet these requirements most cost-ffectively?
+[10:18] The correct answer is B. Use migration
+[10:21] evaluator to perform an analysis. Use
+[10:24] the data import template to upload the
+[10:26] data from the CMDB export.
+[10:29] AWS migration evaluator is designed
+[10:32] specifically to help business cases for
+[10:34] migration to AWS. It allows you to
+[10:37] upload on premises data including
+[10:39] exports from a CMDB using a provider
+[10:42] import template. The tool then analyzes
+[10:45] workloads and provides cost estimates,
+[10:47] utilization insights, and
+[10:49] recommendations for the most
+[10:50] cost-effective AWS deployment options.
+[10:53] It is free to use and purpose-built for
+[10:55] this scenario, making it the most
+[10:57] cost-effective and efficient choice. Why
+[11:00] the other options are incorrect? A AWS
+[11:03] wellarchchitected tool. The well
+[11:05] architected tool assesses existing AWS
+[11:08] workloads against AWS best practices but
+[11:10] does not import CMDB data or perform
+[11:13] migration cost analysis. Is used for
+[11:16] architectural reviews not migration
+[11:18] assessments. C AWS price list bulk API.
+[11:22] While technically possible, manually
+[11:24] matching CMDB data with AWS pricing APIs
+[11:28] will be complex and timeconuming
+[11:30] requiring custom scripting and
+[11:31] maintenance. Is not a practical or
+[11:34] cost-effective way to create a business
+[11:35] case. D. AWS application discovery
+[11:39] service. This service discovers on
+[11:41] premises workloads via agents or
+[11:43] collectors, not CMDB imports. It is best
+[11:47] used for automated discovery, not manual
+[11:49] CMDB analysis. So it doesn't fit the
+[11:52] scenario where the data is already
+[11:54] exported. Therefore, the correct answer
+[11:56] is B. A company runs an application on a
+[11:59] fleet of Amazon EC2 instances that are
+[12:02] in private subnets behind an
+[12:03] internetfacing application load
+[12:05] balancer. The ALB is the origin for an
+[12:08] Amazon CloudFront distribution. An
+[12:11] AWSWAF web ACL that contains various AWS
+[12:15] managed rules is associated with the
+[12:17] CloudFront distribution. The company
+[12:19] needs a solution that will prevent
+[12:21] internet traffic from directly accessing
+[12:23] the ALB. Which solution will meet these
+[12:26] requirements with the least operational
+[12:27] requirements with the least operational overhead?
+[12:30] The correct answer is C. Add a security
+[12:33] group rule to the ALB to allow traffic
+[12:35] from the AWS managed prefix list for
+[12:38] CloudFront only.
+[12:40] To prevent internet users from directly
+[12:42] accessing the application load balancer
+[12:44] while still allowing traffic to flow
+[12:46] through CloudFront, you can restrict the
+[12:48] ALB's security group to accept inbound
+[12:51] traffic only from CloudFront. AWS
+[12:54] publishes a managed prefix list that
+[12:56] contains all CloudFront IP address
+[12:58] ranges which can be referenced in a
+[13:00] security group rule. This automatically
+[13:02] updates as AWS changes its CloudFront
+[13:05] IPs, ensuring minimal operational
+[13:08] overhead and keeping the configuration
+[13:10] secure and upto-date. This approach
+[13:12] allows only CloudFront to access the ALB
+[13:15] automatic IP updates via AWS managed
+[13:18] prefix list and no manual maintenance.
+[13:21] Why the other options are incorrect? A.
+[13:23] Create a new web ACL that contains the
+[13:25] same rules and associate with the ALB.
+[13:28] This duplicates configuration
+[13:30] unnecessarily. Web ACL's operate at
+[13:32] layer 7, not network level, and cannot
+[13:35] block direct access at the network
+[13:36] boundary. B. Associate the existing web
+[13:39] ACL with the ALB. Even if you associate
+[13:42] the W AF with the ALB, it won't prevent
+[13:45] direct internet access. The ALB would
+[13:48] still be reachable publicly. W AF only
+[13:50] filters HTTP requests, not restricts
+[13:53] origin sources. D. Add a security group
+[13:56] rule to allow only CloudFront IP address
+[13:58] ranges. While functionally similar, this
+[14:01] requires manual updates whenever AWS
+[14:04] changes CloudFront IPs leading to high
+[14:06] operational overhead. Using the AWS
+[14:09] managed prefix list automates this
+[14:11] process. Therefore, the correct answer
+[14:13] is C. A company is running a compute
+[14:16] workload by using Amazon EC2 spot
+[14:18] instances that are in an autoscaling
+[14:20] group. The launch template uses two
+[14:22] placement groups and a single instance
+[14:24] type. Recently, a monitoring system
+[14:27] reported autoscaling instance launch
+[14:29] failures that correlated with longer
+[14:31] wait times for system users. The company
+[14:33] needs to improve the overall reliability
+[14:35] of the workload. Which solution will
+[14:38] meet this requirement?
+[14:40] The correct answer is B. Create a new
+[14:43] launch template version that uses
+[14:45] attribute-based instance type selection.
+[14:48] Configure the autoscaling group to use
+[14:50] the new launch template version. The
+[14:53] issue arises because the autoscaling
+[14:55] group is limited to a single instance
+[14:57] type and specific placement groups,
+[14:59] reducing flexibility when EC2 spot
+[15:02] capacity is unavailable in that instance
+[15:04] pool. To improve reliability, you should
+[15:07] use attribute-based instance type
+[15:08] selection in the launch template. ABIS
+[15:12] allows autoscaling to automatically
+[15:13] choose from multiple compatible instance
+[15:15] types and multiple purchase options.
+[15:18] This diversification increases the
+[15:20] chances of finding available capacity
+[15:22] and reduces spot interruption or launch
+[15:24] failure risk directly improving workload
+[15:26] reliability without manual intervention.
+[15:29] Why the other options are incorrect? A
+[15:32] replace the launch template with a
+[15:33] launch configuration. Launch
+[15:35] configurations are legacy and do not
+[15:37] support modern features like ABIS. Using
+[15:40] them would remove flexibility and is not
+[15:43] recommended. C. Increase the number of
+[15:45] placement groups. Adding more placement
+[15:47] groups does not increase capacity
+[15:49] reliability. Placement groups are used
+[15:51] for low latency networking or spread
+[15:54] placement, not for handling spot
+[15:56] shortages. D. Use a larger instance
+[15:58] type. Using a single larger instance
+[16:01] type does not solve spot capacity issues
+[16:03] and can actually make availability worse
+[16:06] as larger instances are often in higher
+[16:08] demand and more limited in supply.
+[16:10] Therefore, the correct answer is B. A
+[16:13] company uses an AWS code commit
+[16:15] repository. The company must store a
+[16:18] backup copy of the data that is in the
+[16:20] repository in a second AWS region. Which
+[16:23] solution will meet these requirements?
+[16:27] The correct answer is C. Create an
+[16:30] Amazon event bridge rule to invoke AWS
+[16:33] code build when the company pushes code
+[16:35] to the repository. Use code build to
+[16:38] clone the repository. Create a zip file
+[16:40] of the content. copy the file to an S3
+[16:43] bucket in the second region. AWS code
+[16:46] commit does not natively support cross
+[16:48] region replication. Therefore, to back
+[16:51] up a repository to another region, you
+[16:53] must implement a custom solution. Using
+[16:55] event bridge to trigger code build
+[16:57] whenever code is pushed is the most
+[16:59] automated and cost-effective option.
+[17:02] Here's how it works. An event bridge
+[17:04] rule detects any push event to the code
+[17:06] commit repository. The event triggers a
+[17:08] codeu project. Code build clones the
+[17:11] code commit repository compresses the
+[17:13] contents and uploads it to an Amazon S3
+[17:16] bucket in a different region. This
+[17:18] provides a near realtime backup of
+[17:20] repository data without complex
+[17:21] orchestration or frequent manual jobs
+[17:24] achieving reliable redundancy with
+[17:26] minimal overhead. Why the other options
+[17:28] are incorrect? A AWS elastic disaster
+[17:32] recovery. This service is used for
+[17:34] replicating and recovering EC2 on
+[17:36] premises or physical servers, not code
+[17:39] commit repositories. B. AWS backup. AWS
+[17:44] backup does not currently support code
+[17:46] commit as a resource type. It cannot
+[17:48] back up repository data directly. D. AWS
+[17:51] step functions workflow with snapshot.
+[17:54] There is no API or mechanism in code
+[17:56] commit to take a snapshot of a
+[17:58] repository. You would still need to use
+[18:00] git clone and S3 copy steps. making step
+[18:03] functions unnecessary and adding extra
+[18:05] complexity compared to option C.
+[18:07] Therefore, the correct answer is C. A
+[18:09] company has multiple business units that
+[18:11] each have separate accounts on AWS. Each
+[18:14] business unit manages its own network
+[18:16] with several VPCs that have cider ranges
+[18:19] that overlap. The company's marketing
+[18:21] team has created a new internal
+[18:23] application and wants to make the
+[18:25] application accessible to all the other
+[18:27] business units. The solution must use
+[18:29] private IP addresses only. Which
+[18:31] solution will meet these requirements
+[18:33] with the least operational overhead?
+[18:36] The correct answer is create an AWS
+[18:39] private link endpoint service to share
+[18:41] the marketing application. Grant
+[18:44] permission to specific AWS accounts to
+[18:46] connect to the service. Create interface
+[18:49] VPC endpoints in other accounts to
+[18:51] access the application by using private
+[18:53] IP addresses. AWS private link is the
+[18:56] ideal solution when you need to securely
+[18:58] share an application across multiple AWS
+[19:01] accounts and VPCs using private IP
+[19:04] addresses even if the VPC side ranges
+[19:07] overlap. Private link exposes the
+[19:09] marketing application as an endpoint
+[19:11] service backed by a NLB. Other business
+[19:14] units can then create interface VPC
+[19:17] endpoints in their own VPCs that connect
+[19:19] privately to the service. This approach
+[19:22] requires no VPC peering. So overlapping
+[19:25] cers are not an issue. It also uses
+[19:27] private IP connectivity over the AWS
+[19:30] backbone, scales easily to many accounts
+[19:33] and has minimal operational overhead
+[19:35] after setup. Why did the other options
+[19:37] are incorrect? A add secondary cider and
+[19:40] peer VPCs. VPC peering does not support
+[19:43] overlapping cider ranges and managing
+[19:46] multiple cers and net gateways across
+[19:48] all accounts add significant operational
+[19:50] complexity. B. Use EC2 appliance and
+[19:54] sight to-sightVPN. This requires manual
+[19:56] setup per VPC, introduces maintenance
+[19:59] overhead, and is less reliable and
+[20:01] scalable. D. Use API gateway private
+[20:04] integration. Although private
+[20:06] integration keeps traffic within AWS, it
+[20:09] adds unnecessary complexity and cost
+[20:11] compared to private link and doesn't
+[20:13] natively solve the overlapping cider
+[20:15] issue as cleanly as option C. Therefore,
+[20:18] the correct answer is C. We have come to
+[20:20] the end of today's video. If you like
+[20:22] the video, please make sure to like and
+[20:24] subscribe. Goodbye.

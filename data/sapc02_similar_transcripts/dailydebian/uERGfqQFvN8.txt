@@ -1,0 +1,447 @@
+[0:00] Hello. Today we're going to practice
+[0:01] questions 21 to 30 for the AWS solutions
+[0:04] architect professional exam. Let's
+[0:07] begin. A solutions architect is
+[0:09] designing the data storage and retrieval
+[0:11] architecture for a new application that
+[0:13] a company will be launching soon. The
+[0:16] application is designed to ingest
+[0:17] millions of small records per minute
+[0:19] from devices all around the world. Each
+[0:22] record is less than 4 KB in size and
+[0:24] needs to be stored in a durable location
+[0:26] where it can be retrieved with low
+[0:28] latency. The data is ephemeral and the
+[0:31] company is required to store the data
+[0:33] for 120 days only after which the data
+[0:36] can be deleted. The solutions architect
+[0:38] calculates that during the course of a
+[0:40] year the storage requirements will be
+[0:42] about 10 to 15 TB. Which storage
+[0:45] strategy is the most cost effective and
+[0:47] meets the design requirements?
+[0:50] The correct answer is B. Designed the
+[0:54] application to store each incoming
+[0:55] record in an Amazon Dynamo DB table
+[0:58] properly configured for the scale.
+[1:00] Configure the Dynamo DB timetolive
+[1:02] feature to delete records older than 120
+[1:04] days. This scenario involves millions of
+[1:07] small records per minute. Each record is
+[1:09] less than 4KB. Data must be retrievable
+[1:12] with low latency. Data expires after 120
+[1:15] days and total yearly storage of 10 to
+[1:18] 15 TB. Why Dynamo DB fits perfectly? It
+[1:22] has high right scalability. Dynamo DB
+[1:24] can ingest millions of small records per
+[1:26] minute globally. It also has low latency
+[1:29] read and writes with singledigit
+[1:31] millisecond latency which is ideal for
+[1:33] real-time applications. Time to live
+[1:36] automatically deletes items after 120
+[1:38] days with no manual cleanup needed. It
+[1:40] is serverless and fully managed. There
+[1:42] is no need to manage infrastructure
+[1:44] backups or scaling. This results in a
+[1:46] cost-effective, scalable and
+[1:48] operationally simple solution. Why the
+[1:50] other options are incorrect? A. Store
+[1:53] each record as a single CSV file in S3.
+[1:56] Storing millions of individual small
+[1:58] files in S3 is inefficient. It incurs
+[2:00] high request overhead and latency. S3 is
+[2:03] better for larger batched objects, not
+[2:06] millions of tiny ones. C. Use Amazon RDS
+[2:09] MySQL with chronic cleanup. RDS is not
+[2:12] optimized for millions of writes per
+[2:14] minute or massive scale of small
+[2:16] records. it would quickly become
+[2:17] expensive and difficult to scale or
+[2:19] maintain. D batch records into S3 with
+[2:22] metadata search. S3 metadata search
+[2:25] isn't designed for fast granular lookups
+[2:27] of millions of small items. Even with
+[2:30] batching, retrieval latency and query
+[2:32] flexibility will be poor compared to
+[2:34] Dynamo DB. Therefore, the correct answer
+[2:36] is B. A retail company is hosting an
+[2:39] e-commerce website on AWS across
+[2:42] multiple AWS regions. The company wants
+[2:45] the website to be operational at all
+[2:47] times for online purchases. The website
+[2:49] stores data in an Amazon RDS for MySQL
+[2:52] DB instance. Which solution will provide
+[2:55] the highest availability for the
+[2:56] the highest availability for the database?
+[2:59] The correct answer is D. Configure read
+[3:02] replicas on Amazon RDS. In the case of
+[3:05] disruption, promote a cross region and
+[3:08] read replica to be a standalone DB
+[3:10] instance. Direct database traffic to the
+[3:13] promoted DB instance. Create a
+[3:15] replacement read replica that has the
+[3:17] promoted DB instance as a source. For
+[3:19] Amazon RDS for MySQL, the highest
+[3:22] availability multi-reion setup uses
+[3:25] cross region read replicas. These
+[3:27] replicas asynchronously replicate data
+[3:30] from the primary DB instance to another
+[3:32] region. If the primary region becomes
+[3:34] unavailable, the cross region read
+[3:37] replica can be promoted to a standalone
+[3:39] instance, minimizing downtime and data
+[3:41] loss. Once promoted, a new replica can
+[3:44] be created in another region to
+[3:46] reestablish redundancy. This setup
+[3:48] provides a multi-reion disaster recovery
+[3:51] architecture with high availability and
+[3:53] faster recovery than restoring from
+[3:55] backups. As for A, automated backups are
+[3:58] stored in S3 and used for point in time
+[4:00] recovery, not high availability.
+[4:02] Restoring from a backup causes longer
+[4:04] downtime. As for B, RDS does not support
+[4:08] global tables. That is a Dynamo DB
+[4:10] feature. Cross region replication for
+[4:13] RDS is done via read replicas, not
+[4:15] global tables. As for C, it has the same
+[4:18] issue as B. Global tables don't exist
+[4:20] for RDS and copying replicas manually
+[4:23] via Lambda is unnecessary and
+[4:25] unreliable. Therefore, the correct
+[4:27] answer is D. Example Corp has an on-
+[4:30] premises data center and a VPC named
+[4:32] VPCA in the example corp AWS account.
+[4:36] The on- premises network connects to
+[4:37] VPCA through an AWS sightto-sightVPN.
+[4:41] The on- premises servers can properly
+[4:43] access VPCA. Example Corp just acquired
+[4:46] any company which has a VPC named VPCB.
+[4:50] There is no IP address overlap among
+[4:52] these networks. Example Corp has peered
+[4:55] VPCA and VPCB. Example Corp wants to
+[4:58] connect from its on- premises servers to
+[5:00] VPCB. Example Corp has properly set up
+[5:03] the network ACL and security groups.
+[5:06] Which solution will meet this
+[5:07] requirement with the least operational
+[5:09] requirement with the least operational effort?
+[5:12] The correct answer is A. Create a
+[5:14] transit gateway. Attach the sight
+[5:16] to-sightVPN, VPCA, and VPCB to the
+[5:20] transit gateway. Update the transit
+[5:22] gateway route tables for all networks to
+[5:24] add IP range routes for all other
+[5:26] networks. In the current setup, the on
+[5:28] premises network connects only to VPCA
+[5:31] through a site to-sightVPN. Although
+[5:33] VPCA and VPCB are piered, VPC peering
+[5:36] does not support transitive routing,
+[5:38] meaning traffic from on premises to VPCA
+[5:41] to VPCB will not flow automatically. To
+[5:44] enable routing between on premises VPCA
+[5:47] and VPCB with minimal complexity, the
+[5:50] best solution is to use an AWS transit
+[5:53] gateway. Attach the existing site
+[5:55] to-sightVPN and both VPCs to the TGW.
+[5:58] update the TGW route tables to allow
+[6:01] communication among the three networks.
+[6:03] This provides centralized routing,
+[6:05] scalability, and ease of management with
+[6:08] minimal manual configuration beyond
+[6:10] route updates. As for B, creating a new
+[6:13] VPN connection to VPCB increases
+[6:15] operational effort unnecessarily. A
+[6:18] single VPN via the TGW can handle all
+[6:21] routing. C. BGP propagation cannot make
+[6:24] VPC peering transitive. Updating route
+[6:26] tables won't solve the non-transitive
+[6:28] routing limitation. D. A virtual private
+[6:31] gateway can attach to only one VPC at a
+[6:34] time, so it cannot be shared between
+[6:35] VPCA and VPCB. Therefore, the correct
+[6:38] answer is A. A company recently
+[6:40] completed the migration from an on-
+[6:42] premises data center to the AWS cloud by
+[6:45] using a replatforming strategy. One of
+[6:48] the migrated servers is running a legacy
+[6:50] simple mail transfer protocol service
+[6:52] that a critical application relies upon.
+[6:55] The application sends outbound email
+[6:57] messages to the company's customers. The
+[6:59] legacy SMTP server does not support TLS
+[7:02] encryption and uses TCP port 25. The
+[7:06] application can use SMTP only. The
+[7:08] company decides to use Amazon simple
+[7:11] email service and to decommission the
+[7:13] legacy SMTP server. The company has
+[7:16] created and validated the SES domain.
+[7:18] The company has lifted the SES limits.
+[7:21] What should the company do to modify the
+[7:23] application to send email messages from
+[7:25] Amazon SCES?
+[7:28] The correct answer is B. Configure the
+[7:31] application to connect to Amazon SCES by
+[7:34] using start TLS. Obtain Amazon SES SMTP
+[7:38] credentials. Use the credentials to
+[7:40] authenticate with Amazon SES. Amazon SES
+[7:43] supports email sending through both it
+[7:45] SMTP interface and SES API. Since the
+[7:49] application can only use SMTP, the
+[7:51] correct solution is to configure SES as
+[7:54] an SMTP endpoint. Amazon SDS requires
+[7:57] TLS encryption and SMTP authentication
+[8:00] using credentials generated from AM. You
+[8:03] generate these credentials in the SES
+[8:05] console, then update the application to
+[8:07] connect to SES on port 587 or 465. This
+[8:11] allows the application to send outbound
+[8:13] emails securely without modifying the
+[8:15] core SMTP logic. A TLS wrapper and AM
+[8:19] roles for EC2 are incorrect here. SES
+[8:22] SMTP does not use AM roles for
+[8:24] authentication. C. The SES API cannot be
+[8:28] used because the application supports
+[8:30] only SMTP. D. Using AWS SDKs or API keys
+[8:35] requires modifying the application to
+[8:37] use APIs instead of SMTP, which violates
+[8:40] the stated limitation. Therefore, the
+[8:43] correct answer is B. A company recently
+[8:46] acquired several other companies. Each
+[8:48] company has a separate AWS account with
+[8:50] a different billing and reporting
+[8:52] method. The acquiring company has
+[8:54] consolidated all the accounts into one
+[8:56] organization in AWS organizations.
+[8:59] However, the acquiring company has found
+[9:01] it difficult to generate a cost report
+[9:03] that contains meaningful groups for all
+[9:05] the teams. The acquiring company's
+[9:07] finance team needs a solution to report
+[9:09] on costs for all the companies through a
+[9:11] self-managed application. Which solution
+[9:14] will meet these requirements?
+[9:18] The correct answer is A. Create an AWS
+[9:21] cost and usage report for the
+[9:23] organization. Define tax and cost
+[9:25] categories in the report. Create a table
+[9:28] in Amazon Athena. Create an Amazon
+[9:30] quicksite data set based on the Athena
+[9:33] table. Share the data set with the
+[9:35] finance team. The AWS cost and usage
+[9:37] report is the most comprehensive and
+[9:39] detailed source for cost and usage data
+[9:41] across an AWS organization. It can
+[9:44] include cost allocation tax and cost
+[9:46] categories, allowing you to group costs
+[9:49] by teams, projects or companies. By
+[9:51] delivering the CUR to an S3 bucket, you
+[9:54] can query it directly with Amazon Athena
+[9:57] by creating an external table over the
+[9:59] report files. Visualize and analyze the
+[10:01] data using Amazon Quicksite where
+[10:03] finance teams can build dashboards and
+[10:05] reports. This setup provides a
+[10:07] self-managed, scalable and automated
+[10:10] cost reporting solution across all
+[10:12] accounts. B. Cost explorer is
+[10:14] interactive but not suitable for
+[10:16] self-managed, automated or
+[10:18] organizationwide reporting. Is limited
+[10:20] in grouping and customization compared
+[10:22] to CUR plus Athena plus Quicksite. C.
+[10:25] The price list query API only provides
+[10:28] AWS service pricing, not actual usage or
+[10:31] cost data. So, it cannot be used for
+[10:33] reporting spend. D. Same issue as C. The
+[10:37] price list query API does not return
+[10:39] billing data, only static pricing
+[10:41] information. Therefore, the correct
+[10:43] answer is A. An adventure company has
+[10:45] launched a new feature on its mobile
+[10:47] app. Users can use the feature to upload
+[10:50] their hiking and rafting photos and
+[10:51] videos anytime. The photos and videos
+[10:54] are stored in Amazon S3 standard storage
+[10:56] in an S3 bucket and are served through
+[10:58] Amazon CloudFront. The company needs to
+[11:00] optimize the cost of the storage. A
+[11:03] solutions architect discovers that most
+[11:05] of the uploaded photos and videos are
+[11:07] accessed infrequently after 30 days.
+[11:09] However, some of the uploaded videos and
+[11:11] photos are accessed frequently after 30
+[11:14] days. The solutions architect needs to
+[11:16] implement a solution that maintains
+[11:18] millisecond retrieval availability of
+[11:20] the photos and videos at the lowest
+[11:22] possible cost. Which solution will meet
+[11:24] these requirements?
+[11:28] The correct answer is a. Configure S3
+[11:31] intelligent tiering on the S3 bucket.
+[11:33] Amazon S3 intelligent tiering
+[11:35] automatically moves objects between
+[11:37] different storage tiers based on access
+[11:39] patterns. It maintains millisecond
+[11:41] retrieval latency while optimizing cost.
+[11:44] Perfect for data with unpredictable or
+[11:46] changing access frequency. In this case,
+[11:48] objects frequently accessed remain in
+[11:51] the frequent access tier. Objects not
+[11:53] accessed for 30 days automatically move
+[11:55] to infrequent access or archive tiers.
+[11:58] If an object later becomes active again,
+[12:00] it automatically moves back to the
+[12:02] appropriate tier. All transitions happen
+[12:04] automatically with no retrieval delays
+[12:06] and no manual life cycle management
+[12:08] required. As for B, S3 Glacier deep
+[12:11] archive is not suitable for this use
+[12:13] case. Retrieval takes hours, not
+[12:15] milliseconds. As for C, Amazon EFS would
+[12:18] significantly increase cost and
+[12:20] complexity for this type of object
+[12:22] storage. As for D, adding a cache
+[12:24] control header only affects CloudFront
+[12:26] caching behavior, not storage cost
+[12:28] optimization in S3. Therefore, the
+[12:31] correct answer is A. A company uses
+[12:33] Amazon S3 to store files and images in a
+[12:36] variety of storage classes. The
+[12:38] company's S3 costs have increased
+[12:40] substantially during the past year. A
+[12:43] solution's architect needs to review
+[12:44] data trends for the past 12 months and
+[12:46] identify the appropriate storage class
+[12:48] for the objects. Which solution will
+[12:51] meet these requirements?
+[12:54] The correct answer is C. Use Amazon S3
+[12:57] storage lens. Upgrade the default
+[12:59] dashboard to include advanced metrics
+[13:01] for storage trends. Amazon S3 storage
+[13:04] lens provides organizationwide
+[13:06] visibility into S3 storage usage and
+[13:08] activity trends. It can analyze data
+[13:10] across all accounts, regions, and
+[13:12] storage classes and display metrics such
+[13:15] as object counts and storage by class,
+[13:18] access patterns and cost efficiency, and
+[13:20] data trends over the past 12 months. By
+[13:22] enabling advanced metrics and
+[13:24] recommendations, you can identify unused
+[13:27] or infrequently accessed data and get
+[13:29] recommendations on moving data to more
+[13:31] cost-effective storage classes. All
+[13:33] through the built-in dashboard or
+[13:34] exported metrics to Amazon Quicksite for
+[13:37] further analysis, a AWS cost and usage
+[13:40] reports show billing data, not detailed
+[13:42] per object storage behavior or access
+[13:44] patterns. Trusted advisor gives general
+[13:47] cost tips, not detailed S3 class
+[13:49] recommendations. B. S3 storage class
+[13:52] analysis tracks only a single bucket and
+[13:54] limited metrics, not all storage classes
+[13:57] across the organization. It has been
+[13:59] largely superseded by S3 storage lens.
+[14:02] D. Access analyzer for S3 focuses on
+[14:04] access policies and permissions, not
+[14:07] storage or cost optimization data.
+[14:09] Therefore, the correct answer is C. A
+[14:11] company has its cloud infrastructure on
+[14:13] AWS. A solutions architect needs to
+[14:16] define the infrastructure as code. The
+[14:18] infrastructure is currently deployed in
+[14:20] one AWS region. The company's business
+[14:23] expansion plan includes deployments in
+[14:25] multiple regions across multiple AWS
+[14:27] accounts. What should the solutions
+[14:29] architect do to meet these requirements?
+[14:33] The correct answer is C. Use AWS
+[14:37] organizations and AWS cloud form stack
+[14:39] sets. Deploy a cloud for template from
+[14:42] an account that has the necessary AM
+[14:44] permissions. AWS cloud formation stack
+[14:47] sets is designed for multi-account
+[14:49] multi-reion deployments. It allows you
+[14:51] to centrally define your infrastructure
+[14:53] as code once and automatically deploy
+[14:55] and manage stacks across multiple AWS
+[14:57] accounts and regions all from a single
+[15:00] administrator account. By integrating
+[15:02] AWS organizations, you can easily grant
+[15:05] permissions to the management or
+[15:06] delegated administrator account to
+[15:08] deploy stack sets organizationwide,
+[15:11] ensuring consistent infrastructure and
+[15:12] policy enforcement across all
+[15:14] environments. As for A, cloud formation
+[15:17] templates alone can't automatically
+[15:18] manage deployments across multiple
+[15:20] accounts or regions. You would need
+[15:22] manual setup and AM configuration per
+[15:25] account. B. AWS control tower simplifies
+[15:28] account setup and governance but isn't
+[15:30] specifically designed for infrastructure
+[15:32] deployment across regions. Stack sets is
+[15:35] the correct tool for that purpose. D.
+[15:37] Nested stacks help with modular
+[15:39] templates but are limited to a single
+[15:41] region per deployment. They don't
+[15:43] support cross account or cross region
+[15:44] provisioning. Therefore, the correct
+[15:46] answer is C. A company is running an
+[15:49] application in the AWS cloud. The
+[15:51] application collects and stores a large
+[15:53] amount of unstructured data in an Amazon
+[15:56] S3 bucket. The S3 bucket contains
+[15:58] several terabytes of data and uses the
+[16:00] S3 standard storage class. The data
+[16:03] increases in size by several gigabytes
+[16:05] every day. The company needs to query
+[16:07] and analyze the data. The company does
+[16:10] not access data that is more than one
+[16:11] year old. However, the company must
+[16:14] retain all the data indefinitely for
+[16:16] compliance reasons. Which solution will
+[16:18] meet these requirements most cost-
+[16:20] meet these requirements most cost- effectively?
+[16:22] The correct answer is C. Use an AWS glue
+[16:26] data catalog and Amazon Athena to query
+[16:29] the data. Create an S3 life cycle policy
+[16:31] to transition data that is more than one
+[16:34] year old to S3 Glacier deep archive.
+[16:36] This solution is the most cost-effective
+[16:38] and meets all requirements. Amazon
+[16:41] Athena allows you to query unstructured
+[16:43] data directly in S3 using standard SQL.
+[16:46] No need to move or transform the data.
+[16:48] AWS Glue data catalog maintains the
+[16:51] schema and metadata for the data stored
+[16:53] in S3 enabling efficient queries with
+[16:56] Athena and S3 life cycle policy can
+[16:58] automatically transition data older than
+[17:00] one year to S3 Glacier deep archive the
+[17:03] lowest cost storage class for long-term
+[17:05] retention meeting compliance
+[17:07] requirements since data older than one
+[17:09] year is not accessed moving it to
+[17:11] Glacier deep archive minimizes cost
+[17:13] while keeping it retained indefinitely.
+[17:16] As for A, S3 select only retrieves
+[17:19] subsets of data from a single S3 object.
+[17:21] It is not suitable for large scale
+[17:23] quering or analytics across many files.
+[17:26] As for B, Amazon Red Shift Spectrum
+[17:28] incurs higher ongoing costs and is
+[17:31] typically used for structured analytical
+[17:33] workloads, not for simple S3 based ad
+[17:35] hoc queries. D. S3 intelligent taring is
+[17:39] good for unpredictable access patterns.
+[17:41] But since you know data older than one
+[17:43] year is never accessed, Glacier deep
+[17:45] archive is more cost-effective.
+[17:47] Therefore, the correct answer is C. We
+[17:49] have come to the end of today's video.
+[17:51] If you like the video, please make sure
+[17:53] to like and subscribe. Goodbye.

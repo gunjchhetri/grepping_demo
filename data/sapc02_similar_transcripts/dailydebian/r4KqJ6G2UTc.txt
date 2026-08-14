@@ -1,0 +1,508 @@
+[0:00] Hello. Today we're going through
+[0:01] practice questions 31 to 40 for the AWS
+[0:04] solutions architect professional exam.
+[0:07] Let's begin. A company has developed a
+[0:09] web application. The company is hosting
+[0:12] the application on a group of Amazon EC2
+[0:15] instances behind an application load
+[0:17] balancer. The company wants to improve
+[0:19] the security posture of the application
+[0:21] and plans to use AWSWAF
+[0:24] web ACL. The solution must not adversely
+[0:26] affect legitimate traffic to the
+[0:28] affect legitimate traffic to the application.
+[0:30] How should a solutions architect
+[0:31] configure the web ACL to meet these
+[0:33] configure the web ACL to meet these requirements?
+[0:36] The correct answer is A. Set the action
+[0:39] of the web ACL rules to count. Enable
+[0:42] of the web ACL rules to count. Enable AWSWAF
+[0:43] logging. Analyze the requests for false
+[0:46] positives. Modify the rules to avoid any
+[0:49] false positive over time. Change the
+[0:51] action of the web ACL rules from count
+[0:54] to block. When implementing AWSW AAF,
+[0:57] the best practice is to start in count
+[0:59] mode. This allows you to observe how the
+[1:01] rules behave, especially how many
+[1:03] legitimate requests will be blocked. By
+[1:06] enabling WAF logging, you can analyze
+[1:09] request patterns and tune your rules to
+[1:11] minimize disruption to legitimate users.
+[1:13] Once you verify that the rules behave
+[1:15] correctly, you can safely switch them
+[1:17] from count to block mode for
+[1:18] enforcement. This phased approach
+[1:21] ensures security improvements without
+[1:23] impacting normal application traffic. B.
+[1:25] Rate based rules alone only help with
+[1:27] throttling and DOS- like scenarios, not
+[1:30] full web protection. Setting high limits
+[1:32] doesn't ensure safety or accuracy. C.
+[1:35] Immediately setting all rules to block
+[1:37] risks false positives that could disrupt
+[1:40] legitimate traffic before tuning. D.
+[1:42] Allow rules don't help in analyzing or
+[1:44] preventing malicious requests. and
+[1:46] starting with only custom rule groups is
+[1:48] unnecessary when AWS managed rules
+[1:51] already cover attack vectors. Therefore,
+[1:54] the correct answer is A. A company has
+[1:56] introduced a new policy that allows
+[1:59] employees to work remotely from their
+[2:00] homes if they connect by using a VPN.
+[2:03] The company is hosting internal
+[2:05] applications with VPCs in multiple AWS
+[2:08] accounts. Currently, the applications
+[2:10] are accessible from the company's on-
+[2:12] premises office network through an AWS
+[2:15] site-to-sightVPN connection. The VPC in
+[2:17] the company's main AWS account has
+[2:19] peering connections established with
+[2:21] VPCs in other AWS accounts. A solutions
+[2:24] architect must design a scalable AWS
+[2:27] clientVPN solution for employees to use
+[2:29] while they work from home. What is the
+[2:31] most cost-effective solution that meets
+[2:33] these requirements?
+[2:36] The correct answer is C. Create a
+[2:38] clientVPN endpoint in the main AWS
+[2:41] account. Provision a transit gateway
+[2:43] that is connected to each AWS account.
+[2:46] Configure required routing that allows
+[2:48] access to internal applications. This
+[2:50] setup provides a scalable and
+[2:52] cost-effective VPN solution for remote
+[2:54] employees while ensuring secure access
+[2:56] to applications across multiple AWS
+[2:58] accounts and VPCs. The AWS clientVPN
+[3:02] endpoint allows users to connect
+[3:04] securely from home. The transit gateway
+[3:06] acts as a central hub that connects all
+[3:08] VPCs and the site-to-sightVPN
+[3:10] connection, enabling unified routing.
+[3:13] This avoids having to create and manage
+[3:15] multiple clientVPN endpoints in each
+[3:17] account or VPC, minimizing both cost and
+[3:20] administrative overhead. With
+[3:22] centralized routing through the transit
+[3:24] gateway, employees can access all
+[3:26] necessary internal applications across
+[3:28] accounts and regions seamlessly. As for
+[3:31] A, creating a clientVPN endpoint in each
+[3:34] account adds unnecessary cost and
+[3:36] complexity. Managing certificates,
+[3:38] configurations, and routing per account.
+[3:40] As for B, a single clientVPN with only
+[3:43] VPC peering doesn't scale well. VPC
+[3:45] peering isn't transitive, so employees
+[3:48] couldn't access applications in peered
+[3:50] VPCs in other accounts. As for D,
+[3:52] connecting the clientVPN directly to the
+[3:54] site to-sightVPN doesn't provide access
+[3:57] to multiple accounts or VPCs and adds
+[3:59] complexity without solving multiVPC
+[4:01] routing. Therefore, the correct answer
+[4:03] is C. A company is running an
+[4:05] application in the AWS cloud. Recent
+[4:08] application metrics show inconsistent
+[4:10] response times and a significant
+[4:12] increase in error rates. Calls to
+[4:14] thirdparty services are causing the
+[4:16] delays. Currently, the application calls
+[4:18] thirdparty services synchronously by
+[4:20] directly invoking an AWS Lambda
+[4:22] function. A solution's architect needs
+[4:25] to decouple the third party service
+[4:27] calls and ensure that all the calls are
+[4:29] eventually completed. Which solution
+[4:31] will meet these requirements?
+[4:35] The correct answer is A. Use an Amazon
+[4:38] simple Q service Q to store events and
+[4:40] invoke the Lambda function.
+[4:43] The problem is caused by synchronous
+[4:45] thirdparty calls that slow down the
+[4:47] application and cause errors when those
+[4:49] services are delayed or unavailable. To
+[4:52] decouple the processing and ensure
+[4:54] reliability, use SQS as a message Q
+[4:57] between the application and the Lambda
+[4:59] function. Here's how it works. The
+[5:01] application sends events to an SQSQ
+[5:03] instead of calling the Lambda function
+[5:05] directly. The Lambda function pulls the
+[5:07] queue asynchronously and processes each
+[5:10] message. If the third party service is
+[5:12] slow or temporarily unavailable, SQS
+[5:15] provides durability, retries, and
+[5:17] buffering ensuring the request is
+[5:19] eventually processed. This fully
+[5:21] decouples the application from the third
+[5:23] party dependency and smooths out traffic
+[5:25] spikes. As for B, AWS functions is
+[5:28] better suited for orchestration of
+[5:30] multiple tasks with defined steps and
+[5:33] error handling. Now for continuous
+[5:34] decoupling of asynchronous event flows.
+[5:37] As for C, Amazon Event Bridge is an
+[5:40] event bus, not a durable Q. It doesn't
+[5:42] guarantee message persistence or retry
+[5:44] suitable for eventual completion. As for
+[5:47] D, Amazon SNS is a pub subsystem, not a
+[5:50] Q. Messages are not retained if the
+[5:53] subscriber fails, so it doesn't
+[5:54] guarantee eventual processing.
+[5:56] Therefore, the correct answer is A. A
+[5:58] company is planning to migrate its
+[6:00] business critical applications from an
+[6:02] on premises data center to AWS. The
+[6:05] company has an on- premises installation
+[6:08] of a Microsoft SQL server always on
+[6:10] cluster. The company wants to migrate to
+[6:13] an AWS managed database service. A
+[6:16] solutions architect must design a
+[6:18] heterogeneous database migration on AWS.
+[6:21] Which solution will meet these
+[6:23] Which solution will meet these requirements?
+[6:26] The correct answer is C. Use the AWS
+[6:29] schema conversion tool to translate the
+[6:31] database schema to Amazon RDS for MySQL.
+[6:35] Then use AWS database migration service
+[6:38] to migrate the data from on premises
+[6:40] databases to Amazon RDS. This is a
+[6:42] heterogeneous migration meaning the
+[6:45] database engines differ. In such
+[6:47] migrations, two tools are used together.
+[6:50] One, AWS schema conversion tool. This
+[6:53] converts the database schema and code
+[6:55] from SQL server syntax to MySQL syntax.
+[6:59] Two, AWS database migration service.
+[7:02] This handles the data transfer from the
+[7:04] source to the target. It supports
+[7:06] ongoing replication minimizing downtime
+[7:09] during the cut over. This combination
+[7:11] provides a complete managed and low
+[7:14] downtime migration path. As for a backup
+[7:16] and restore utilities only work for
+[7:19] homogeneous migrations, not for SQL
+[7:21] server to MySQL. B snowball and mano S3
+[7:25] bulk insert workflows are not suitable
+[7:27] for live databases or schema conversion.
+[7:30] They don't handle schema or continuous
+[7:32] replication. D. AWS data sync transfers
+[7:36] files, not structured database data. It
+[7:38] cannot migrate relational database
+[7:40] contents or schema. Therefore, the
+[7:42] correct answer is C. A finance company
+[7:45] is running its business critical
+[7:47] application on current generation Linux
+[7:50] EC2 instances. The application includes
+[7:52] a self-managed MySQL database performing
+[7:55] heavy IO operations. The application is
+[7:58] working fine to handle a moderate amount
+[8:00] of traffic during the month. However, it
+[8:03] slows down during the final three days
+[8:05] of each month due to month- end
+[8:06] reporting. Even though the company is
+[8:08] using elastic load balancers and
+[8:10] autoscaling within its infrastructure to
+[8:12] meet the increased demand, which of the
+[8:15] following actions would allow the
+[8:16] database to handle the month-end load
+[8:18] with the least impact on performance?
+[8:22] The correct answer is B. Performing a
+[8:25] one-time migration of the database
+[8:27] cluster to Amazon RDS and creating
+[8:30] several additional read replicas to
+[8:32] handle the load during end of month. The
+[8:34] performance issue occurs because the
+[8:36] self-managed MySQL database cannot
+[8:38] handle the heavy IO workload during peak
+[8:40] periods. Migrating to Amazon RDS for
+[8:43] MySQL provides an optimized managed
+[8:46] database service that automates many
+[8:48] maintenance tasks and offers built-in
+[8:50] scalability options. By creating read
+[8:53] replicas, you can offload read heavy
+[8:55] months and reporting queries from the
+[8:57] primary database instance, significantly
+[8:59] improving overall performance and
+[9:01] reducing IO contention on the primary
+[9:03] node. This approach requires minimal
+[9:06] operational overhead and provides both
+[9:08] scalability and high availability. Ideal
+[9:11] for handling periodic spikes like month
+[9:13] and workloads. As for a pre-warming ELBs
+[9:16] or switching to GP2 volumes does not
+[9:18] address database IO bottlenecks. ELBs
+[9:22] affect traffic distribution, not
+[9:24] database performance. C. Dynamically
+[9:27] resizing or changing EBSOPS with lambda
+[9:30] adds complexity and latency and such
+[9:32] changes are not instantaneous. It is not
+[9:34] suitable for predictable month and
+[9:36] spikes. D. Manually replacing volumes
+[9:39] with max PIOPS each month is
+[9:42] impractical, costly, and operationally
+[9:44] risky, especially for production
+[9:46] databases. Therefore, the correct answer
+[9:48] is B. A company has an asynchronous HTTP
+[9:51] application that is hosted as an AWS
+[9:54] Lambda function. A public Amazon API
+[9:57] gateway endpoint invokes the Lambda
+[9:59] function. The Lambda function and the
+[10:01] API gateway endpoint reside in the US
+[10:03] East1 region. A solution's architect
+[10:06] needs to redesign the application to
+[10:08] support failover to another AWS region.
+[10:11] Which solution will meet these
+[10:13] Which solution will meet these requirements?
+[10:15] The correct answer is D. Deploy the
+[10:18] Lambda function and an API gateway
+[10:20] endpoint to the US West 2 region.
+[10:23] Configure Amazon Route 53 to use a
+[10:25] failover routing policy to route traffic
+[10:27] for the two API gateway endpoints. To
+[10:30] achieve regional failover for Alambda
+[10:32] based API, deploy the same
+[10:34] infrastructure in a secondary region.
+[10:36] Use Amazon Route 53 failover routing to
+[10:39] monitor the health of the primary
+[10:41] endpoint and automatically redirect
+[10:42] traffic to the secondary endpoint if the
+[10:45] primary region becomes unavailable. This
+[10:47] design provides high availability and
+[10:49] automatic failover between regions
+[10:51] ensuring continuous service during
+[10:53] regional outages. As for a routing
+[10:56] traffic from an API gateway in one
+[10:58] region to a lambda function in another
+[11:00] introduces cross region latency and
+[11:02] still creates a single point of failure
+[11:04] for lambda in US east one. As for B,
+[11:06] using SQS adds buffering but does not
+[11:09] provide regional failover. It's a
+[11:11] different architectural pattern, not a
+[11:13] disaster recovery solution. C. AWS
+[11:16] Global Accelerator does support
+[11:18] multi-reion routing, but combining it
+[11:20] with an application load balancer for
+[11:22] API gateway adds unnecessary complexity
+[11:25] and cost. Route 53 failover is simpler
+[11:28] and fully sufficient. Therefore, the
+[11:30] correct answer is D. A company is
+[11:32] building a software as a service
+[11:34] solution on AWS. The company has
+[11:37] deployed an Amazon API gateway rest API
+[11:40] with AWS Lambda integration in multiple
+[11:42] AWS regions and in the same production
+[11:45] account. The company offers tier pricing
+[11:47] that gives customers the ability to pay
+[11:49] for the capacity to make a certain
+[11:51] number of API calls per second. The
+[11:53] premium tier offers up to 3,000 calls
+[11:56] per second and customers are identified
+[11:58] by a unique API key. Several premium
+[12:01] tier customers in various regions report
+[12:03] that they receive error responses of 429
+[12:06] too many requests from multiple API
+[12:08] methods during peak usage hours. Logs
+[12:10] indicate that the Lambda function is
+[12:12] never invoked. What could be the cause
+[12:14] of the error messages for these
+[12:16] of the error messages for these customers?
+[12:19] The correct answer is D. The company
+[12:22] reached its API gateway default per
+[12:24] method limit for calls per second. The
+[12:27] method limit for calls per second. The HTTP4292
+[12:28] many requests response from API gateway
+[12:31] means the throttling occurred at the API
+[12:33] gateway level not inside the Lambda
+[12:35] function. By default, Amazon API gateway
+[12:38] applies two layers of throttling limits.
+[12:41] One, account level limits. Default of
+[12:43] 10,000 requests per second across all
+[12:46] APIs in a region. Two, per client and
+[12:49] per method limits. default of 5,000
+[12:51] requests per second per method, per
+[12:53] stage, per account, unless customized.
+[12:56] Because the question mentions the error
+[12:58] happens before Lambda is involved and
+[12:59] affects premium tier customers making up
+[13:02] to 3,000 RPS per customer across
+[13:04] multiple regions, the likely cost is
+[13:06] hitting the per method throttling limit
+[13:08] for a specific API stage or method. As
+[13:11] for A, the Lambda function concurrency
+[13:13] limit would cause invocation failures or
+[13:15] throttled Lambda errors, not API gateway
+[13:18] 429 errors. B. Lambda concurrency limits
+[13:21] are per region. But if that limit were
+[13:23] reached, API gateway would still attempt
+[13:26] invocations and fail with 5xx errors,
+[13:29] not 429. C. The account level API
+[13:32] gateway limit would affect all methods
+[13:34] collectively, not specific methods. The
+[13:37] question specifies multiple API methods,
+[13:40] implying a per method limit is the cost.
+[13:42] Therefore, the correct answer is D. A
+[13:45] company has purchased appliances from
+[13:47] different vendors. The appliances all
+[13:49] have IoT sensors. The sensors send
+[13:52] status information in the vendor's
+[13:54] proprietary formats to a legacy
+[13:56] application that parses the information
+[13:58] into JSON. The parsing is simple, but
+[14:01] each vendor has a unique format. Once
+[14:03] daily, the application parses all the
+[14:06] JSON records and stores the records in a
+[14:08] relational database for analysis. The
+[14:11] company needs to design a new data
+[14:13] analysis solution that can deliver
+[14:15] faster and optimize costs. Which
+[14:17] solution will meet these requirements?
+[14:21] The correct answer is A. Connect the IoT
+[14:24] sensors to AWS IoT core. Set a rule to
+[14:28] invoke an AWS Lambda function to parse
+[14:30] the information and save a CSV file to
+[14:33] Amazon S3. Use AWS Glue to catalog the
+[14:37] files. Use Amazon Athena and Amazon
+[14:39] Quicksite for analysis. This design
+[14:42] provides a serverless, scalable, and
+[14:44] costoptimized architecture for IoT data
+[14:47] ingestion, parsing, storage, and
+[14:49] analysis. AWS IoT core natively handles
+[14:53] messages from IoT devices and provides
+[14:56] secure manage connectivity at scale. AWS
+[14:59] Lambda can be triggered by IoT Core
+[15:01] rules to perform custom parsing logic
+[15:03] for each vendor's proprietary format,
+[15:06] converting data into a uniform JSON or
+[15:09] CSV structure. parse data is stored in
+[15:11] Amazon S3 which offers durable lowcost
+[15:14] storage. AWS Glue automatically catalogs
+[15:17] the data so it's queryable. Amazon
+[15:19] Athena can then query the S3 data
+[15:22] directly and Amazon Quicksite can
+[15:24] visualize it for reporting and insights.
+[15:26] This eliminates the need for maintaining
+[15:28] a relational database or daily batch
+[15:31] jobs and enables real-time or near
+[15:33] real-time analytics at minimal cost. S4B
+[15:36] running parsing and AWS Fargate
+[15:39] increases operational cost and
+[15:41] complexity compared to a serverless
+[15:42] lambda based approach. Also, Red Shift
+[15:45] is better for large-scale structured
+[15:47] analytics, not for raw IoT ingestion. C.
+[15:51] Using AWS transfer for SFTP and
+[15:54] modifying IoT devices to upload CSV
+[15:56] files adds unnecessary re-engineering
+[15:59] and lacks real-time capability. D. AWS
+[16:02] Snowball Edge is meant for edge data
+[16:04] transfer or offline processing, not
+[16:07] continuous IoT sensor ingestion and
+[16:09] cloud-based analytics. Therefore, the
+[16:11] correct answer is a. A solutions
+[16:13] architect must analyze a company's
+[16:15] Amazon EC2 instances and Amazon EBS
+[16:18] volumes to determine whether the company
+[16:20] is using resources efficiently. The
+[16:23] company is running several large
+[16:25] highmemory EC2 instances to host
+[16:27] database clusters that are deployed in
+[16:29] active passive configurations. The
+[16:31] utilization of these EC2 instances
+[16:34] varies by the applications that use the
+[16:36] databases and the company has not
+[16:38] identified a pattern. The solutions
+[16:40] architect must analyze the environment
+[16:42] and take action based on the findings.
+[16:44] Which solution meets these requirements
+[16:46] most cost effectively?
+[16:49] The correct answer is C. Install the
+[16:52] Amazon Cloudatch agent on each of the
+[16:54] EC2 instances. Turn on AWS compute
+[16:58] optimizer and let it run for at least 12
+[17:00] hours. Review the recommendations from
+[17:03] compute optimizer and rightsize the EC2
+[17:06] instances as directed. AWS compute
+[17:08] optimizer automatically analyzes
+[17:10] utilization metrics from Amazon
+[17:12] Cloudatch and provides right sizing
+[17:14] recommendations for EC2 instances and
+[17:16] EBS volumes. It helps identify
+[17:19] underutilized or overprovisioned
+[17:21] resources and suggests more
+[17:22] cost-effective instance types while
+[17:24] maintaining performance. To get the most
+[17:27] accurate recommendations for high memory
+[17:29] instances, you need the cloudatch agent
+[17:31] installed. Because EC2 basic metrics
+[17:34] don't include memory usage by default,
+[17:36] compute optimizer then uses this data to
+[17:38] generate reliable optimization guidance.
+[17:41] This approach is automated, datadriven,
+[17:44] and cost-effective with minimal manual
+[17:46] work required. As for A, manually
+[17:48] building a dashboard and reviewing
+[17:50] metrics periodically is timeconuming and
+[17:52] not as precise as compute optimizers
+[17:54] automated analysis. B detailed
+[17:57] monitoring only increases cloudatch
+[17:59] metric granularity but still lacks
+[18:01] memory data is insufficient for full
+[18:04] right sizing. D trusted advisor does
+[18:06] provide some optimization checks but at
+[18:09] a very high level and is less detailed
+[18:10] than compute optimizer for EC2 and EBS.
+[18:14] It also requires a paid enterprise
+[18:16] support plan which is more expensive and
+[18:18] unnecessary for this task. Therefore,
+[18:20] the correct answer is C. A company runs
+[18:23] a proprietary stateless ETL application
+[18:26] on Amazon EC2 Linux instances. The
+[18:29] application is a Linux binary and the
+[18:31] source code cannot be modified. The
+[18:33] application is singlethreaded, uses 2GB
+[18:36] of RAM and is highly CPU intensive. The
+[18:39] application is scheduled to run every
+[18:41] four hours and runs for up to 20
+[18:43] minutes. A solutions architect wants to
+[18:45] revise the architecture for the
+[18:47] solution. Which strategy should the
+[18:49] solutions architect use?
+[18:53] The correct answer is C. Use AWS Fargate
+[18:56] to run the application. Use Amazon Event
+[18:59] Bridge to invoke the Fargate task every
+[19:01] four hours.
+[19:03] The key points in this scenario are the
+[19:06] application is a Linux binary. It is CPU
+[19:09] inensive, singlethreaded and runs
+[19:11] periodically and it does not need to run
+[19:14] continuously and must be costefficient
+[19:16] and fully managed. Running the app in a
+[19:18] container on AWS Fargate meets all these
+[19:21] needs. You can package the binary in a
+[19:23] lightweight container image. Fargate
+[19:26] runs containers on demand without
+[19:27] managing EC2 instances. You can schedule
+[19:30] runs every four hours using Amazon Event
+[19:32] Bridge. It is serverless and
+[19:34] costefficient as you only pay for
+[19:36] runtime. As for A, AWS Lambda is
+[19:39] unsuitable because the app is a binary
+[19:41] executable, not a Lambda function and
+[19:43] may exceed Lambda's runtime and resource
+[19:45] limits. B, AWS batch is overkill for a
+[19:49] single lightweight job. It's best for
+[19:51] large scale batch workloads needing job
+[19:53] cues and compute environments. D. Using
+[19:56] EC2 spot instances requires instance
+[19:59] management and orchestration, which adds
+[20:01] complexity and is not needed for a
+[20:03] simple schedule workload. Therefore, the
+[20:05] correct answer is C. We have come to the
+[20:07] end of today's video. If you like the
+[20:09] video, please make sure to like and
+[20:11] subscribe. Goodbye.

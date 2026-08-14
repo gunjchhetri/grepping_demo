@@ -1,0 +1,33 @@
+export class AppConstants {
+  public static readonly documentsPrefix = "documents";
+  public static readonly processingPrefix = "processing/";
+  public static readonly documentFolder = "documents";
+  public static readonly extractedFileName = "document.txt";
+  public static readonly originalPdfFileName = "original.pdf";
+  public static readonly llmRequestPrefix = "llm-requests/";
+  public static readonly llmResponsePrefix = "llm-responses/";
+  public static readonly documentTextPrefix = "document-text/";
+  public static readonly documentDisplayName = "document.pdf";
+  public static readonly questionIdPrefix = "question";
+  public static readonly documentIdPrefix = "document";
+  public static readonly jsonSuffix = ".json";
+  public static readonly textContentType = "text/plain; charset=utf-8";
+  public static readonly jsonContentType = "application/json";
+  public static readonly textEncoding = "utf8";
+  public static readonly documentsMountPath = "/mnt/documents";
+  public static readonly temporaryDirectory = "/tmp";
+  public static readonly localDocumentPrefix = "rag-";
+  public static readonly jobsBucketEnv = "JOBS_BUCKET";
+  public static readonly documentsBucketEnv = "DOCUMENTS_BUCKET";
+  public static readonly llmProviderEnv = "LLM_PROVIDER";
+  public static readonly llmModelEnv = "LLM_MODEL";
+  public static readonly llmSecretEnv = "LLM_SECRET_ARN";
+  public static readonly userIdHeader = "x-user-id";
+  public static readonly maxCandidatePassages = 8;
+  public static readonly maxSelectedPassages = 5;
+  public static readonly maxSearchTerms = 12;
+  public static readonly llmRequestTimeoutMs = 5000;
+  public static readonly passagePaddingLines = 20;
+  public static readonly nearbyLineDistance = 12;
+  public static readonly apiCorsOrigin = process.env.API_CORS_ORIGIN ?? "*";
+}

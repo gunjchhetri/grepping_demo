@@ -1,0 +1,558 @@
+[0:00] Hello. Today we'll be going through
+[0:01] practice questions 1 to 10 for the AWS
+[0:04] solutions architect professional exam.
+[0:07] Let's begin. A company is running a
+[0:09] two-tier web application in an on-
+[0:11] premises data center. The application
+[0:14] layer consists of a single server
+[0:15] running a stateful application. The
+[0:18] application connects to a Postgrql
+[0:20] database running on a separate server.
+[0:22] The application's user base is expected
+[0:24] to grow significantly. So the company is
+[0:27] migrating the application and database
+[0:29] to AWS. The solution will use Amazon
+[0:32] Aurora PostgreSQL, Amazon EC2
+[0:35] autoscaling and elastic load balancing.
+[0:37] Which solution will provide a consistent
+[0:40] user experience that will allow the
+[0:41] application and database tiers to scale?
+[0:45] The correct answer is C. Enable Aurora
+[0:49] Autoscaling for Aurora replicas. Use an
+[0:52] application load balancer with the
+[0:53] roundrobin routing and sticky sessions
+[0:55] enabled. Because the application is
+[0:57] stateful, each user's session data must
+[1:00] remain tied to the same EC2 instance
+[1:02] throughout their interaction. Sticky
+[1:04] sessions on an application load balancer
+[1:07] ensure that a user's requests continue
+[1:09] to reach the same instance, maintaining
+[1:11] session consistency. The roundrobin
+[1:14] routing algorithm evenly distributes new
+[1:16] sessions among instances, allowing the
+[1:18] environment to scale out as demand
+[1:20] increases. For the database layer,
+[1:22] Aurora supports only one writer, so you
+[1:25] cannot scale writers horizontally.
+[1:27] Instead, enabling autoscaling for Aurora
+[1:30] replicas allows the database to scale
+[1:32] read capacity automatically when user
+[1:34] demand increases, ensuring consistent
+[1:37] performance during traffic spikes. Why
+[1:39] the other options are incorrect? Eight,
+[1:41] network load balancer. It operates at
+[1:43] layer 4 and does not support HTTP based
+[1:46] sticky sessions or roundroin routing. It
+[1:48] is better suited for TCP UDP workloads,
+[1:51] not web applications requiring session
+[1:53] persistence. B. Aurora writer
+[1:56] autoscaling. Aurora supports a single
+[1:58] writer per cluster. Riders cannot be
+[2:01] autoscaled. Only read replicas can scale
+[2:03] automatically. D. Aurora writer
+[2:06] autoscaling with NLB. This option is
+[2:08] invalid because Aurora writers cannot
+[2:10] scale horizontally and an NLB cannot
+[2:13] handle session stickiness or HTTP
+[2:16] routing. Therefore, the correct answer
+[2:17] is C. A company wants to use a
+[2:20] third-party software as a service
+[2:22] application. The third party SAS
+[2:24] application is consumed through several
+[2:26] API calls. The third party SAS
+[2:29] application also runs on AWS inside a
+[2:31] VPC. The company will consume the
+[2:34] thirdparty SAS application from inside a
+[2:36] VPC. The company has internal security
+[2:39] policies that mandate the use of private
+[2:41] connectivity that does not traverse the
+[2:43] internet. No resources that run in the
+[2:46] company VPC are allowed to be accessed
+[2:48] from outside the company's VPC. All
+[2:50] permissions must conform to the
+[2:52] principles of lease privilege. Which
+[2:54] solution meets these requirements?
+[2:58] The correct answer is A. Create an AWS
+[3:01] private link interface VPC endpoint.
+[3:04] Connect this endpoint to the endpoint
+[3:06] service that the thirdparty SAS
+[3:08] application provides. Create a security
+[3:10] group to limit the access to the
+[3:12] endpoint. Associate the security group
+[3:14] with the endpoint. AWS private link
+[3:17] enables private connectivity between
+[3:19] VPCs and supported AWS services or
+[3:22] thirdparty SAS applications without
+[3:24] using the public internet. It uses
+[3:26] interface VPC endpoints which create
+[3:28] ENIs inside your VPC providing private
+[3:32] IP connectivity to the SAS service
+[3:34] within AWS's internal network. This
+[3:37] solution satisfies the company's
+[3:39] security requirements because traffic
+[3:41] stays entirely within the AWS private
+[3:44] network. Access can be restricted by
+[3:46] security groups to enforce lease
+[3:48] privilege. The third party SAS provider
+[3:50] offers an endpoint service and the
+[3:52] company simply connects via an interface
+[3:54] endpoint in its own VPC. Why the other
+[3:57] options are incorrect? B. Sight
+[3:59] toightVPN. Although VPN provides
+[4:02] encrypted connectivity, traffic still
+[4:04] traverses the internet. This violates
+[4:06] the company's policy against internet
+[4:08] traversal. C. VPC peering. VPC peering
+[4:12] doesn't scale well for SAS consumption
+[4:14] and requires overlapping cider
+[4:16] considerations. It also doesn't support
+[4:19] granular service exposure like private
+[4:21] link which aligns with least privilege
+[4:23] principles. D. Create a private link
+[4:26] endpoint service. The company is the
+[4:29] consumer not the provider. The SAS
+[4:31] vendor already hosts the endpoint
+[4:33] service. So the company should create an
+[4:35] interface endpoint not an endpoint
+[4:37] service. Therefore the correct answer is
+[4:40] a. A company needs to implement a
+[4:42] patching process for its servers. The
+[4:44] on- premises servers and Amazon EC2
+[4:47] instances use a variety of tools to
+[4:49] perform patching. Management requires a
+[4:52] single report showing the patch status
+[4:54] of all the servers and instances. Which
+[4:56] set of actions should a solutions
+[4:58] architect take to meet these
+[5:00] architect take to meet these requirements?
+[5:02] The correct answer is a. Use AWS systems
+[5:06] manager to manage patches on the on
+[5:08] premises servers and EC2 instances. Use
+[5:11] Systems Manager to generate patch
+[5:13] compliance reports. AWS Systems Manager
+[5:16] provides a unified way to automate
+[5:18] patching, configuration, and reporting
+[5:20] for both on premises servers and EC2
+[5:23] instances. With Systems Manager Patch
+[5:25] Manager, you can apply patches according
+[5:28] to approved baselines and schedules. It
+[5:30] also offers compliance reporting
+[5:32] allowing you to view the patch status of
+[5:34] all managed instances both on premises
+[5:37] and in AWS within a single dashboard or
+[5:40] exportable report. This meets the
+[5:43] company's goals, a single tool to manage
+[5:45] and report patch compliance across
+[5:47] hybrid environments while ensuring
+[5:49] centralized visibility and automation.
+[5:51] Why the other options are incorrect? B.
+[5:53] AWS ops works. Ops works is a
+[5:56] configuration management service based
+[5:58] on Chef or Puppet and is not designed
+[6:00] for unified patch management or
+[6:02] compliance reporting across hybrid
+[6:04] environments. See, Amazon Event Bridge
+[6:07] plus Amazon Inspector. Event Bridge can
+[6:09] trigger patching, but Amazon Inspector
+[6:12] is used for vulnerability scanning, not
+[6:14] patch compliance reporting. This
+[6:16] combination doesn't provide a single
+[6:18] centralized patch report. D. Ops works
+[6:20] plus X-ray plus Ops Center. X-ray is
+[6:23] used for tracing and debugging
+[6:25] distributed applications, not for
+[6:27] patching or compliance. Ops works is
+[6:29] again not a patch compliance tool and
+[6:32] this setup does not satisfy the
+[6:33] reporting requirement. Therefore, the
+[6:36] correct answer is A. A company used
+[6:38] Amazon EC2 instances to deploy a web
+[6:41] fleet to host a block site. The EC2
+[6:44] instances are behind an application load
+[6:46] balancer and are configured in an
+[6:48] autoscaling group. The web application
+[6:50] stores all blog content on an Amazon EFS
+[6:53] volume. The company recently added a
+[6:56] feature for bloggers to add video to
+[6:58] their posts, attracting 10 times the
+[7:00] previous user traffic. At peak times of
+[7:02] day, users report buffering and timeout
+[7:05] issues while attempting to reach the
+[7:07] site or watch videos. Which is the most
+[7:10] costefficient and scalable deployment
+[7:12] that will resolve the issues for users?
+[7:15] The correct answer is C. configure an
+[7:18] Amazon CloudFront distribution, point
+[7:21] the distribution to an S3 bucket, and
+[7:23] migrate the videos from EFS to Amazon
+[7:25] S3. The performance issues are caused by
+[7:29] high traffic and large media files being
+[7:31] served directly from Amazon EFS through
+[7:33] the web servers. EFS is optimized for
+[7:36] shared file storage across instances,
+[7:38] not for delivering high volume static
+[7:40] content like videos. The most
+[7:42] costefficient and scalable way to serve
+[7:44] large frequently accessed static assets
+[7:47] is to store them in Amazon S3 and
+[7:49] distribute them through Amazon
+[7:50] CloudFront a CDN. CloudFront caches
+[7:54] content and edge locations reducing load
+[7:56] on the origin servers and providing low
+[7:58] latency access to users worldwide. This
+[8:01] approach scales automatically and
+[8:03] eliminates the need for expensive EFS
+[8:06] throughput modes or additional compute
+[8:08] scaling. Why the other options are
+[8:09] incorrect? A enable maximum IO for EFS.
+[8:13] This increases performance but also
+[8:15] significantly raises cost. It does not
+[8:17] solve global latency or caching issues
+[8:20] since users still access content
+[8:22] directly from EFS through the web
+[8:23] servers. B. Use instance store volumes
+[8:26] and sync to S3. Instance store volumes
+[8:28] are ephemeral and data is lost when
+[8:31] instances stop or terminate. Managing
+[8:33] sync operations adds complexity and
+[8:35] doesn't scale well for hight traffic
+[8:37] workloads. D. CloudFront in front of ALB
+[8:40] for all site contents. This helps cache
+[8:43] dynamic and static web content. But the
+[8:45] main bottleneck large videos stored on
+[8:47] EFS remains. Migrating videos to S3 and
+[8:51] serving them directly via CloudFront is
+[8:53] far more efficient. Therefore, the
+[8:54] correct answer is C. A software company
+[8:56] has deployed an application that
+[8:58] consumes a REST API by using Amazon API
+[9:01] gateway, AWS Lambda functions, and an
+[9:04] Amazon Dynamo DB table. The application
+[9:07] is showing an increase in the number of
+[9:09] errors during put requests. Most of the
+[9:11] put calls come from a small number of
+[9:13] clients that are authenticated with
+[9:15] specific API keys. A solutions architect
+[9:18] has identified that a large number of
+[9:20] the put requests originate from one
+[9:22] client. The API is non-critical and
+[9:24] clients can tolerate retries of
+[9:26] unsuccessful calls. However, the errors
+[9:28] are displayed to customers and are
+[9:30] causing damage to the API's reputation.
+[9:33] What should the solutions architect
+[9:35] recommend to improve the customer
+[9:36] recommend to improve the customer experience?
+[9:39] The correct answer is B. Implement API
+[9:42] throttling through a usage plan at the
+[9:44] API gateway level. Ensure that the
+[9:47] client application handles code 429
+[9:49] replies without error. The issue is that
+[9:51] a single client is overloading the API
+[9:54] with excessive put requests causing
+[9:56] errors that degrade service for others.
+[9:58] Since the API is non-critical and
+[10:00] clients can tolerate retries, the best
+[10:03] approach is to limit the request rate
+[10:05] per client while still allowing retries.
+[10:07] By setting up a usage plan with
+[10:09] throttling in Amazon API gateway, you
+[10:12] can enforce request quotas and rate
+[10:14] limits per API key. This ensures that no
+[10:17] single client can overwhelm the backend
+[10:19] lambda or Dynamo DB resources. When the
+[10:22] rate limit is exceeded, API gateway
+[10:24] returns a 429 response. Clients can be
+[10:27] configured to catch this response and
+[10:29] retry after a delay, preserving a good
+[10:31] customer experience and protecting your
+[10:33] back-end systems. Why the other options
+[10:35] are incorrect? A implement retry logic
+[10:38] with exponential backoff. This helps on
+[10:41] the client side but does not prevent
+[10:42] server overload. The core issue is
+[10:45] excessive traffic from one client.
+[10:47] Throttling is required at the API level.
+[10:50] C. Turn on API caching. Caching helps
+[10:53] get requests, not put requests, since
+[10:55] put operations modify data and cannot be
+[10:58] cached. D. Implement reserved
+[11:00] concurrency for Lambda. Reserved
+[11:02] concurrency limits or guarantees Lambda
+[11:04] execution capacity but doesn't address
+[11:07] excessive API calls or improve error
+[11:09] handling. It only controls function
+[11:11] level scaling, not per client fairness.
+[11:14] Therefore, the correct answer is B. A
+[11:16] company has created an OU in AWS
+[11:19] organizations for each of its
+[11:21] engineering teams. Each OU owns multiple
+[11:24] AWS accounts. The organization has
+[11:27] hundreds of AWS accounts. A solutions
+[11:29] architect must design a solution so that
+[11:32] each OU can view a breakdown of usage
+[11:34] costs across its AWS accounts. Which
+[11:37] solution meets these requirements?
+[11:41] The correct answer is B. Create an AWS
+[11:45] cost and usage report from the AWS
+[11:47] organizations management account. Allow
+[11:50] each team to visualize the CUR through
+[11:52] an Amazon Quicksite dashboard. The AWS
+[11:55] cost and usage report provides the most
+[11:57] detailed billing and usage data and can
+[11:59] be generated only from the management
+[12:01] account in AWS organizations. The CUR
+[12:05] automatically includes cost and usage
+[12:07] data from all member accounts in the
+[12:09] organization. By creating the CUR
+[12:11] centrally from the management account,
+[12:13] you can ensure complete and consolidated
+[12:15] visibility across all AWS accounts. You
+[12:18] can then use Amazon Quicksite to
+[12:20] visualize and filter costs per OU or per
+[12:23] member account, giving each engineering
+[12:25] team a breakdown of its own usage. This
+[12:28] approach is centralized, scalable and
+[12:30] follows AWS best practices for large
+[12:33] organizations managing costs across many
+[12:35] accounts. Why the other options are
+[12:37] incorrect? A cur for each OU via
+[12:41] resource access manager. Curs cannot be
+[12:44] created per OU or shared through AWS
+[12:46] resource access manager. Curs are
+[12:49] generated only at the account level
+[12:51] specifically from the management
+[12:53] account. CUR in each member account.
+[12:57] Creating CURS in every member account
+[12:59] adds unnecessary duplication and
+[13:01] management overhead. It also fails to
+[13:03] provide a consolidated organizational
+[13:05] cost view. D Cur via systems manager.
+[13:09] AWS systems manager does not handle
+[13:11] billing or cost reporting. It manages
+[13:14] operational data not financial data. So
+[13:16] this option is invalid. Therefore, the
+[13:19] correct answer is B. A company is
+[13:21] storing data on premises on a Windows
+[13:24] file server. The company produces 5GB of
+[13:27] new data daily. The company migrated
+[13:29] part of its Windows-based workload to
+[13:31] AWS and needs the data to be available
+[13:34] on the file system in the cloud. The
+[13:36] company already has established an AWS
+[13:38] direct connect connection between the
+[13:40] on- premises network and AWS. Which data
+[13:43] migration strategy should the company
+[13:45] migration strategy should the company use?
+[13:48] The correct answer is B. Use AWS data
+[13:51] sync to schedule a daily task to
+[13:53] replicate data between the on- premises
+[13:55] Windows file server and Amazon FSX.
+[14:00] Because the source is a Windows file
+[14:02] server, the appropriate destination in
+[14:04] AWS must support SMB protocol and
+[14:06] Windows file system semantics such as
+[14:09] access control lists and NTFS
+[14:11] permissions. The AWS service that
+[14:13] provides this compatibility is Amazon
+[14:16] FSX for Windows file server. AWS data
+[14:19] sync is purpose-built for automated high
+[14:21] performance and secure data transfer
+[14:23] between on- premises storage and AWS
+[14:26] file systems. It supports scheduled
+[14:28] synchronization, incremental updates,
+[14:30] and metadata preservation, making it
+[14:32] ideal for daily replication of 5GB of
+[14:35] new data. This setup works seamlessly
+[14:38] over the existing AWS direct connect
+[14:40] link for efficient private transfer
+[14:42] without using the public internet. Why
+[14:44] the other options are incorrect? Eight,
+[14:46] file gateway. A file gateway exposes S3
+[14:49] as a file share, but it's not a full
+[14:51] Windows file system. It doesn't preserve
+[14:53] NTFS permissions or integrate with
+[14:56] Active Directory in the same way FSX
+[14:58] does. C. AWS data pipeline. Data
+[15:02] pipeline is used for data processing
+[15:04] workflows, not file replication or
+[15:06] storage synchronization. Is not suitable
+[15:08] for migrating or syncing Windows file
+[15:10] server data. D. AWS data sync to EFS.
+[15:14] Amazon EFS is a Linux- based NFS file
+[15:17] system. It doesn't support SMB or
+[15:19] Windows ACL, making it incompatible with
+[15:22] Windows file shares. Therefore, the
+[15:24] correct answer is B. A company's
+[15:26] solution architect is reviewing a web
+[15:28] application that runs on AWS. The
+[15:31] application references static assets in
+[15:33] an Amazon S3 bucket in the US East1
+[15:36] region. The company needs resiliency
+[15:38] across multiple AWS regions. The company
+[15:41] already has created an S3 bucket in a
+[15:44] second region. Which solution will meet
+[15:46] these requirements with the least
+[15:47] operational overhead?
+[15:51] The correct answer is C. Configure
+[15:54] replication on the S3 bucket in US East1
+[15:56] to replicate objects to the S3 bucket in
+[15:59] the second region. Set up an Amazon
+[16:01] CloudFront distribution with an origin
+[16:03] group that contains the two S3 buckets
+[16:06] as origins.
+[16:08] This solution provides multi-reion
+[16:10] resiliency with minimal operational
+[16:12] overhead. S3 cross region replication
+[16:15] automatically keeps the secondary S3
+[16:17] bucket synchronized with the primary
+[16:18] one, ensuring data redundancy across
+[16:21] regions without needing custom scripts
+[16:22] or manual uploads. Amazon CloudFront
+[16:25] with an origin group can automatically
+[16:27] fail over to the secondary S3 bucket if
+[16:29] the primary one becomes unavailable,
+[16:31] ensuring continued content delivery to
+[16:33] users with no code changes. This
+[16:36] approach is fully managed, scalable, and
+[16:38] requires no manual intervention during
+[16:40] requires no manual intervention during failover.
+[16:42] Why the other options are incorrect? A,
+[16:44] manually writing objects to both buckets
+[16:46] and managing route 53 weighted routing
+[16:48] adds unnecessary complexity and
+[16:50] maintenance overhead. B. Using a lambda
+[16:53] function for replication is redundant
+[16:55] because S3 already provides built-in
+[16:57] cross region replication. It increases
+[17:00] operational effort and cost. D. While
+[17:03] CRR ensures data replication, requiring
+[17:05] manual application updates during
+[17:07] failover introduces downtime and
+[17:09] operational overhead, violating the
+[17:11] requirement for least operational
+[17:13] overhead. Therefore, the correct answer
+[17:15] is C. A company is using AWS
+[17:17] organizations to manage multiple AWS
+[17:20] accounts. For security purposes, the
+[17:23] company requires the creation of an
+[17:25] Amazon simple notification service topic
+[17:27] that enables integration with a
+[17:29] third-party alerting system in all the
+[17:31] organizations member accounts. A
+[17:34] solutions architect used an AWS cloud
+[17:37] formation template to create the SNS
+[17:39] topic and stack sets to automate the
+[17:41] deployment of cloud form stacks. Trusted
+[17:44] access has been enabled in
+[17:46] organizations. What should the solutions
+[17:48] architect do to deploy the cloud
+[17:50] formation stack sets in all AWS
+[17:52] formation stack sets in all AWS accounts?
+[17:54] The correct answer is C. Create a stack
+[17:58] set in the organization's management
+[18:00] account. Use service managed
+[18:02] permissions. Set deployment options to
+[18:04] deploy to the organization. Enable cloud
+[18:06] formation stack sets automatic
+[18:08] deployment when using AWS cloud
+[18:11] formation stack sets with AWS
+[18:13] organizations. The correct way to deploy
+[18:15] resources automatically across all
+[18:17] member accounts is to one create the
+[18:20] stack set in the organization's
+[18:22] management account. Only the management
+[18:24] account can create service managed stack
+[18:26] sets that target the entire organization
+[18:29] or specific organizational units. Two,
+[18:32] use service-based permissions with
+[18:34] trusted access enabled between AWS
+[18:37] organizations and cloud formation stack
+[18:39] sets. AWS automatically handles the
+[18:42] required AM roles in each member account
+[18:45] removing the need for manual role
+[18:46] creation. Three, deploy to the
+[18:48] organization and enable automatic
+[18:51] deployment. This ensures that the stack
+[18:53] automatically deploys not only to
+[18:55] current accounts in the organization but
+[18:57] also to new accounts that are created
+[18:59] later. This approach gives centralized
+[19:02] management, scalability, and automatic
+[19:04] propagation with the least manual
+[19:06] effort. Why the other options are
+[19:08] incorrect? A, you cannot create a stack
+[19:11] set from a member account when using
+[19:13] service manage permissions. Only the
+[19:15] management account can create
+[19:16] organizationwide deployments. B,
+[19:19] self-service permissions require manual
+[19:22] AM role setup in each target account and
+[19:24] do not support automatic deployment
+[19:26] across an organization.
+[19:28] D. Creating stacks in the management
+[19:30] account limits deployment to that single
+[19:33] account. It does not propagate to member
+[19:35] accounts. Drift detection is unrelated
+[19:37] to the automatic organizationwide
+[19:39] deployment requirement. Therefore, the
+[19:42] correct answer is C. A company recently
+[19:44] deployed an application on AWS. The
+[19:47] application uses Amazon Dynamo DB. The
+[19:50] company measured the application load
+[19:52] and configured the RCUs and WCUs on the
+[19:55] Dynamo DB table to match the expected
+[19:57] peak load. The peak load occurs once a
+[20:00] week for a 4hour period and is double
+[20:02] the average load. The application load
+[20:04] is close to the average load for the
+[20:06] rest of the week. The access pattern
+[20:09] includes many more writes to the table
+[20:10] than reads of the table. A solution's
+[20:13] architect needs to implement a solution
+[20:15] to minimize the cost of the table. Which
+[20:18] solution will meet these requirements?
+[20:22] The correct answer is a. Use AWS
+[20:25] application autoscaling to increase
+[20:28] capacity during the peak period.
+[20:29] purchase reserved RCUs and WCUs to match
+[20:32] the average load. The workload has a
+[20:34] predictable weekly peak and a steady
+[20:36] average load for the rest of the week.
+[20:39] The table is right heavy and the peak is
+[20:41] temporary. So provisioning for the peak
+[20:43] all week would waste cost. By using
+[20:46] provisioned capacity mode with
+[20:47] application autoscaling, Dynamo DB can
+[20:50] automatically scale the read and write
+[20:52] capacity units up during the weekly peak
+[20:55] and back down afterward. You can then
+[20:57] purchase reserved capacity to cover the
+[20:59] consistent baseline usage at a discount
+[21:01] and pay ondemand rates only for the
+[21:03] brief scale out period. This combination
+[21:06] delivers the lowest cost while
+[21:08] maintaining performance and compliance
+[21:09] with predictable scaling needs. Why the
+[21:12] other options are incorrect? B on demand
+[21:15] capacity mode. This automatically
+[21:17] adjusts to traffic but is more expensive
+[21:20] for predictable workloads with known
+[21:22] access patterns. It is ideal for
+[21:24] unpredictable or spiky workloads, not
+[21:26] weekly predictable peaks. C. DAX with
+[21:29] reduced read capacity. DAX only
+[21:32] accelerates read operations. Since the
+[21:34] workload is right heavy, DAX provides
+[21:37] minimal benefit and doesn't reduce right
+[21:39] costs. D. Dex plus ondemand mode. This
+[21:42] combines two unnecessary cost increasing
+[21:44] features for a workload that is
+[21:46] primarily rightheavy and predictable
+[21:48] making it the least costefficient
+[21:50] choice. Therefore, the correct answer is
+[21:52] A. We have come to the end of today's
+[21:55] video. If you like the video, please
+[21:57] make sure to like and subscribe.
+[21:59] make sure to like and subscribe. Goodbye.

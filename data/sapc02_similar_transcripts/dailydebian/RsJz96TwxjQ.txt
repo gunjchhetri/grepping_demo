@@ -1,0 +1,557 @@
+[0:00] Hello. Today we'll be going through
+[0:01] practice questions 11 to 20 for the AWS
+[0:04] solutions architect professional exam.
+[0:07] Let's begin. Our company hosts a Git
+[0:09] repository in an on premises data
+[0:12] center. The company uses web hooks to
+[0:14] invoke functionality that runs in the
+[0:16] AWS cloud. The company hosts the web
+[0:19] hook logic on a set of Amazon EC2
+[0:21] instances in an autoscaling group that
+[0:23] the company set as a target for an ALB.
+[0:26] The git server calls the ALB for the
+[0:29] configured web hooks. The company wants
+[0:31] to move the solution to a serverless
+[0:33] to move the solution to a serverless architecture.
+[0:34] Which solution will meet these
+[0:36] requirements with the least operational
+[0:37] requirements with the least operational overhead?
+[0:40] The correct answer is B. Create an
+[0:43] Amazon API gateway HTTP API. Implement
+[0:47] each web hook logic in a separate AWS
+[0:49] Lambda function. Update the git servers
+[0:52] to call the API gateway endpoint. This
+[0:54] solution provides a fully serverless,
+[0:57] scalable, and lowmaintenance
+[0:58] architecture. API gateway HTTP API
+[1:02] serves as the public HTTPS endpoint for
+[1:05] the git servers web hooks, replacing the
+[1:07] ALB. Each AWS Lambda function handles
+[1:11] one web hooks logic. Lambda
+[1:12] automatically scales to handle
+[1:14] concurrent web hook invocations without
+[1:16] the need for EC2 instances or load
+[1:18] balancers. This setup requires no server
+[1:21] management, supports fine- grain
+[1:23] permissions, and is costefficient since
+[1:25] you pay only for requests and execution
+[1:27] time. It meets all requirements with the
+[1:30] least operational overhead. No servers,
+[1:32] no container orchestration, and minimal
+[1:35] no container orchestration, and minimal configuration.
+[1:36] Why the other options are incorrect? A
+[1:39] lambda function URLs. While function
+[1:41] URLs can expose Lambda functions
+[1:43] directly, managing multiple URLs quickly
+[1:46] becomes cumbersome. API gateway offers
+[1:49] centralized routing, authentication, and
+[1:51] throttling. More efficient for multiple
+[1:53] endpoints. C. Apprunner. Apprunner
+[1:57] simplifies container deployment, but
+[1:58] still requires container management and
+[2:00] isn't fully serless compared to Lambda.
+[2:03] It adds unnecessary operational
+[2:05] overhead. D. ECS Fargate plus API
+[2:08] gateway. This design introduces extra
+[2:11] complexity with containers and clusters
+[2:14] defeating the purpose of reducing
+[2:15] operational overhead is more expensive
+[2:18] and harder to maintain than a lambda
+[2:20] based setup. Therefore, the correct
+[2:22] answer is B. A company is planning to
+[2:25] migrate 1,000 on premises servers to
+[2:27] AWS. The servers run on several VMware
+[2:30] clusters in the company's data center.
+[2:33] As part of the migration plan, the
+[2:35] company wants to gather server metrics
+[2:37] such as CPU details, RAM usage,
+[2:39] operating system information, and
+[2:41] running processes. The company then
+[2:44] wants to query and analyze the data.
+[2:46] Which solution will meet these
+[2:48] Which solution will meet these requirements?
+[2:50] The correct answer is D. Deploy the AWS
+[2:53] application discovery agent to each on
+[2:56] premises server. Configure data
+[2:58] exploration in AWS migration hub. Use
+[3:01] Amazon Athena to run predefined queries
+[3:03] against the data in Amazon S3. The AWS
+[3:06] application discovery agent collects
+[3:08] detailed system level information from
+[3:10] on premises servers including CPU,
+[3:13] memory, and disk utilization, operating
+[3:16] system details, running processes, and
+[3:18] network connections. These agents send
+[3:20] data to AWS application discovery
+[3:23] service which integrates with AWS
+[3:25] migration hub enabling data exploration
+[3:28] in migration hub automatically exports
+[3:30] the discovery data to Amazon S3 where
+[3:33] you can analyze it using Amazon Athena
+[3:35] with predefined SQL queries. This setup
+[3:38] provides full visibility into server
+[3:40] metrics and running processes, supports
+[3:42] querying and analysis and scales easily
+[3:44] across all 10,00 servers. Why the other
+[3:47] options are incorrect? A agentless
+[3:50] discovery connector. This collects
+[3:52] limited information not detailed per
+[3:54] server metrics like running processes or
+[3:56] OS details. It's insufficient for this
+[3:58] use case. B. Mano data export and
+[4:01] import. Migration hub does not support
+[4:03] direct manual imports of such detailed
+[4:06] performance data. This approach would be
+[4:08] incomplete and labor intensive. C. Using
+[4:11] CLI put resource attributes. That
+[4:13] command only allows limited custom
+[4:15] metadata tagging in migration hub. It
+[4:18] cannot store or analyze detailed CPU,
+[4:20] RAM or process metrics. Therefore, the
+[4:22] correct answer is D. A company is
+[4:25] building a serverless application that
+[4:27] runs on an AWS Lambda function that is
+[4:30] attached to a VPC. The company needs to
+[4:32] integrate the application with a new
+[4:34] service from an external provider. The
+[4:37] external provider supports only requests
+[4:39] that come from public IPv4 addresses
+[4:41] that are in allow list. The company must
+[4:44] provide a single public IP address to
+[4:46] the external provider before the
+[4:47] application can start using the new
+[4:49] service. Which solution will give the
+[4:52] application the ability to access the
+[4:53] new service?
+[4:56] The correct answer is A. Deploy a net
+[4:59] gateway associate an elastic IP address
+[5:01] with the net gateway. Configure the VPC
+[5:04] to use the net gateway. When a lambda
+[5:07] function is attached to a VPC, it runs
+[5:09] inside private subnets that do not have
+[5:11] direct internet access. To allow the
+[5:14] function to access external services on
+[5:16] the internet, you must route outbound
+[5:17] traffic through a net gateway that
+[5:19] resides in a public subnet by assigning
+[5:21] an elastic IP address to the net
+[5:23] gateway. All outbound requests from the
+[5:26] Lambda function will appear to come from
+[5:28] that single public IP which can then be
+[5:30] safely shared with the external provider
+[5:31] for their allow list. This design
+[5:34] maintains network security, provides the
+[5:36] required static IP for external access
+[5:38] and is the standard AWS architecture for
+[5:41] VPC attached lambda functions needing
+[5:43] outbound internet access. Why the other
+[5:46] options are incorrect? B. Egress only
+[5:49] internet gateway. This is for IPv6
+[5:51] outbound traffic only. The external
+[5:54] provider requires IPv4. So this does not
+[5:56] meet the requirement. C. Internet
+[5:59] gateway directly with Lambda. An
+[6:01] internet gateway provides internet
+[6:03] access for resources in a public subnet
+[6:05] with public IPs. Lambda functions cannot
+[6:08] be assigned public IPs. So this approach
+[6:10] is not possible. D. Internet gateway
+[6:13] with route table changes. Although an
+[6:15] internet gateway enables outbound
+[6:17] access, it only works for public
+[6:19] subnets. Lambda functions in private
+[6:21] subnets still cannot reach the internet
+[6:23] directly through an IGW. They must go
+[6:26] through a net gateway. Therefore, the
+[6:28] correct answer is A. An AWS customer has
+[6:31] a web application that runs on premises.
+[6:33] The web application fetches data from a
+[6:36] third-party API that is behind a
+[6:38] firewall. The third party accepts only
+[6:40] one public cider block in each client's
+[6:42] allow list. The customer wants to
+[6:44] migrate their web application to the AWS
+[6:47] cloud. The application will be hosted on
+[6:49] a set of Amazon EC2 instances behind an
+[6:52] ALB in a VPC. The ALB is located in
+[6:55] public subnets. The EC2 instances are
+[6:58] located in private subnets. Net gateways
+[7:01] provide internet access to the private
+[7:02] subnets. How should a solutions
+[7:05] architect ensure that the web
+[7:06] application can continue to call the
+[7:08] third party API after the migration?
+[7:13] The correct answer is B. Register a
+[7:16] block of customerowned public IP
+[7:18] addresses in the AWS account. Create
+[7:20] elastic IP addresses from the address
+[7:22] block and assign them to the net
+[7:24] gateways in the VPC.
+[7:26] The third party API only allows requests
+[7:29] from one public cider block, meaning all
+[7:32] outbound calls from your application
+[7:33] must appear to originate from a single
+[7:36] consistent public IP. Since the EC2
+[7:39] instances are in private subnets, they
+[7:41] access the internet through net
+[7:42] gateways. By using customer own IP
+[7:45] addresses and assigning elastic IPs from
+[7:47] that registered address block to your
+[7:49] net gateways, all traffic from your
+[7:51] private EC2 instances will be translated
+[7:53] to those specific IPs when going out to
+[7:55] the internet. This allows the third
+[7:57] party to whitelist that cider block,
+[7:59] ensuring continued communication after
+[8:01] the migration is the correct approach
+[8:04] when you need to use a consistent
+[8:06] customerowned public IP range for
+[8:08] outbound traffic from private subnets.
+[8:10] Why the other options are incorrect?
+[8:12] Eight, enabling public IP addressing for
+[8:14] public subnets affects inbound access
+[8:17] and does not guarantee that outbound
+[8:18] traffic from private EC2 instances uses
+[8:21] a consistent IP. The net gateway still
+[8:23] determine the egress IP. C. Assigning
+[8:26] elastic IPs to the ALB affects inbound
+[8:29] traffic only, not outbound calls from
+[8:31] EC2 instances to external APIs. D. AWS
+[8:35] global accelerator is used to improve
+[8:38] inbound performance and availability,
+[8:40] not to control outbound IP addressing.
+[8:42] It would not solve the need for a single
+[8:44] egress IP for thirdparty API calls.
+[8:47] Therefore, the correct answer is B. A
+[8:49] company has a monolithic application
+[8:51] that is critical to the company's
+[8:53] business. The company hosts the
+[8:55] application on an Amazon EC2 instance
+[8:58] that runs Amazon Linux 2. The company's
+[9:00] application team receives a directive
+[9:02] from the legal department to back up the
+[9:04] data from the instances encrypted Amazon
+[9:06] EBS volume to an Amazon S3 bucket. The
+[9:10] application team does not have the
+[9:11] administrative SSH key pair for the
+[9:13] instance. The application must continue
+[9:16] to serve the users. Which solution will
+[9:18] meet these requirements?
+[9:21] The correct answer is A. Attach a role
+[9:24] to the instance with permission to write
+[9:26] to Amazon S3. Use the AWS systems
+[9:29] manager session manager option to gain
+[9:31] access to the instance and run commands
+[9:33] to copy data into Amazon S3. Since the
+[9:36] team does not have the SSH key pair,
+[9:38] they cannot connect to the instance via
+[9:40] SSH. However, AWS systems manager
+[9:43] session manager allows secure shellike
+[9:46] access to an EC2 instance without SSH
+[9:48] keys as long as the SSM agent is
+[9:51] installed and the instance has an AM
+[9:53] role granting the necessary permissions.
+[9:56] This method lets the team access the
+[9:58] instance non-disruptively. Keep the
+[10:00] application running and serving users.
+[10:02] Copy data from the encrypted EBS volume
+[10:05] directly into Amazon S3 using AWS CLI
+[10:08] commands like AWS S3CP or AWSS3 sync.
+[10:13] This approach satisfies all
+[10:15] requirements. Encryption is preserved.
+[10:17] The application remains available and no
+[10:19] downtime or key access is required. Why
+[10:22] the other options are incorrect? B.
+[10:24] Creating an imi with the reboot option
+[10:26] disrupts the running application. Also,
+[10:29] the new instance is unnecessary since
+[10:31] session manager can already provide
+[10:33] access. See, a snapshot only captures
+[10:36] the volume state. It doesn't directly
+[10:38] back up files to S3 in usable form. Data
+[10:41] in EBS snapshots resides in Amazon EBS,
+[10:44] not in an S3 bucket. D. Creating an
+[10:47] image and launching a new instance adds
+[10:49] downtime and complexity. the running
+[10:51] application will be interrupted
+[10:53] violating the requirement that it must
+[10:55] continue serving users. Therefore, the
+[10:57] correct answer is A. A company built an
+[11:00] application based on AWS Lambda deployed
+[11:03] in an AWS cloud formation stack. The
+[11:05] last production release of the web
+[11:07] application introduced an issue that
+[11:09] resulted in an outage lasting several
+[11:11] minutes. A solution's architect must
+[11:13] adjust the deployment process to support
+[11:15] a Canary release. Which solution will
+[11:18] meet these requirements?
+[11:21] The correct answer is a. Create an
+[11:24] allias for every new deployed version of
+[11:26] the lambda function. Use the AWS CLI
+[11:29] update allias command with the routing
+[11:31] config parameter to distribute the load.
+[11:33] To perform a canary release with AWS
+[11:36] Lambda, you can use Lambda alliases with
+[11:38] traffic shifting. Each time you deploy a
+[11:41] new version, you create or update an
+[11:43] allias to point mostly to the stable
+[11:45] version and partially to the new one.
+[11:47] Using the AWS CLI update allias command
+[11:50] with the routing config parameter, you
+[11:52] can specify the percentage of traffic
+[11:54] sent to the new version. After
+[11:56] successful testing, you can gradually
+[11:58] increase the traffic to the new version.
+[12:00] Why the other options are incorrect? B.
+[12:02] Deploy the application into a new cloud
+[12:05] formation stack. Use an Amazon route 53
+[12:08] weighted routing policy to distribute
+[12:09] the load. This approach shifts traffic
+[12:12] at the DNS level, not at the function
+[12:14] version level. It's suitable for
+[12:16] multiple environments, not for Canary
+[12:19] releasing Lambda versions within the
+[12:20] same function. C. Create a version for
+[12:23] every new deployed Lambda function. Use
+[12:26] the AWS CLI update function
+[12:28] configuration command with the routing
+[12:30] config parameter to distribute the load.
+[12:32] The update function configuration
+[12:34] command configures environment
+[12:36] variables, memory, timeout, etc. It does
+[12:39] not support traffic routing. Traffic
+[12:41] splitting is handled only via alliases.
+[12:44] D. Configure AWS code deploy and use
+[12:47] code deploy default one at a time in the
+[12:49] deployment configuration to distribute
+[12:51] the load. This deployment configuration
+[12:53] deploys sequentially one at a time but
+[12:56] does not provide canary traffic
+[12:58] shifting. To use code deploy for canary
+[13:00] deployments, you will need
+[13:02] configurations like code deploy default
+[13:04] lambda canary 10% 5 minutes, not one at
+[13:06] a time. Therefore, the correct answer is
+[13:09] a. A finance company hosts a data lake
+[13:12] in Amazon S3. The company receives
+[13:14] financial data records over SFTP each
+[13:17] night from several third parties. The
+[13:19] company runs its own SFTP server on an
+[13:22] Amazon EC2 instance in a public subnet
+[13:25] of a VPC. After the files are uploaded,
+[13:28] they are moved to the data lake by a
+[13:30] chron job that runs on the same
+[13:31] instance. The SFTP server is reachable
+[13:34] on DNS SFTP.example.com
+[13:37] through the use of Amazon Route 53. What
+[13:40] should a solutions architect do to
+[13:42] improve the reliability and scalability
+[13:44] of the SFTP solution?
+[13:48] The correct answer is B. Migrate the
+[13:51] SFTP server to AWS transfer for SFTP.
+[13:55] Update the DNS record sfttp.acample.com
+[13:58] in route 53 to point to the server
+[14:00] endpoint host name. AWS transfer family
+[14:03] is a fully managed, highly available and
+[14:06] scalable SFTP service that natively
+[14:08] integrates with Amazon S3. It allows you
+[14:11] to receive files from external partners
+[14:13] over SFTP directly into your S3 bucket
+[14:16] without maintaining EC2 infrastructure,
+[14:19] chronops, or manual file movement. By
+[14:21] migrating to AWS transfer for SFTP, you
+[14:25] eliminate the single point of failure.
+[14:27] The service automatically scales to
+[14:29] handle multiple concurrent connections.
+[14:31] Files are uploaded directly into S3,
+[14:33] improving performance and reliability.
+[14:36] You can keep the same DNS name by
+[14:37] updating the Route 53 record to point to
+[14:40] the transfer family endpoint. Why the
+[14:43] other options are incorrect? A. Move the
+[14:45] EC2 instance into an autoscaling group
+[14:47] and use an ALB. and ALB only supports
+[14:51] HTTP HTTPS, not SFTP. This setup
+[14:54] wouldn't work for SFTP traffic. See,
+[14:57] migrate the SFTP server to a file
+[15:00] gateway in AWS storage gateway. A file
+[15:02] gateway provides NFS or SMB access, not
+[15:05] SFTP. It's designed for hybrid storage
+[15:08] access to S3, not external partner SFTP
+[15:11] transfers. D. Place the EC2 instance
+[15:14] behind a NLB. An NLB could technically
+[15:17] handle TCP traffic like SFTP, but it
+[15:20] doesn't solve the scalability management
+[15:22] or high availability issues. You would
+[15:25] still need to maintain and scale EC2
+[15:27] instances manually. Therefore, the
+[15:29] correct answer is B. A company has an
+[15:32] organization in AWS organizations. The
+[15:35] company is using AWS control tower to
+[15:38] deploy a landing zone for the
+[15:39] organization. The company wants to
+[15:41] implement governance and policy
+[15:43] enforcement. The company must implement
+[15:45] a policy that will detect Amazon RDSDB
+[15:48] instances that are not encrypted at rest
+[15:50] in the company's production OU. Which
+[15:53] solution will meet this requirement? The
+[15:55] correct answer is B. Enable the
+[15:58] appropriate guardrail from the list of
+[15:59] strongly recommended guardrails in AWS
+[16:02] control tower. Apply the guardrail to
+[16:04] the production OU. AWS control tower
+[16:07] guardrails are preconfigured governance
+[16:09] rules built on top of AWS config and
+[16:12] service control policies. To detect RDS
+[16:15] instances that are not encrypted at
+[16:16] rest, you use a detective guardrail,
+[16:19] specifically one of the strongly
+[16:20] recommended guardrails such as this
+[16:22] allow unencrypted RDSDB instances. This
+[16:25] guardrail continuously monitors all
+[16:27] accounts within the specified OU and
+[16:30] detects any non-compliant RDS databases
+[16:32] that lack encryption at rest. Mandatory
+[16:35] guardrails cover basic account setup and
+[16:37] security baselines, not service specific
+[16:40] configurations like RDS encryption.
+[16:43] Therefore, the correct choice is to
+[16:44] enable the strongly recommended
+[16:46] guardrail. Why the other options are
+[16:48] incorrect? A. Turn on mandatory
+[16:50] guardrails in AWS control tower.
+[16:53] Mandatory guardrails cover essential AWS
+[16:56] best practices. They do not include RDS
+[16:58] encryption checks. C. Use AWS config to
+[17:02] create a new mandatory guardrail. You
+[17:04] cannot create your own mandatory
+[17:06] guardrails. Those are predefined by AWS
+[17:09] control tower. You can create custom AWS
+[17:12] config rules but they are not classified
+[17:14] as guardrails within control tower. D.
+[17:17] Create a custom SCP in AWS control
+[17:20] tower. SCPs prevent specific actions but
+[17:23] cannot detect existing unencrypted RDS
+[17:25] instances. The question explicitly
+[17:27] requires detection which is the role of
+[17:30] detective guardrails. Therefore, the
+[17:32] correct answer is B. A company is
+[17:34] building a solution in the AWS cloud.
+[17:37] Thousands of devices will connect to the
+[17:39] solution and send data. Each device
+[17:41] needs to be able to send and receive
+[17:43] data in real time over the MQTT
+[17:46] protocol. Each device must authenticate
+[17:48] by using a unique X509 certificate.
+[17:51] Which solution will meet these
+[17:53] requirements with the least operational
+[17:55] requirements with the least operational overhead?
+[17:57] The correct answer is C. Set up AWS IoT
+[18:01] core for each device. Create a
+[18:03] corresponding AWS IoT thing and
+[18:05] provision a certificate. Connect each
+[18:08] device to AWS IoT core. AWS IoT core is
+[18:13] a fully managed, scalable and secure
+[18:15] service designed specifically for IoT
+[18:17] devices. It natively supports the MQTT
+[18:19] devices. It natively supports the MQTT [clears throat]
+[18:20] protocol, real-time birectional
+[18:22] communication and X509 certificate-based
+[18:25] authentication by registering each
+[18:28] device as an IoT thing and provisioning
+[18:30] a unique certificate. AWS IoT Core
+[18:33] automatically handles secure
+[18:35] authentication, scalable message
+[18:37] routing, real-time communication using
+[18:39] MQTT, HTTPS or websockets, and low
+[18:42] operational overhead since it's a
+[18:44] managed service. This setup meets all
+[18:46] the requirements while minimizing
+[18:48] management complexity. Why the other
+[18:51] options are incorrect? A Amazon MQ with
+[18:54] certificates. Amazon MQ supports MQTT
+[18:57] but is intended for enterprise messaging
+[18:59] systems. It does not scale well to
+[19:01] thousands of IoT devices and requires
+[19:04] more maintenance. Also, setting up a
+[19:06] queue per device is inefficient and
+[19:08] unnecessary. B. EC2 MQTT broker with NLP
+[19:13] and Lambda authorizer. Running your own
+[19:15] MQTT broker on EC2 introduces
+[19:18] significant operational overhead,
+[19:20] patching, scaling, monitoring, and
+[19:22] certificate management. AWS IoT core
+[19:25] eliminates all this manual work. D. API
+[19:28] gateway plus NLB plus EC2 MQTT broker.
+[19:32] This design is complex and inefficient
+[19:34] for MQTT workloads. API gateway is
+[19:37] optimized for HTTP APIs, not persistent
+[19:40] MQTT sessions. Running and scaling your
+[19:43] own broker on EC2 adds unnecessary
+[19:45] management complexity. Therefore, the
+[19:47] correct answer is C. A company is
+[19:49] running several workloads in a single
+[19:51] AWS account. A new company policy states
+[19:54] that engineers can provision only
+[19:56] approved resources and that engineers
+[19:58] must use AWS cloud formation to
+[20:00] provision these resources. A solutions
+[20:03] architect needs to create a solution to
+[20:05] enforce the new restriction on the AM
+[20:07] role that the engineers use for access.
+[20:10] What should the solutions architect do
+[20:12] to create the solution?
+[20:15] The correct answer is C. Update the AM
+[20:19] policy for the engineer's AM role with
+[20:21] permissions to only allow AWS cloud
+[20:24] formation actions. Create a new AM
+[20:27] policy with permission to provision
+[20:28] approved resources and assign the policy
+[20:31] to a new AM service role. Assign the AM
+[20:35] service role to AWS cloud formation
+[20:37] during stack creation. This is the best
+[20:39] practice model for enforcing resource
+[20:41] provisioning through cloud formation
+[20:43] while maintaining lease privilege and
+[20:45] policy compliance. Here's how it works.
+[20:47] One, engineers are only allowed to use
+[20:50] cloud form. Two, cloud form itself uses
+[20:53] a service role that has the permissions
+[20:55] to create only approved resources.
+[20:57] Three, when engineers create or update
+[21:00] stacks, cloud form assumes the service
+[21:02] role to provision those resources. Four,
+[21:05] this ensures all infrastructure changes
+[21:07] go through cloud form and only approved
+[21:09] resources can be created. This design
+[21:12] cleanly separates permissions between
+[21:14] who can request a stack operation and
+[21:16] what cloud formation can create.
+[21:17] Achieving governance and control with
+[21:19] minimal operational overhead. Why the
+[21:21] other options are incorrect? A. Upload
+[21:24] templates to S3 and restrict AM to cloud
+[21:26] formation and S3. This limits access to
+[21:29] services but doesn't enforce resource
+[21:31] type restrictions. Engineers could still
+[21:34] upload and deploy any resource type
+[21:36] through their own cloud formation
+[21:37] templates. B. limit engineer AM
+[21:40] permissions directly to approved
+[21:42] resources and cloud formation. This
+[21:44] means engineers could still create
+[21:46] resources manually through the console
+[21:48] or CLI, bypassing cloud formation
+[21:50] entirely. D allow engineers access to
+[21:53] only their own stacks. While this
+[21:55] isolates stacks per engineer, it doesn't
+[21:57] enforce that only approved resource
+[21:59] types are provisioned. They could still
+[22:01] deploy unapproved resources within their
+[22:03] stacks. Therefore, the correct answer is
+[22:05] C. We have come to the end of today's
+[22:08] video. If you like the video, please
+[22:10] make sure to like and subscribe.
+[22:12] make sure to like and subscribe. Goodbye.

@@ -1,0 +1,1348 @@
+[0:00] Hello everyone, I'm Lee, a solutions
+[0:03] architect at an IT company based in
+[0:05] Tokyo, Japan. Welcome to the channel. If
+[0:09] you're aiming to validate your advanced
+[0:11] expertise in designing distributed
+[0:13] systems, the AWS certified solutions
+[0:15] architect professional SAP C02 is the
+[0:21] gold standard. Earning this
+[0:22] certification not only proves your
+[0:24] mastery of complex cloud architectures,
+[0:27] but also significantly boosts your value
+[0:29] in the tech industry. To help you pass,
+[0:31] I've put together this 15-part video
+[0:34] series. In each video, we will dive deep
+[0:36] into detailed explanations for 10 real
+[0:39] world scenario questions that you can
+[0:40] expect to see on the actual exam. A
+[0:43] quick note before we begin. If these
+[0:45] breakdowns are valuable to you, you can
+[0:47] now support the team directly via
+[0:49] Superthanks. It's never expected, but it
+[0:52] helps us create more quality content.
+[0:55] Now, let's get right to the key concepts
+[0:57] and tackle our first 10 questions.
+[1:00] Question one, a company has introduced a
+[1:02] new policy that allows employees to work
+[1:04] remotely from their homes if they
+[1:06] connect by using a VPN. The company is
+[1:09] hosting internal applications with VPCs
+[1:12] in multiple AWS accounts. Currently, the
+[1:15] applications are accessible from the
+[1:17] company's on premises office network
+[1:19] through an AWS sightto-sightVPN
+[1:21] connection. The VPC in the company's
+[1:24] main AWS account has peering connections
+[1:26] established with VPCs in other AWS
+[1:29] accounts. A solutions architect must
+[1:32] design a scalable AWS clientVPN solution
+[1:35] for employees to use while they work
+[1:37] from home. What is the most
+[1:39] cost-effective solution that meets these
+[1:41] requirements? A. Create a clientVPN
+[1:44] endpoint in each AWS account. Configure
+[1:48] required routing that allows access to
+[1:50] internal applications. B. Create a
+[1:54] clientVPN endpoint in the main AWS
+[1:56] account. Configure required routing that
+[1:59] allows access to internal applications.
+[2:02] C. Create a clientVPN endpoint in the
+[2:05] main AWS account. Provision a transit
+[2:08] gateway that is connected to each AWS
+[2:11] account. Configure required routing that
+[2:14] allows access to internal applications.
+[2:17] D. Create a clientVPN endpoint in the
+[2:20] main AWS account. Establish connectivity
+[2:23] between the clientVPN endpoint and the
+[2:25] AWS sightto-sightVPN.
+[2:28] All right, let's analyze this scenario.
+[2:30] The core task is to provide VPN access
+[2:33] for remote employees to applications
+[2:35] scattered across multiple AWS accounts.
+[2:38] The two key constraints here are
+[2:40] scalability and most importantly cost
+[2:43] effectiveness. The question explicitly
+[2:45] asks for the most cost effective
+[2:47] solution. We also have a very important
+[2:50] clue about the existing architecture.
+[2:52] There's a main account with a VPC that
+[2:54] acts as a hub connected to spoke VPCs in
+[2:57] other accounts via VPC pairing. With
+[3:00] that in mind, let's evaluate the options
+[3:02] in order. Option A is incorrect.
+[3:05] Creating a clientVPN endpoint in every
+[3:08] single AWS account would technically
+[3:10] work, but it would be a management
+[3:12] nightmare and very expensive. Employees
+[3:14] might need to connect to different VPNs
+[3:16] to access different applications, which
+[3:19] is not a good user experience. From a
+[3:21] cost perspective, you pay an hourly fee
+[3:23] for each client VPN endpoint you
+[3:25] provision. Multiplying that cost by the
+[3:28] number of accounts directly violates the
+[3:30] most cost-effective requirement. Option
+[3:33] B is the correct answer. This solution
+[3:36] proposes a clean, simple, and
+[3:38] cost-effective hub and spoke model. By
+[3:40] creating a single clientVPN endpoint in
+[3:43] the main hub VPC, you centralize access.
+[3:47] Remote employees connect once to the
+[3:49] single endpoint. Because the main VPC is
+[3:52] already peered with the other VPCs. Once
+[3:55] the user's traffic is inside the main
+[3:57] VPC, it can be routed to the peered
+[3:59] spoke VPCs, assuming route tables are
+[4:02] configured correctly. This design
+[4:04] leverages the existing infrastructure,
+[4:06] the VPC peering connections which have
+[4:08] no hourly cost and minimizes new costs
+[4:11] by only provisioning one clientVPN
+[4:13] endpoint. Option C is a plausible but
+[4:16] not the most cost-effective solution.
+[4:19] Using a transit gateway, TGW is a modern
+[4:22] and highly scalable way to create a
+[4:25] network hub. You could certainly attach
+[4:26] a clientVPN to a VPC, connect that VPC
+[4:30] to a TGW, and then connect all other
+[4:32] VPCs to that TGW. This is a great
+[4:35] pattern for complex large scale
+[4:38] networks. However, the problem states
+[4:40] that VPC pairing is already in place
+[4:42] between the main VPC and the others. A
+[4:45] transit gateway has its own costs,
+[4:47] including an hourly charge for each VPC
+[4:50] attachment and a data processing fee.
+[4:52] Since the existing VPC peering
+[4:54] connections can already facilitate the
+[4:56] required routing from the main VPC to
+[4:58] the spoke VPCs, introducing a TGW adds
+[5:01] an unnecessary layer of cost. Option D
+[5:04] is also incorrect. This option suggests
+[5:07] connecting the clientVPN to the
+[5:09] connecting the clientVPN to the siteto-sightVPN.
+[5:10] This architecture doesn't make logical
+[5:12] sense for this use case. The
+[5:14] sightto-sightVPN is for connecting the
+[5:17] on- premises office network to AWS. The
+[5:20] clientVPN is for connecting individual
+[5:22] remote users to AWS. Routing remote user
+[5:26] traffic through the on- premises network
+[5:28] which this implies to get to AWS would
+[5:30] be highly inefficient, add unnecessary
+[5:33] latency and create a dependency on the
+[5:35] on- premises network. The goal is to
+[5:38] give remote employees direct and secure
+[5:40] access to the AWS environment.
+[5:43] Therefore, the correct solution is B. It
+[5:45] meets the requirements for a scalable
+[5:47] remote access solution while being the
+[5:49] most cost-effective by centralizing the
+[5:51] VPN endpoint and utilizing the existing
+[5:54] network topology. Question two, a
+[5:57] company is planning to migrate an
+[5:58] application to AWS. The application runs
+[6:02] as a Docker container and uses an NFS
+[6:04] version for fileshare. A solution's
+[6:06] architect must design a secure and
+[6:09] scalable containerized solution that
+[6:11] does not require provisioning or
+[6:12] management of the underlying
+[6:14] infrastructure. Which solution will meet
+[6:16] these requirements? A. Deploy the
+[6:19] application containers by using Amazon
+[6:22] Elastic Container Service Amazon ECS
+[6:25] with the Fargate launch type. Use Amazon
+[6:28] Elastic File System Amazon EFS for
+[6:32] shared storage. Reference the EFS file
+[6:34] system ID, container mount point, and
+[6:37] EFS authorization IM role in the ECS
+[6:40] task definition. B. Deploy the
+[6:43] application containers by using Amazon
+[6:46] Elastic Container Service Amazon ECS
+[6:49] with the Fargate launch type. Use Amazon
+[6:52] FSX for Luster for shared storage.
+[6:54] Reference the fsx for luster file system
+[6:57] ID container mount point and fsx for
+[7:00] luster authorization IM role in the ECS
+[7:02] task definition. C. Deploy the
+[7:06] application containers by using Amazon
+[7:08] elastic container service Amazon ECS
+[7:11] with the Amazon EC2 launch type and
+[7:13] autoscaling turned on. Use Amazon
+[7:16] Elastic file system Amazon EFS for
+[7:19] shared storage. Mount the EFS file
+[7:22] system on the ECS container instances.
+[7:25] Add the EFS authorization IM RO to the
+[7:28] EC2 instance profile. D. Deploy the
+[7:32] application containers by using Amazon
+[7:34] Elastic Container Service, Amazon ECS
+[7:37] with the Amazon EC2 launch type and
+[7:39] autoscaling turned on. Use Amazon
+[7:42] Elastic Block Store. Amazon EBS volumes
+[7:45] with multiattach enabled for shared
+[7:47] storage. Attach the EBS volumes to ECS
+[7:51] container instances. Add the EBS
+[7:53] authorization IM RO to an EC2 instance
+[7:56] profile. Okay, let's break this question
+[7:58] down. We have two very specific and
+[8:01] critical requirements to pay attention
+[8:03] to. First, the application needs an NFS
+[8:06] version for fileshare. This tells us
+[8:09] exactly what kind of storage protocol we
+[8:11] need to look for. Second, the solution
+[8:14] must not require provisioning or
+[8:16] management of the underlying
+[8:17] infrastructure. This is a key word for
+[8:20] serverless. So, we're looking for a
+[8:23] serverless container compute solution
+[8:25] paired with a managed NFS storage
+[8:27] service. With these key points in mind,
+[8:30] let's go through the options one by one.
+[8:33] Option A, deploy the application
+[8:35] containers by using Amazon ECS with the
+[8:38] Fargate launch type. Use Amazon EFS for
+[8:41] shared storage. This option aligns
+[8:44] perfectly with both of our key
+[8:45] requirements. Compute. Amazon ECS with
+[8:49] the Fargate launch type is AWS
+[8:51] serverless compute engine for
+[8:53] containers. With Fargate, you don't
+[8:55] manage EC2 instances. You don't patch
+[8:57] operating systems and you don't worry
+[8:59] about scaling the underlying cluster.
+[9:01] This directly meets the no management of
+[9:04] infrastructure requirement. Storage.
+[9:07] Amazon EFS is a fully managed service
+[9:10] that provides a scalable file system
+[9:12] using the NFSV4 protocol. This perfectly
+[9:15] matches the application's need for an
+[9:18] NFS version 4 file share integration.
+[9:22] ECS Fargate tasks natively support
+[9:24] mounting EFS file systems directly
+[9:26] through the task definition. This is the
+[9:29] correct answer as it ticks all the
+[9:31] boxes. Option B, deploy the application
+[9:34] containers by using Amazon ECS with the
+[9:37] Fargate launch type. Use Amazon FSX for
+[9:40] Luster for shared storage. This option
+[9:43] gets the compute part right by using
+[9:45] Fargate, but it fails on the storage
+[9:47] requirement. Amazon FSX for Luster is a
+[9:50] high performance parallel file system,
+[9:53] but it is not based on the NFS protocol.
+[9:56] It's designed for workloads like high
+[9:58] performance computing, HPC, and requires
+[10:01] a specific Luster client to connect
+[10:04] since the application explicitly
+[10:06] requires an NFSV4 share. FSX for Luster
+[10:10] is not a compatible storage solution.
+[10:12] Option C, deploy the application
+[10:15] containers by using Amazon ECS with the
+[10:18] Amazon EC2 launch type. Use Amazon EFS
+[10:21] for shared storage. This option gets the
+[10:24] storage part right by proposing EFS
+[10:26] which is an NFS file system. However, it
+[10:30] fails on the compute requirement. Using
+[10:32] the EC2 launch type for ECS means you
+[10:35] are responsible for provisioning,
+[10:36] managing, scaling, and patching the
+[10:39] fleet of EC2 instances that your
+[10:40] containers run on. This directly
+[10:42] contradicts the requirement for a
+[10:44] solution that does not require
+[10:46] provisioning or management of the
+[10:48] underlying infrastructure. Option D,
+[10:51] deploy the application containers by
+[10:53] using Amazon ECS with the Amazon EC2
+[10:56] launch type. Use Amazon EBS volumes with
+[10:59] multiattach enabled. This option is
+[11:02] incorrect for two reasons. First, like
+[11:05] option C, it uses the EC2 launch type
+[11:09] which violates the no management of
+[11:11] infrastructure requirement. Second, it
+[11:13] proposes an unsuitable storage type.
+[11:16] Amazon EBS is a block storage service,
+[11:19] not a file storage service. While
+[11:21] multi-attach EBS allows a single volume
+[11:24] to be attached to multiple instances, it
+[11:26] does not provide a managed shared file
+[11:28] system. You would need to install and
+[11:31] manage a separate clusterware file
+[11:32] system on top of it, which adds
+[11:35] complexity and does not provide the
+[11:36] required NFSV4 interface. Therefore, the
+[11:40] correct solution is A. It is the only
+[11:42] option that combines a serverless
+[11:44] compute model Fargate with the specific
+[11:47] managed file storage protocol EFS for
+[11:50] managed file storage protocol EFS for NFSV4
+[11:52] that the application requires. Question
+[11:54] three. A company is migrating some of
+[11:57] its applications to AWS. The company
+[12:00] wants to migrate and modernize the
+[12:02] applications quickly after it finalizes
+[12:04] networking and security strategies. The
+[12:07] company has set up an AWS Direct Connect
+[12:09] connection in a central network account.
+[12:12] The company expects to have hundreds of
+[12:14] AWS accounts and VPCs in the near
+[12:16] future. The corporate network must be
+[12:19] able to access the resources on AWS
+[12:21] seamlessly and also must be able to
+[12:23] communicate with all the VPCs. The
+[12:26] company also wants to route its cloud
+[12:28] resources to the internet through its
+[12:30] on- premises data center. Which
+[12:32] combination of steps will meet these
+[12:34] requirements? Choose three. A create a
+[12:38] direct connect gateway in the central
+[12:40] account. In each of the accounts, create
+[12:42] an association proposal by using the
+[12:44] direct connect gateway and the account
+[12:46] ID for every virtual private gateway. B.
+[12:50] Create a direct connect gateway and a
+[12:52] transit gateway in the central network
+[12:54] account. Attach the transit gateway to
+[12:56] the direct connect gateway by using a
+[12:59] transit vif. C. Provision an internet
+[13:03] gateway. Attach the internet gateway to
+[13:05] subnets. Allow internet traffic through
+[13:08] the gateway. D. Share the transit
+[13:11] gateway with other accounts. Attach VPCs
+[13:14] to the transit gateway. E. Provision VPC
+[13:18] peering as necessary. F. Provision only
+[13:22] private subnets. Open the necessary
+[13:25] route on the transit gateway and
+[13:26] customer gateway to allow outbound
+[13:28] internet traffic from AWS to flow
+[13:30] through NAT services that run in the
+[13:32] data center. All right, this question is
+[13:34] about building a large scale hub and
+[13:37] spoke network architecture. Let's
+[13:39] identify the key requirements. Massive
+[13:41] scale. The solution must support
+[13:44] hundreds of AWS accounts and VPCs. This
+[13:48] is a huge clue. Full connectivity. The
+[13:51] on- premises network needs to talk to
+[13:53] all VPCs and all VPCs need to be able to
+[13:56] talk to each other. Centralized internet
+[13:58] egress. All internetbound traffic from
+[14:01] the VPCs must be forced back through the
+[14:03] on- premises data center likely for
+[14:05] security inspection. The scale
+[14:07] requirement immediately suggests that we
+[14:09] need a transit gateway TGW as it's
+[14:12] designed to act as a cloud router for
+[14:14] thousands of connections unlike VPC
+[14:16] peering or virtual private gateways VGWs
+[14:20] which don't scale to this level. Let's
+[14:22] examine each option.
+[14:25] Create a direct connect gateway. Create
+[14:28] an association proposal for every
+[14:30] virtual private gateway. This is
+[14:32] incorrect. While you can associate
+[14:34] multiple VGWs with a direct connect
+[14:37] gateway, this pattern does not scale to
+[14:39] hundreds of VPCs, the soft limit is 10
+[14:42] VGWs per DXGW. More importantly, this
+[14:46] architecture does not enable intervp
+[14:49] communication. Traffic from one VPC
+[14:51] would have to route to your on- premises
+[14:53] data center and then back to the other
+[14:55] VPC, which is highly inefficient. B.
+[14:58] Create a direct connect gateway and a
+[15:01] transit gateway in the central network
+[15:02] account. Attach the transit gateway to
+[15:05] the direct connect gateway by using a
+[15:07] transit vif. This is a correct step.
+[15:10] This is the foundational piece of a
+[15:12] modern scalable AWS network. The transit
+[15:16] gateway acts as the central hub in the
+[15:18] cloud and the direct connect gateway
+[15:20] aggregates the direct connect
+[15:22] connections. Attaching the TGW to the
+[15:24] DXGW with a transit virtual interface
+[15:27] VIF is the specific mechanism that links
+[15:30] the on- premises network to the cloud
+[15:32] hub allowing scalable connectivity. C.
+[15:36] Provision an internet gateway. Attach
+[15:39] the internet gateway to subnets. Allow
+[15:42] internet traffic through the gateway.
+[15:44] This is incorrect. This action would
+[15:46] create a direct path from the VPCs to
+[15:49] the public internet. It directly
+[15:51] violates the requirement to route all
+[15:53] cloud resources to the internet through
+[15:55] the on- premises data center. To meet
+[15:57] that requirement, we must avoid using an
+[16:00] internet gateway. D. Share the transit
+[16:03] gateway with other accounts. Attach VPCs
+[16:06] to the transit gateway. This is a
+[16:09] correct step. The TGW is created in the
+[16:12] central network account as per option B
+[16:15] to allow the hundreds of VPCs in other
+[16:17] accounts to connect to it. The TGW must
+[16:20] be shared using AWS resource access
+[16:23] manager RAM. Once shared, each spoke
+[16:26] account can attach its VPC to the
+[16:29] central TGW. This is the standard
+[16:31] process for building a multi-account hub
+[16:33] and spoke network. E. Provision VPC
+[16:37] peering as necessary. This is incorrect.
+[16:40] VPC pairing creates direct one to one
+[16:43] connections between VPCs. While useful
+[16:46] for a small number of VPCs, it becomes
+[16:49] an unmanageable mesh network when you
+[16:51] have hundreds of VPCs. A transit gateway
+[16:54] is the designated service to solve this
+[16:56] exact scaling problem by providing a
+[16:58] central routing hub. F. Provision only
+[17:02] private subnets. Open the necessary
+[17:04] route on the transit gateway and
+[17:06] customer gateway to allow outbound
+[17:08] internet traffic from AWS to flow
+[17:10] through NAT services that run in the
+[17:12] data center. This is a correct step.
+[17:14] This option perfectly describes how to
+[17:17] achieve the centralized egress
+[17:19] requirement. By using only private
+[17:21] subnets, you ensure there is no route to
+[17:24] an internet gateway. You would then
+[17:26] configure the VPC route tables to send
+[17:28] default traffic 0.0.0.0/
+[17:34] to the transit gateway. The TGW in turn
+[17:37] would route this traffic over the direct
+[17:39] connect connection to the on- premises
+[17:41] customer gateway where it can be
+[17:42] inspected and sent to the internet via
+[17:44] on- premises NAT services. Therefore,
+[17:47] the correct combination of steps is B,
+[17:50] D, and F. Together, they create a robust
+[17:53] and scalable architecture. B builds the
+[17:56] central hub and connects it to the on-
+[17:58] premises network. D connects all the
+[18:00] spoke VPCs to this central hub. F
+[18:03] configures the routing to enforce the
+[18:05] security requirement of sending all
+[18:07] internet traffic through the on-
+[18:09] premises data center. Question four. A
+[18:12] solutions architect is designing an AWS
+[18:14] account structure for a company that
+[18:16] consists of multiple teams. All the
+[18:19] teams will work in the same AWS region.
+[18:22] The company needs a VPC that is
+[18:24] connected to the on- premises network.
+[18:26] The company expects less than 50
+[18:28] megabits per second of total traffic to
+[18:31] and from the on- premises network. Which
+[18:33] combination of steps will meet these
+[18:35] requirements most cost effectively?
+[18:38] Choose two. A create an AWS cloud for
+[18:42] template that provisions a VPC and the
+[18:44] required subnets. Deploy the template to
+[18:47] each AWS account. B. Create an AWS cloud
+[18:52] for template that provisions a VPC and
+[18:54] the required subnets. Deploy the
+[18:57] template to a shared services account.
+[18:59] Share the subnets by using AWS resource
+[19:03] access manager. C. Use AWS transit
+[19:07] gateway along with an AWS
+[19:08] sightto-sightVPN for connectivity to the
+[19:11] on- premises network. Share the transit
+[19:13] gateway by using AWS resource access
+[19:16] manager. D. Use AWS sightto-sightVPN for
+[19:21] connectivity to the on- premises
+[19:23] network. Ese
+[19:26] direct connect for connectivity to the
+[19:28] on- premises network. All right, let's
+[19:30] analyze this by focusing on the two most
+[19:33] important constraints provided most cost
+[19:36] effectively and less than 50 megabits
+[19:39] per second of total traffic. The
+[19:41] question is essentially asking us to
+[19:43] make two decisions. one about the VPC
+[19:45] structure, how to provide VPCs to the
+[19:47] teams and one about the on- premises
+[19:50] connectivity method. We need to pick the
+[19:52] cheapest option for each that meets the
+[19:54] requirements. Let's look at the options
+[19:56] in order. A create an AWS cloud for
+[20:01] template that provisions a VPC. Deploy
+[20:04] the template to each AWS account. This
+[20:07] approach creates a separate isolated VPC
+[20:10] for each team. While this provides
+[20:12] strong isolation, it's not
+[20:14] cost-effective. Each VPC would require
+[20:17] its own network address space and more
+[20:19] importantly its own connectivity to the
+[20:22] on- premises network. This would mean
+[20:24] setting up multiple VPN connections or a
+[20:26] complex hub and spoke model. Both of
+[20:28] which add significant cost and
+[20:30] management overhead compared to a
+[20:32] centralized model. B. Create an AWS
+[20:35] cloud for template that provisions a
+[20:38] VPC. Deploy the template to a shared
+[20:40] services account. Share the subnets by
+[20:43] using AWS resource access manager. This
+[20:47] is a correct choice for the VPC
+[20:49] strategy. This describes the VPC sharing
+[20:52] pattern which is highly cost-effective
+[20:54] and operationally efficient. You create
+[20:57] a single centrally managed VPC and then
+[21:00] share specific subnets with other AWS
+[21:03] accounts, the team accounts. The teams
+[21:05] can then launch their resources directly
+[21:07] into these shared subnets. The main
+[21:09] benefit is that you only need to manage,
+[21:12] secure, and connect one VPC to the on-
+[21:15] premises network, dramatically reducing
+[21:17] costs and complexity. C. Use AWS transit
+[21:22] gateway along with an AWS
+[21:24] gateway along with an AWS sightto-sightVPN.
+[21:25] This option is not cost-effective for
+[21:28] this scenario. A transit gateway TGW is
+[21:32] a powerful network hub designed to
+[21:34] simplify connectivity between many VPCs
+[21:36] and on premises networks. However, based
+[21:39] on our most cost-effective VPC strategy,
+[21:42] option B, we will only have one VPC that
+[21:45] needs connectivity. Using a TGW to
+[21:48] connect a single VPC is unnecessary
+[21:51] overkill. A TGW has its own hourly and
+[21:54] data processing costs which are not
+[21:56] justified here. making this option less
+[21:59] cost effective than a simpler
+[22:00] alternative. D. Use AWS sightto-sightVPN
+[22:04] for connectivity to the on- premises
+[22:06] network. This is the correct choice for
+[22:09] the connectivity method. A standard AWS
+[22:12] sightto-sightVPN is an encrypted tunnel
+[22:14] over the public internet. It's perfectly
+[22:17] suited for low to moderate bandwidth
+[22:18] needs like the less than 50 megabits per
+[22:21] second specified here. In terms of cost,
+[22:24] a VPN connection has a low hourly charge
+[22:27] and is significantly cheaper than a
+[22:28] dedicated private connection, making it
+[22:31] the most cost-effective choice for this
+[22:33] use case. E. Use AWS Direct Connect for
+[22:37] connectivity to the on- premises
+[22:38] network. This is not the most
+[22:41] cost-effective option. AWS Direct
+[22:43] Connect provides a private dedicated
+[22:46] physical connection to AWS. While it
+[22:49] offers consistent low latency
+[22:51] performance, it is substantially more
+[22:53] expensive than a sight-to-sightVPN.
+[22:55] It involves higher hourly port charges
+[22:57] from AWS and requires a contract with a
+[23:01] telecommunications provider to establish
+[23:03] the physical link. For a low bandwidth
+[23:05] requirement of less than 50 megabits per
+[23:07] second, the high cost of direct connect
+[23:10] is not justified. Therefore, the correct
+[23:12] combination is B and D. They work
+[23:15] together to create the most
+[23:16] cost-effective solution. B establishes
+[23:19] an efficient centralized VPC structure
+[23:22] using VPC sharing to reduce management
+[23:24] overhead and the number of required
+[23:27] network connections. D provides the on-
+[23:29] premises connectivity for that single
+[23:31] shared VPC using the most cost
+[23:34] appropriate service sightto-sightVPN
+[23:37] for the low bandwidth requirement.
+[23:39] Question five. A research center is
+[23:41] migrating to the AWS cloud and has moved
+[23:44] its on- premises 1PB object storage to
+[23:46] an Amazon S3 bucket. 100 scientists are
+[23:49] using this object storage to store their
+[23:52] work rellated documents. Each scientist
+[23:54] has a personal folder on the object
+[23:56] store. All the scientists are members of
+[23:59] a single IM user group. The research
+[24:02] cent's compliance officer is worried
+[24:04] that scientists will be able to access
+[24:06] each other's work. The research center
+[24:08] has a strict obligation to report on
+[24:10] which scientist accesses which
+[24:12] documents. The team that is responsible
+[24:14] for these reports has little AWS
+[24:16] experience and wants a readytouse
+[24:19] solution that minimizes operational
+[24:21] overhead. Which combination of actions
+[24:23] should a solutions architect take to
+[24:25] meet these requirements? Choose two.
+[24:29] Create an identity policy that grants
+[24:31] the user read and write access. Add a
+[24:34] condition that specifies that the S3
+[24:36] paths must be prefixed with dollar AWS
+[24:40] username. Apply the policy on the
+[24:42] scientist's IM user group. B. Configure
+[24:46] a trail with AWS cloud trail to capture
+[24:49] all object level events in the S3
+[24:51] bucket. Store the trail output in
+[24:53] another S3 bucket. Use Amazon Athena to
+[24:57] query the logs and generate reports. C.
+[25:00] Enable S3 server access logging.
+[25:03] Configure another S3 bucket as the
+[25:05] target for log delivery. Use Amazon
+[25:08] Athena to query the logs and generate
+[25:10] reports. D. Create an S3 bucket policy
+[25:14] that grants read and write access to
+[25:16] users in the scientists IM user group.
+[25:19] E. Configure a trail with AWS cloud
+[25:21] trail to capture all object level events
+[25:23] in the S3 bucket and write the events to
+[25:26] Amazon Cloudatch. use the Amazon Athena
+[25:29] Cloudatch connector to query the logs
+[25:31] and generate reports. This scenario
+[25:33] presents us with two distinct problems
+[25:35] to solve. First, we need to enforce
+[25:38] strict access control so that each
+[25:40] scientist can only access their own
+[25:41] folder within a shared S3 bucket.
+[25:44] Second, we need a comprehensive and
+[25:46] easytouse auditing solution to track and
+[25:49] report on who accesses what data. Let's
+[25:51] evaluate the options based on these two
+[25:53] evaluate the options based on these two requirements.
+[25:56] Create an identity policy that grants
+[25:58] the user read and write access. Add a
+[26:00] condition that specifies that the S3
+[26:03] paths must be prefixed with dollar AWS
+[26:06] username. Apply the policy on the
+[26:09] scientists IM user group. This is a
+[26:12] correct choice for handling the access
+[26:14] control requirement. This is an elegant
+[26:16] and scalable solution. By using the
+[26:19] dollar AWS username IM policy variable,
+[26:22] you can create a single dynamic policy
+[26:25] and attach it to the IM group. When a
+[26:27] scientist, eg with the IM username
+[26:30] asmmith, tries to access S3, the policy
+[26:33] dynamically allows them access only to
+[26:36] objects under the prefix that matches
+[26:37] their username, eg
+[26:40] their username, eg S3/bucketame/asmouth/aststerisk.
+[26:45] This prevents them from accessing S3
+[26:48] forward slash/bucket
+[26:50] forward slash/bucket name/jones/aststerisk
+[26:52] and perfectly enforces the required
+[26:54] separation with minimal management
+[26:56] overhead. B. Configure a trail with AWS
+[27:00] cloud trail to capture all object level
+[27:02] events in the S3 bucket. Store the trail
+[27:05] output in another S3 bucket. Use Amazon
+[27:08] Athena to query the logs and generate
+[27:10] reports. This is a correct choice for
+[27:13] the auditing requirement. This
+[27:15] architecture represents the AWS best
+[27:17] practice for auditing. AWS cloud trail
+[27:20] is the definitive service for logging
+[27:22] API activity. By creating a trail and
+[27:25] enabling S3 data events, object level
+[27:28] events like get object, you get a
+[27:30] detailed, reliable record of all access.
+[27:33] Storing these logs in S3 is durable and
+[27:36] cost effective. Amazon Athena is a
+[27:38] serverless query service that allows the
+[27:40] inexperienced team to use standard SQL
+[27:42] to query the logs directly in S3 meeting
+[27:46] the readytouse and minimal operational
+[27:48] overhead requirements. C. Enable S3
+[27:52] server access logging. Configure another
+[27:55] S3 bucket as the target for log
+[27:57] delivery. This option is not the best
+[28:00] choice. S3 server access logging is a
+[28:03] more basic logging feature compared to
+[28:05] cloud trail. It provides less detailed
+[28:07] information, is delivered on a best
+[28:09] effort basis, logs can be delayed, and
+[28:12] is generally not recommended for strict
+[28:14] security and compliance auditing. Cloud
+[28:17] Trail is the superior purpose-built
+[28:19] service for this task. D. Create an S3
+[28:23] bucket policy that grants read and write
+[28:25] access to users in the scientists IM
+[28:27] user group. This is incorrect because it
+[28:30] is too permissive. A simple bucket
+[28:32] policy granting access to the entire IM
+[28:34] user group would allow every scientist
+[28:36] in that group to access every folder in
+[28:38] the bucket including those of their
+[28:40] colleagues. This directly violates the
+[28:43] primary security requirement. E
+[28:46] configure a trail with AWS Cloud Trail
+[28:49] and write the events to Amazon
+[28:50] Cloudatch. Use the Amazon Athena
+[28:53] Cloudatch connector. While this is
+[28:55] technically possible, it's not the
+[28:57] optimal solution. The standard and most
+[28:59] cost-effective destination for long-term
+[29:02] high-volume audit logs from cloudt trail
+[29:04] is Amazon S3. Storing pabytes of logs in
+[29:08] cloudatch logs would be significantly
+[29:10] more expensive. Furthermore, querying
+[29:12] logs natively in S3 with Athena as in
+[29:16] option B is more direct and performant
+[29:18] than using the Athena connector to query
+[29:20] Cloudatch logs. The cloud trail- S3-
+[29:24] Athena pattern is simpler and more
+[29:26] scalable. Therefore, the correct answers
+[29:29] are A and B. A provides a scalable and
+[29:32] secure access control mechanism. B
+[29:34] provides a robust, manageable and easy
+[29:37] to use auditing and reporting solution.
+[29:40] Question six. A company is deploying a
+[29:42] new cluster for big data analytics on
+[29:45] AWS. The cluster will run across many
+[29:48] Linux Amazon EC2 instances that are
+[29:50] spread across multiple availability
+[29:52] zones. All of the nodes in the cluster
+[29:55] must have read and write access to
+[29:57] common underlying file storage. The file
+[29:59] storage must be highly available, must
+[30:02] be resilient, must be compatible with
+[30:04] the portable operating system interface
+[30:06] PIX and must accommodate high levels of
+[30:09] throughput. Which storage solution will
+[30:12] meet these requirements? A. Provision an
+[30:15] AWS storage gateway file gateway NFS
+[30:18] fileshare that is attached to an Amazon
+[30:20] S3 bucket. Mount the NFS fileshare on
+[30:23] each EC2 instance in the cluster. B.
+[30:27] Provision a new Amazon elastic file
+[30:29] system. Amazon EFS file system that uses
+[30:33] generalpurpose performance mode. Mount
+[30:35] the EFS file system on each EC2 instance
+[30:38] in the cluster. C. Provision a new
+[30:41] Amazon elastic block store Amazon EBS
+[30:44] volume that uses the IO2 volume type.
+[30:47] Attach the EBS volume to all of the EC2
+[30:50] instances in the cluster. D provision a
+[30:53] new Amazon elastic file system. Amazon
+[30:56] EFS file system that uses max IO
+[30:59] performance mode. Mount the EFS file
+[31:01] system on each EC2 instance in the
+[31:04] cluster. Okay, let's break down the
+[31:06] requirements for this storage solution.
+[31:09] This is key to finding the right answer.
+[31:11] We need storage that is shared. All
+[31:14] nodes in the cluster need read/write
+[31:16] access to a common storage layer.
+[31:18] Multi-AZ. The EC2 instances are in
+[31:21] multiple availability zones. So the
+[31:23] storage must be accessible from all of
+[31:25] them. Pussix compatible. It must behave
+[31:28] like a standard Linux file system. High
+[31:30] throughput. It's for a big data
+[31:32] analytics cluster which means
+[31:34] performance specifically throughput is a
+[31:37] top priority. Now let's evaluate our
+[31:39] options against these criteria. A
+[31:43] provision an AWS storage gateway file
+[31:45] gateway NFS fileshare. This solution is
+[31:49] not a good fit for this use case. A file
+[31:51] gateway provides an NFS interface for
+[31:54] data stored in Amazon S3 while it
+[31:57] provides a shared Pussix-like interface.
+[32:00] It is designed for hybrid cloud use
+[32:01] cases like backing up on premises data
+[32:04] or providing on premises applications
+[32:06] with low latency access to data in S3.
+[32:09] It is not designed to be a high
+[32:11] performance low latency file system for
+[32:13] a demanding big data cluster running
+[32:15] entirely within AWS. The latency
+[32:18] involved would be a major performance
+[32:20] bottleneck failing the high levels of
+[32:22] throughput requirement. B. Provision a
+[32:26] new Amazon EFS file system that uses
+[32:29] generalpurpose performance mode. This
+[32:31] option is close but not the best choice.
+[32:34] Amazon EFS meets the first three
+[32:36] requirements perfectly. It's a shared
+[32:38] file system. It's a regional service
+[32:41] accessible from all AS in that region
+[32:43] and it's Pussix compliant. However, the
+[32:46] choice of generalpurpose performance
+[32:48] mode is the issue. General purpose mode
+[32:51] is the default and is optimized to
+[32:53] provide the lowest latency for a wide
+[32:55] variety of workloads. While its
+[32:57] throughput scales, it is primarily
+[32:59] designed for latency sensitive
+[33:01] applications like content management
+[33:02] systems or web serving. For a big data
+[33:05] cluster that needs to maximize parallel
+[33:07] processing, another mode is better
+[33:09] suited. C. Provision a new Amazon EBS
+[33:14] volume. Attach the EBS volume to all of
+[33:16] the EC2 instances. This option is
+[33:19] fundamentally incorrect. Amazon EBS is a
+[33:22] block storage service and a standard EBS
+[33:25] volume can only be attached to a single
+[33:27] EC2 instance at a time. While EBS
+[33:30] multiattach exists, it is limited to
+[33:33] instances within the same availability
+[33:35] zone. The question clearly states the
+[33:37] cluster is spread across multiple
+[33:39] availability zones, making EBS an
+[33:42] impossible choice for shared multi-AZ
+[33:44] storage. D. Provision a new Amazon EFS
+[33:48] file system that uses max IO performance
+[33:51] mode. This is the correct answer. Like
+[33:54] option B, it uses Amazon EFS which
+[33:57] satisfies the shared multi-AZ and Pussix
+[34:00] compliant requirements. The critical
+[34:02] difference is the selection of max IO
+[34:04] performance mode. This mode is
+[34:06] specifically designed for highly
+[34:08] parallelized large-scale workloads where
+[34:11] aggregate throughput is the primary
+[34:12] performance goal even if it comes at the
+[34:15] cost of slightly higher per operation
+[34:17] latency. This perfectly describes the
+[34:19] needs of a big data analytics cluster
+[34:21] running across many nodes. It's the only
+[34:24] option that meets all the functional
+[34:26] requirements and is also optimized for
+[34:28] the specific high throughput performance
+[34:30] profile required. Question seven. A
+[34:33] company needs to use an AWS transfer
+[34:35] family SFTP enabled server with an
+[34:38] Amazon S3 bucket to receive updates from
+[34:40] a third party data supplier. The data is
+[34:43] encrypted with pretty good privacy. PGP
+[34:46] encryption. The company needs a solution
+[34:49] that will automatically decrypt the data
+[34:51] after the company receives the data. A
+[34:53] solutions architect will use a transfer
+[34:56] family managed workflow. The company has
+[34:58] created an IM service role by using an
+[35:00] IM policy that allows access to AWS
+[35:03] secrets manager and the S3 bucket. The
+[35:05] ROS's trust relationship allows the
+[35:07] ROS's trust relationship allows the https/www.google.com/archquest
+[35:12] google.com/archquest
+[35:15] mark Q equals sign transfer Amazon
+[35:18] AWS.com service to assume the role. What
+[35:21] should the solutions architect do next
+[35:23] to complete the solution for automatic
+[35:26] decryption? A. Store the PGP public key
+[35:30] in secrets manager. Add a nominal step
+[35:32] in the transfer family managed workflow
+[35:35] to decrypt files. Configure PGP
+[35:37] encryption parameters in the nominal
+[35:39] step. Associate the workflow with the
+[35:42] transfer family server. B. Store the PGP
+[35:46] private key in secrets manager. Add an
+[35:49] exception handling step in the transfer
+[35:51] family managed workflow to decrypt
+[35:53] files. Configure PGP encryption
+[35:55] parameters in the exception handler.
+[35:58] Associate the workflow with the SFTP
+[36:00] user. C. Store the PGP private key in
+[36:04] secrets manager. Add a nominal step in
+[36:07] the transfer family managed workflow to
+[36:09] decrypt files. Configure PGP decryption
+[36:12] parameters in the nominal step.
+[36:14] Associate the workflow with the transfer
+[36:17] family server. D. Store the PGP public
+[36:21] key in secrets manager. Add an exception
+[36:24] handling step in the transfer family
+[36:26] managed workflow to decrypt files.
+[36:28] Configure PGP decryption parameters in
+[36:31] the exception handler. Associate the
+[36:33] workflow with the SFTP user. All right,
+[36:36] this is a processoriented question that
+[36:38] requires us to know three key things.
+[36:40] The basics of PGP encryption, how AWS
+[36:44] transfer family managed workflows
+[36:46] function and the right place to store
+[36:48] secrets. PGP basics. PGP is an
+[36:51] asymmetric encryption system. The sender
+[36:54] encrypts a file using the recipient's
+[36:56] public key. The recipient in this case
+[36:59] our company must use their corresponding
+[37:02] private key to decrypt it. This is the
+[37:04] most critical piece of knowledge here.
+[37:07] Transfer family workflows. A workflow
+[37:09] automates post-upload processing. A
+[37:12] nominal step is part of the standard
+[37:14] successful execution path. The happy
+[37:17] path and exception handling step only
+[37:20] runs if a nominal step fails. Since
+[37:22] decryption is the intended outcome of a
+[37:24] successful upload, it should be a
+[37:26] nominal step. Secrets manager. This is
+[37:30] the correct service to securely store
+[37:32] sensitive material like a PGP private
+[37:34] key. Let's evaluate the options with
+[37:36] these points in mind. A. Store the PGP
+[37:40] public key in secrets manager. Configure
+[37:43] PGP encryption parameters. This option
+[37:46] is incorrect for two reasons. First, you
+[37:49] cannot decrypt a file with a public key.
+[37:52] You need the private key. Second, the
+[37:55] goal is to decrypt the incoming file,
+[37:57] not to perform an encryption action on
+[37:59] it. B, store the PGP private key. Add an
+[38:04] exception handling step. Configure PGP
+[38:07] encryption parameters. This option is
+[38:10] also incorrect. While it correctly
+[38:12] identifies that the private key is
+[38:14] needed, it makes two mistakes.
+[38:16] Decryption should not be an exception
+[38:18] handling step. It's the main goal of the
+[38:21] workflow. And again, the action is
+[38:24] decryption, not encryption. C. Store the
+[38:28] PGP private key in secrets manager. Add
+[38:31] a nominal step in the transfer family
+[38:33] managed workflow to decrypt files.
+[38:36] Configure PGP decryption parameters in
+[38:38] the nominal step. Associate the workflow
+[38:41] with the transfer family server. This is
+[38:43] the correct answer. It gets every single
+[38:46] step right. Store the PGP private key.
+[38:50] This is the correct key needed for
+[38:51] decryption. Storing it in secrets
+[38:54] manager is the secure best practice. Add
+[38:57] a nominal step. This is the correct step
+[38:59] type for a standard successful process.
+[39:02] Configure PGP decryption parameters.
+[39:05] This is the correct action to perform on
+[39:08] the uploaded file. Associate the
+[39:10] workflow with the server. This ensures
+[39:12] the process runs automatically for files
+[39:14] uploaded to the server. D. Store the PGP
+[39:18] public key. Add an exception handling
+[39:21] step. This option is incorrect. It makes
+[39:24] the same mistakes as the others. It
+[39:27] specifies using the wrong key public key
+[39:30] for decryption and the wrong type of
+[39:32] workflow step exception handling.
+[39:34] Therefore, the correct solution is C. It
+[39:37] correctly follows the principles of PGP
+[39:39] encryption and properly utilizes the
+[39:42] features of AWS transfer family managed
+[39:44] workflows to create an automated secure
+[39:47] decryption process. Question eight. An
+[39:50] entertainment company hosts a ticketing
+[39:52] service on a fleet of Linux Amazon EC2
+[39:54] instances that are in an autoscaling
+[39:56] group. The ticketing service uses a
+[39:59] pricing file. The pricing file is stored
+[40:01] in an Amazon S3 bucket that has S3
+[40:04] standard storage. A central pricing
+[40:06] solution that is hosted by a third party
+[40:08] updates the pricing file. The pricing
+[40:11] file is updated every 1 to 15 minutes
+[40:14] and has several thousand line items. The
+[40:16] pricing file is downloaded to each EC2
+[40:19] instance when the instance launches. The
+[40:21] EC2 instances occasionally use outdated
+[40:24] pricing information that can result in
+[40:26] incorrect charges for customers. Which
+[40:28] solution will resolve this problem most
+[40:31] cost-effectively? A. Create an AWS
+[40:34] Lambda function to update an Amazon
+[40:36] DynamoB table with new prices each time
+[40:39] the pricing file is updated. Update the
+[40:42] ticketing service to use Dynamob to look
+[40:44] up pricing. B. Create an AWS Lambda
+[40:48] function to update an Amazon elastic
+[40:50] file system. Amazon EFS file share with
+[40:53] the pricing file each time the file is
+[40:55] updated. Update the ticketing service to
+[40:58] use Amazon EFS to access the pricing
+[41:01] file. C. Load mountpoint for Amazon S3
+[41:05] onto the AMI of the EC2 instances.
+[41:08] Configure mount point for Amazon S3 to
+[41:10] mount the S3 bucket that contains the
+[41:12] pricing file. Update the ticketing
+[41:14] service to point to the mount point and
+[41:16] path to access the S3 object. D. Create
+[41:20] an Amazon Elastic Block Store Amazon EBS
+[41:24] volume. Use EBS multiattach to attach
+[41:27] the volume to every EC2 instance. When a
+[41:30] new EC2 instance launches, configure the
+[41:33] new instance to update the pricing file
+[41:35] on the EBS volume. Update the ticketing
+[41:38] service to point to the new local
+[41:39] source. Okay. The heart of this problem
+[41:42] is that the pricing file is only fetched
+[41:44] once at instance launch. Any updates to
+[41:47] the file in S3 after that are missed by
+[41:49] the running instances leading to stale
+[41:52] data. We need a way for all instances to
+[41:54] always access the latest version of the
+[41:56] file and we need to do it as
+[41:58] cost-effectively as possible. Let's
+[42:00] evaluate the proposed solutions. A.
+[42:04] Create an AWS Lambda function to update
+[42:07] an Amazon Dynamo DB table. This is a
+[42:10] robust serverless and highly scalable
+[42:13] architectural pattern. You could use S3
+[42:16] event notifications to trigger a Lambda
+[42:18] function that parses the file and loads
+[42:20] the data into DynamoB. The application
+[42:23] would then query the database for
+[42:25] pricing. While this is an excellent
+[42:27] design, it's likely not the most
+[42:29] cost-effective solution for this
+[42:31] specific problem. It introduces new
+[42:33] costs for Lambda Dynamob read/write
+[42:36] capacity and storage. More importantly,
+[42:40] it would require significant application
+[42:42] refactoring, changing the logic from
+[42:44] reading a local file to making API calls
+[42:46] to a database. This development effort
+[42:49] adds to the overall cost. B. Create an
+[42:52] AWS Lambda function to update an Amazon
+[42:55] Elastic File System, Amazon EFS
+[42:58] fileshare. This solution would also
+[43:00] work. The Lambda could copy the updated
+[43:03] file to an EFS share, which would then
+[43:05] be mounted by all EC2 instances. This
+[43:08] would solve the stale data problem.
+[43:10] However, this requires provisioning an
+[43:13] EFS file system, which has its own costs
+[43:15] for storage and throughput. For a single
+[43:18] frequently updated configuration file,
+[43:20] provisioning a fullfeatured regional
+[43:22] network file system is likely overkill
+[43:24] and not the most cost-effective option.
+[43:27] C. Load mount point for Amazon S3 onto
+[43:31] the AMI. Configure mount point to mount
+[43:34] the S3 bucket. This is the correct
+[43:36] answer. Mount point for Amazon S3 is a
+[43:39] purpose-built high performance file
+[43:42] client that presents S3 objects as files
+[43:44] in a local file system. By mounting the
+[43:47] S3 bucket, the application can continue
+[43:49] to read /path/to/pricing
+[43:52] file just as it did before. However,
+[43:54] behind the scenes, mountpoint translates
+[43:56] these file read operations into S3 get
+[43:59] API calls. This means every time the
+[44:01] application accesses the file, it is
+[44:04] guaranteed to get the latest version
+[44:05] directly from S3, completely eliminating
+[44:08] the stale data problem. This solution is
+[44:11] extremely cost effective because
+[44:12] mountpoint itself is free and you don't
+[44:15] need any new infrastructure like EFS or
+[44:18] Dynamob. The only costs are the S3 API
+[44:21] call charges which are minimal. It
+[44:24] solves the problem with almost no change
+[44:26] to the application code. D. Create an
+[44:29] Amazon Elastic Block Store Amazon EBS
+[44:32] volume. Use EBS multiattach. This
+[44:36] solution is architecturally flawed and
+[44:38] should be avoided. First, EBS
+[44:40] multi-attach is restricted to a single
+[44:42] availability zone. So, it would not work
+[44:45] for a highly available autoscaling group
+[44:47] that spans multiple AZs. Second, the
+[44:50] proposed update mechanism having new
+[44:52] instances update the file is unreliable
+[44:56] and would create race conditions and
+[44:58] inconsistencies. It turns a simple file
+[45:00] sync problem into a complex distributed
+[45:03] state management problem. Therefore, the
+[45:05] correct solution is C. It leverages a
+[45:08] purpose-built tool mount point for S3 to
+[45:11] solve the problem directly with minimal
+[45:13] code changes and the lowest possible
+[45:14] infrastructure and operational cost.
+[45:17] Question nine. A company hosts a data
+[45:20] processing application on Amazon EC2
+[45:22] instances. The application pulls an
+[45:24] Amazon Elastic File System, Amazon EFS
+[45:28] file system for newly uploaded files.
+[45:31] When a new file is detected, the
+[45:33] application extracts data from the file
+[45:35] and runs logic to select a Docker
+[45:38] container image to process the file. The
+[45:40] application starts the appropriate
+[45:42] container image and passes the file
+[45:44] location as a parameter. The data
+[45:46] processing that the container performs
+[45:48] can take up to 2 hours. When the
+[45:50] processing is complete, the code that
+[45:52] runs inside the container writes the
+[45:54] file back to Amazon EFS and exits. The
+[45:58] company needs to refactor the
+[45:59] application to eliminate the EC2
+[46:01] instances that are running the
+[46:03] containers. Which solution will meet
+[46:05] these requirements? A. Create an Amazon
+[46:09] elastic container service Amazon ECS
+[46:12] cluster. Configure the processing to run
+[46:15] as AWS Fargate tasks. Extract the
+[46:18] container selection logic to run as an
+[46:20] Amazon event bridge rule that starts the
+[46:22] appropriate Fargate task. Configure the
+[46:25] event bridge rule to run when files are
+[46:27] added to the EFS file system. B. Create
+[46:31] an Amazon elastic container service
+[46:34] Amazon ECS cluster. Configure the
+[46:36] processing to run as AWS Fargate tasks.
+[46:40] Update and containerize the container
+[46:42] selection logic to run as a Fargate
+[46:44] service that starts the appropriate
+[46:46] Fargate task. Configure an EFS event
+[46:48] notification to invoke the Fargate
+[46:51] service when files are added to the EFS
+[46:53] file system. C. Create an Amazon Elastic
+[46:57] Container Service Amazon ECS cluster.
+[47:01] Configure the processing to run as AWS
+[47:04] Fargate tasks. Extract the container
+[47:06] selection logic to run as an AWS Lambda
+[47:09] function that starts the appropriate
+[47:11] Fargate task. Migrate the storage of
+[47:13] file uploads to an Amazon S3 bucket.
+[47:16] Update the processing code to use Amazon
+[47:19] S3. Configure an S3 event notification
+[47:22] to invoke the Lambda function when
+[47:24] objects are created. D. Create AWS
+[47:28] Lambda container images for the
+[47:30] processing. Configure Lambda functions
+[47:33] to use the container images. Extract the
+[47:36] container selection logic to run as a
+[47:38] decision Lambda function that invokes
+[47:40] the appropriate Lambda processing
+[47:41] function. Migrate the storage of file
+[47:44] uploads to an Amazon S3 bucket. Update
+[47:47] the processing code to use Amazon S3.
+[47:50] Configure an S3 event notification to
+[47:53] invoke the decision lambda function when
+[47:55] objects are created. Okay. To solve
+[47:57] this, we need to address a few key
+[47:59] points from the existing architecture
+[48:01] and the new requirements. Eliminate EC2.
+[48:04] The goal is to move to a serverless
+[48:07] model. This points us toward services
+[48:09] like AWS Lambda or AWS Fargate. Long
+[48:13] processing time. The container can run
+[48:16] for up to two hours. This is a critical
+[48:18] constraint that will limit our choice of
+[48:20] compute service. Inefficient trigger.
+[48:23] The current system polls for files on
+[48:25] EFS. A modern event-driven architecture
+[48:28] would be much more efficient. Let's
+[48:30] evaluate the options based on these
+[48:32] points. Eight. event bridge rule to run
+[48:36] when files are added to the EFS file
+[48:38] system. This option is incorrect because
+[48:41] of the trigger mechanism. Amazon EFS
+[48:43] does not have a native feature that
+[48:45] sends events to Amazon Event Bridge when
+[48:47] a file is added. This proposed trigger
+[48:50] simply does not exist out of the box,
+[48:53] making the entire workflow
+[48:54] non-functional as described. B.
+[48:57] Configure an EFS event notification to
+[48:59] invoke the Fargate service. This option
+[49:02] is incorrect for the same reason as
+[49:04] option A. Amazon EFS does not have a
+[49:07] native event notification system that
+[49:09] can directly invoke other AWS services
+[49:11] like an ECS Fargate service. The
+[49:13] fundamental trigger mechanism is flawed.
+[49:16] C. Lambda function that starts the
+[49:19] appropriate Fargate task. Migrate the
+[49:22] storage to an Amazon S3 bucket.
+[49:25] Configure an S3 event notification. This
+[49:28] is the correct answer. This solution
+[49:31] correctly identifies and solves all the
+[49:33] problems in the original architecture.
+[49:36] Trigger. It wisely suggests migrating
+[49:38] from EFS to Amazon S3. S3 has a robust
+[49:42] event notification system that can
+[49:44] reliably trigger a Lambda function
+[49:46] whenever a new file is uploaded. This
+[49:49] replaces the inefficient polling with an
+[49:51] efficient eventdriven model. Selection
+[49:54] logic. Placing the container selection
+[49:56] logic inside a short-lived AWS Lambda
+[49:59] function is a perfect use case. The
+[50:01] Lambda is triggered by the S3 event,
+[50:04] quickly runs its logic to decide which
+[50:06] container to use and then makes an API
+[50:08] call to start the processing task.
+[50:11] Compute. It uses AWS Fargate for the
+[50:14] 2-hour processing job. Fargate is a
+[50:17] serverless container engine that is
+[50:18] ideal for longunning tasks. Easily
+[50:21] handling the 2-hour requirement without
+[50:23] the 15minute limitation of Lambda. This
+[50:25] is a classic and well architected
+[50:27] pattern. Lambda for orchestration.
+[50:30] Fargate for longunning work. D.
+[50:34] Lambda container images for the
+[50:36] processing decision lambda function that
+[50:38] invokes the appropriate lambda
+[50:40] processing function. This option is
+[50:42] incorrect because of the compute choice
+[50:44] for the main processing task. While it
+[50:46] correctly identifies the need to migrate
+[50:48] to S3 for the trigger, it proposes
+[50:51] running the 2-hour job inside another
+[50:53] Lambda function. AWS Lambda has a
+[50:56] maximum execution time out of 15 minutes
+[50:59] 900 seconds. A job that takes up to 2
+[51:02] hours 7,200 seconds would fail every
+[51:06] time due to a timeout. Therefore, the
+[51:08] correct solution is C. It is the only
+[51:11] option that provides a workable event
+[51:13] trigger by migrating to S3 and selects
+[51:16] the appropriate serverless compute
+[51:18] services for both the shortrunning
+[51:19] decision logic Lambda and the longunning
+[51:22] processing task Fargate. Question 10. An
+[51:26] events company runs a ticketing platform
+[51:28] on AWS. The company's customers
+[51:31] configure and schedule their events on
+[51:33] the platform. The events result in large
+[51:36] increases of traffic to the platform.
+[51:38] The company knows the date and time of
+[51:40] each customer's events. The company runs
+[51:43] the platform on an Amazon Elastic
+[51:45] Container Service Amazon ECS cluster.
+[51:48] The ECS cluster consists of Amazon EC2
+[51:52] on demand instances that are in an
+[51:53] autoscaling group. The autoscaling group
+[51:56] uses a predictive scaling policy. The
+[51:59] ECS cluster makes frequent requests to
+[52:01] an Amazon S3 bucket to download ticket
+[52:04] assets. The ECS cluster and the S3
+[52:06] bucket are in the same AWS region and
+[52:09] the same AWS account. Traffic between
+[52:12] the ECS cluster and the S3 bucket flows
+[52:14] across a NAT gateway. The company needs
+[52:17] to optimize the cost of the platform
+[52:19] without decreasing the platform's
+[52:21] availability. Which combination of steps
+[52:24] will meet these requirements? Choose to
+[52:27] A create a gateway VPC endpoint for the
+[52:31] S3 bucket. B. Add another ECS capacity
+[52:35] provider that uses an autoscaling group
+[52:37] of spot instances. Configure the new
+[52:40] capacity provider strategy to have the
+[52:42] same weight as the existing capacity
+[52:44] provider strategy. C. Create on demand
+[52:48] capacity reservations for the applicable
+[52:50] instance type for the time period of the
+[52:52] scheduled scaling policies. D. Enable S3
+[52:56] transfer acceleration on the S3 bucket.
+[52:59] E. Replace the predictive scaling policy
+[53:02] with scheduled scaling policies for the
+[53:04] scheduled events. All right, to tackle
+[53:06] this, we need to find two distinct ways
+[53:09] to optimize the cost without harming
+[53:11] availability. The prompt gives us two
+[53:13] big clues about where to look. The
+[53:16] network path to S3 and the scaling
+[53:18] strategy for predictable traffic. Let's
+[53:20] evaluate each option. A. Create a
+[53:24] gateway VPC endpoint for the S3 bucket.
+[53:27] This is a correct choice. The scenario
+[53:30] explicitly states that traffic from the
+[53:31] ECS cluster to the S3 bucket is flowing
+[53:34] through a NAT gateway. ANAT gateway
+[53:37] incurs a data processing charge for
+[53:39] every gigabyte of data that passes
+[53:41] through it. By creating a gateway VPC
+[53:43] endpoint for S3, you create a private
+[53:46] and direct route from your VPC to the S3
+[53:49] service within the AWS network. Traffic
+[53:51] using a gateway endpoint does not incur
+[53:54] any data processing or hourly charges.
+[53:57] This directly eliminates the unnecessary
+[53:59] NAT gateway costs for all S3 traffic
+[54:02] resulting in significant cost savings.
+[54:04] It also improves security and
+[54:06] potentially performance by keeping
+[54:08] traffic off the public internet. B. Add
+[54:12] another ECS capacity provider that uses
+[54:14] an autoscaling group of spot instances.
+[54:17] This is a common cost-saving strategy,
+[54:20] but it's not the best fit here. Spot
+[54:22] instances offer huge discounts, but can
+[54:24] be interrupted by AWS with only a
+[54:27] two-minute warning. For a ticketing
+[54:29] platform during a hightraic scheduled
+[54:31] event, losing capacity unexpectedly
+[54:34] could severely impact availability and
+[54:36] customer experience. Given that the
+[54:38] traffic spikes are predictable, there is
+[54:41] a more reliable way to manage capacity.
+[54:44] Therefore, this option compromises the
+[54:46] without decreasing the platform's
+[54:48] availability requirement. C. Create
+[54:52] ondemand capacity reservations. This
+[54:54] option is incorrect because its primary
+[54:56] purpose is to guarantee capacity, not to
+[54:59] save money. A capacity reservation
+[55:01] ensures you can launch on demand
+[55:03] instances in a specific availability
+[55:06] zone, but it does not provide a
+[55:08] discount. You pay the same ondemand rate
+[55:10] whether you use the instances or not.
+[55:13] This does not meet the cost optimization
+[55:15] goal. D. Enable S3 transfer acceleration
+[55:19] on the S3 bucket. This option is
+[55:22] incorrect. S3 transfer acceleration is
+[55:25] designed to speed up long-d distanceance
+[55:27] uploads and downloads to S3 by routing
+[55:29] traffic through Amazon CloudFront's edge
+[55:32] network. This service is for improving
+[55:34] performance for geographically distant
+[55:36] clients and comes with an additional
+[55:38] data transfer cost. Since the ECS
+[55:40] cluster and the S3 bucket are in the
+[55:43] same AWS region, this service provides
+[55:45] no benefit and would actually increase
+[55:47] costs. E. Replace the predictive scaling
+[55:51] policy with scheduled scaling policies
+[55:53] for the scheduled events. This is a
+[55:55] correct choice. The company knows the
+[55:57] exact date and time of the traffic
+[55:59] spikes. Predictive scaling is best for
+[56:02] cyclical patterns that are not precisely
+[56:04] known in advance. For events that are
+[56:07] known and scheduled, a scheduled scaling
+[56:09] policy is more precise, reliable, and
+[56:12] cost-effective. You can configure it to
+[56:14] scale out capacity just before an event
+[56:16] starts and scale it in as soon as the
+[56:18] event ends. This just in time scaling
+[56:21] prevents the overprovisioning that might
+[56:23] occur with a predictive model, ensuring
+[56:25] you only pay for the capacity you need
+[56:27] exactly when you need it. This optimizes
+[56:30] cost while improving availability for
+[56:32] the known peaks. Therefore, the correct
+[56:35] answers are A and E. A addresses the
+[56:37] networking cost inefficiency by
+[56:39] eliminating NAT gateway charges for S3
+[56:42] traffic. E addresses the compute cost
+[56:45] inefficiency by replacing a
+[56:46] generalpurpose scaling policy with a
+[56:48] more precise and cost-effective one that
+[56:51] matches the company's predictable
+[56:52] business patterns. And that wraps up our
+[56:55] 10 questions for today. If you found
+[56:57] this breakdown helpful, please share it
+[56:59] with your friends and colleagues who
+[57:01] share the goal of conquering the AWS SAP
+[57:04] C02 certification. Let's build a strong
+[57:08] collaborative learning community
+[57:10] together. Make sure to join me in the
+[57:12] next video for our next set of
+[57:14] questions. Happy learning.

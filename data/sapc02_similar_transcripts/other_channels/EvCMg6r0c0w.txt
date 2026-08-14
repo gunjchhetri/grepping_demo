@@ -1,0 +1,468 @@
+[0:00] Welcome to the deep dive. So you sent us
+[0:02] some really interesting material today.
+[0:04] It's not the usual research papers, but
+[0:05] something uh quite practical practice
+[0:08] scenarios from the AWS solutions
+[0:10] architect professional certification
+[0:12] architect professional certification SAPC02.
+[0:14] Exactly. Yeah. This is definitely the
+[0:15] deep end stuff. These aren't simple what
+[0:18] is S3 questions. They're complex real
+[0:21] world problems where you've got cost,
+[0:23] security, performance, compliance all
+[0:26] pulling the architecture in different
+[0:28] Right? And our mission here is well it's
+[0:30] pretty simple. We're using these tough
+[0:31] scenarios as a shortcut really by
+[0:33] breaking down the why behind the
+[0:35] solutions we can jump straight to
+[0:36] understanding the critical architectural
+[0:39] trade-offs people are making in the
+[0:40] cloud today.
+[0:41] It's a fantastic way to accelerate
+[0:43] understanding and just to give you a
+[0:44] sense of the depth required the actual
+[0:46] exam is what 180 minutes for 75
+[0:48] questions. You really need to know the
+[0:50] services inside out especially those
+[0:52] features for policy enforcement or you
+[0:54] know massive scale.
+[0:55] Okay so let's dive in. We can group the
+[0:57] first few around let's call it securing
+[0:59] the perimeter networking and access
+[1:01] stuff about locking things down at the
+[1:03] network level. First one centralized
+[1:06] network level. First one centralized routing
+[1:08] big company using AWS transit gateway
+[1:10] TGW to connect everything including
+[1:12] their on-prem data centers. The rule is
+[1:15] strict onrem traffic can hit production
+[1:18] VPCs but absolutely cannot reach
+[1:20] development VPCs and critically this
+[1:23] block needs to happen at the network
+[1:25] routing level. Yeah, this is a classic.
+[1:27] People often reach for say a network
+[1:29] firewall or maybe security groups first.
+[1:31] But you see that's more about inspecting
+[1:33] traffic after it's already been routed
+[1:35] traffic after it's already been routed somewhere.
+[1:35] Ah, okay. So why is that the wrong way
+[1:38] to think about here? I mean if the
+[1:39] requirement is enforcement at the
+[1:41] routing level.
+[1:42] Well, because if the route actually
+[1:43] exists, the traffic can still try to
+[1:45] flow, right? Even if a firewall drops it
+[1:47] later. The really clean definitive way
+[1:49] to enforce this kind of network
+[1:50] isolation is to make sure the unwanted
+[1:52] route simply isn't there in the first
+[1:54] place. It's about segmentation.
+[1:56] So using the transit gateway itself.
+[1:58] Exactly. The key nugget here is using
+[2:00] the TGW's own segmentation capability.
+[2:03] You create separate route tables within
+[2:06] the transit gateway.
+[2:07] Okay. So like production VPCs get
+[2:09] attached to one route table that can see
+[2:11] the on-prem connection
+[2:12] and the development VPCs get attached to
+[2:14] a different route table that can't see
+[2:16] it at all.
+[2:17] Precisely. You control how the routes
+[2:19] propagate between these tables. This
+[2:20] enforces that isolation right at layer
+[2:23] 3. It's much cleaner, much more robust
+[2:25] than relying on say a layer 7 firewall
+[2:28] rule later on.
+[2:29] That distinction, routing enforcement
+[2:31] versus inspection. That's really
+[2:32] important. Okay, let's look at the
+[2:34] second networking challenge. This one
+[2:36] involves integrating a specific kind of
+[2:38] third party tool like maybe an intrusion
+[2:40] prevention system, doing deep packet
+[2:42] inspection, and the critical bit, it
+[2:45] needs asymmetric routing.
+[2:46] Right? That term asymmetric routing,
+[2:49] that should immediately ring a bell.
+[2:50] means traffic absolutely must go out
+[2:52] through the same appliance it came in
+[2:54] through. If you try to force that with
+[2:55] standard load balancers, especially when
+[2:57] you scale out those appliances, things
+[2:59] get very messy, very unstable very
+[3:00] get very messy, very unstable very quickly.
+[3:01] Makes sense. Standard load balancing
+[3:03] would just spray the return traffic
+[3:05] across any available appliance, wouldn't
+[3:07] So, is there a specific AWS service
+[3:09] built for this for inserting these kinds
+[3:11] of appliances and handling that required
+[3:13] flow symmetry?
+[3:14] There is. It's the gateway load balancer
+[3:16] or GWLB. It works down at the network
+[3:19] layer, layer three, and it's designed
+[3:21] specifically to maintain that flow
+[3:23] stickiness. It ensures both directions
+[3:25] of a single network flow always transit
+[3:27] the same inspection device.
+[3:28] So, if your security appliance vendor
+[3:30] says asymmetric routing needed, GWLB is
+[3:34] pretty much the go-to answer.
+[3:35] It's really the only practical and
+[3:37] scalable option for integrating those
+[3:39] stateful third party network virtual
+[3:41] functions. Yeah, definitely GWLB.
+[3:44] Excellent. Okay, let's wrap up this sort
+[3:45] of governance section with identity
+[3:47] management. We've got a big company
+[3:48] scenario again. Employees use on
+[3:50] premises active directory, ADD. They
+[3:53] need AWS console access. And crucially,
+[3:55] they need to assume different AWS roles
+[3:57] based on their existing AD group
+[3:59] memberships. Big constraint. No creating
+[4:02] thousands of individual AM users.
+[4:04] Yeah, managing individual AM users for
+[4:06] potentially thousands of employees.
+[4:08] That's just an operational nightmare. It
+[4:10] doesn't scale. It's errorprone. the
+[4:12] solution really has to leverage the
+[4:14] existing identity source, the on-prem
+[4:16] existing identity source, the on-prem AD.
+[4:17] So what's the standard AWS way to bridge
+[4:19] that gap?
+[4:20] That would be implementing AWS single
+[4:23] signon uh which you'll now see mostly
+[4:25] referred to as IM identity center. You
+[4:27] basically connect identity center to
+[4:29] your corporate AD.
+[4:30] And it handles the whole federation
+[4:32] process. It authenticates users against
+[4:34] AD and then importantly it maps their AD
+[4:36] group memberships directly to specific
+[4:39] AM roles within your AWS account. So you
+[4:41] get that granular control without
+[4:43] managing duplicate users.
+[4:44] Got it. Centralized identity managed via
+[4:46] the existing AD.
+[4:47] the existing AD. Yeah.
+[4:48] Okay. Let's uh let's switch gears. Phase
+[4:50] two, scale and survivability. Thinking
+[4:53] about data, handling huge load, and
+[4:55] making sure things stay up. So first up,
+[4:57] a scaling crisis. Hight traffic website
+[4:59] currently struggling with a manually
+[5:01] sharded Amazon RDS MySQL database. They
+[5:04] need to migrate to a single database
+[5:06] system. No manual sharding that can
+[5:08] handle millions of requests per second.
+[5:10] Wow. Okay. Millions of requests per
+[5:13] second and explicitly getting rid of
+[5:15] manual sharding,
+[5:16] Yeah. That immediately tells you you're
+[5:18] probably hitting the limits and what
+[5:20] even a really powerful relational
+[5:21] database like Aurora can comfortably
+[5:23] handle, at least without significant
+[5:25] operational overhead. Managing those
+[5:28] manual shards just becomes unworkable at
+[5:30] that kind of scale.
+[5:31] So, if they're willing to make some
+[5:32] trade-offs, maybe like less complex
+[5:33] query patterns or different consistency
+[5:35] models perhaps in exchange for just raw
+[5:38] scale. Huh. What's the obvious
+[5:39] architectural path?
+[5:41] The move there is almost certainly to
+[5:43] Amazon DynamoB. It's a fully managed
+[5:46] serverless NoSQL key value store. Its
+[5:50] entire design philosophy is built around
+[5:51] horizontal scaling to handle well pretty
+[5:53] much arbitrary levels of throughput
+[5:55] much arbitrary levels of throughput automatically,
+[5:56] You essentially trade the complexity of
+[5:58] SQL and relational models for the
+[6:00] operational simplicity and near infinite
+[6:02] scale of a managed NoSQL service. All
+[6:05] that sharding and partitioning
+[6:06] complexity just disappears into the
+[6:08] managed service.
+[6:09] Makes sense. A fundamental shift needed
+[6:11] for that level of scale. Okay, sticking
+[6:14] with databases, but shifting focus
+[6:17] global reach. We have an Amazon Aurora
+[6:19] MySQL database doing great, but it's
+[6:22] only in US East. Users all over the
+[6:24] world, Asia, Europe, South America are
+[6:27] getting really slow load times. Need to
+[6:29] fix global read performance without
+[6:31] messing with the primary write
+[6:33] performance in US East. Yeah, that's
+[6:34] just physics, right? Network latency
+[6:36] across continents, the data is just too
+[6:38] far away for most users. So,
+[6:40] architecturally, you have to bring the
+[6:41] data closer.
+[6:42] And for Aurora specifically, is there a
+[6:44] built-in way to handle that kind of
+[6:46] global read distribution?
+[6:47] Yes, there is. It's called an Aurora
+[6:49] global database. With this setup, you
+[6:51] deploy secondary Aurora clusters,
+[6:53] essentially readonly clusters in other
+[6:55] AWS regions closer to your users
+[6:57] AWS regions closer to your users worldwide.
+[6:58] So, users in Europe hit a European
+[6:59] replica, users in Asia hit an Asian
+[7:02] replica, users in Asia hit an Asian replica.
+[7:02] Exactly. Those replicas handle the local
+[7:04] read traffic with low latency.
+[7:06] Meanwhile, the primary database in US
+[7:08] East continues to handle all the right
+[7:10] operations, maintaining consistency.
+[7:13] It's a very clean way to separate read
+[7:15] scaling geographically.
+[7:16] Got it. Okay. Now, for a classic
+[7:18] trade-off, disaster recovery critical
+[7:21] application needs an RTO recovery time
+[7:24] objective of 1 hour and an RPO recovery
+[7:27] point objective of 15 minutes.
+[7:29] Okay, let's quickly define those just to
+[7:30] be sure. RTO, how fast you need to be
+[7:33] back up and running after a disaster
+[7:34] hits. 1 hour here. RPO, how much data
+[7:38] loss is acceptable, measured in time
+[7:40] back from the disaster. 15 minutes here.
+[7:43] Those are uh pretty demanding targets.
+[7:45] They are. But here's the kicker. They
+[7:48] have to hit these targets while keeping
+[7:49] the ongoing cost in the secondary
+[7:51] failover region as low as absolutely
+[7:54] failover region as low as absolutely possible.
+[7:54] Ah, the cost constraint. Okay, so we're
+[7:56] balancing recovery speed against
+[7:58] operational expense. A full hot standby
+[8:00] where everything is running identically
+[8:02] in the DR region would easily meet the
+[8:04] archer, but it's the most expensive
+[8:06] option day-to-day,
+[8:06] right? It's essentially double the
+[8:08] infrastructure cost
+[8:08] pretty much. On the other end, you have
+[8:10] simple backup and restore. Lowest cost,
+[8:12] sure, but restoring potentially large
+[8:14] databases and provisioning all the
+[8:16] compute that's almost certainly going to
+[8:18] blow past the 1 hour RTO. It often takes
+[8:19] blow past the 1 hour RTO. It often takes hours.
+[8:20] So neither extreme really fits. What's
+[8:22] the middle ground? The strategy that
+[8:24] hits that sweet spot, meeting the Artopo
+[8:27] but minimizing the idle cost.
+[8:29] That would be the pilot light strategy.
+[8:31] With pilot light, you keep only the
+[8:33] absolute essential core components
+[8:35] running in the DR region. Crucially,
+[8:38] this includes the data replication,
+[8:39] maybe replicating the database
+[8:41] continuously to meet that tight 15minute
+[8:44] continuously to meet that tight 15minute RPO.
+[8:44] Okay, so the data is current,
+[8:46] right? But the expensive scalable
+[8:48] compute resources like the large EC2
+[8:50] autoscaling groups or the EKS worker
+[8:52] nodes, those are kept either turned off
+[8:55] or running in a very minimal scaled down
+[8:57] state. You save a lot on cost dayto-day.
+[8:59] And then if disaster strikes,
+[9:01] you trigger automation to rapidly scale
+[9:03] up that compute layer, connect it to the
+[9:05] already replicated data and bring the
+[9:07] full application online within that 1
+[9:09] hour RTO window.
+[9:10] Makes perfect sense from a cost
+[9:12] perspective. But what about complexity?
+[9:14] Does pilot light add more moving parts
+[9:16] or risk to the actual failover process
+[9:18] compared to say a warm standby where
+[9:20] more stuff is already running?
+[9:21] Oh, absolutely. It definitely increases
+[9:23] the complexity and relies heavily on
+[9:25] robust automation and uh well- tested
+[9:29] runbooks. You have to be confident that
+[9:31] the compute layer will spin up correctly
+[9:32] and quickly integrate with the database
+[9:34] within that hour. Right? a warm standby
+[9:36] where maybe the application servers are
+[9:38] running but scaled down is simpler to
+[9:40] fail over to less automation dependency
+[9:42] perhaps but you pay more for having that
+[9:44] infrastructure idling it's a very direct
+[9:47] trade-off cost versus operational
+[9:49] complexity and failover risk
+[9:51] great breakdown okay let's move into our
+[9:53] last section we'll call this phase three
+[9:55] mandates and money focusing on
+[9:57] compliance rules governance and of
+[9:59] course cost optimization first a strict
+[10:02] compliance requirement a central
+[10:04] security team needs All VPC flow logs
+[10:06] and cloud trail logs stored centrally.
+[10:08] Fine. But they must be in a right once
+[10:10] format for 10 years. And here's the
+[10:12] really tough part. They must not be
+[10:14] changeable or deletable by anyone. And
+[10:16] they explicitly call out including the
+[10:18] root user of the central logging
+[10:20] root user of the central logging account.
+[10:20] Whoa. Okay, that last part, including
+[10:22] the root user. That's the key constraint
+[10:24] here. Normally, you might think a strong
+[10:26] S3 bucket policy or maybe an SCP, a
+[10:29] service control policy could lock things
+[10:31] down. But the root user in an AWS
+[10:33] account generally has ultimate power and
+[10:35] could in theory override or remove those
+[10:38] could in theory override or remove those policies.
+[10:39] So we need something stronger, something
+[10:41] designed maybe for external regulations
+[10:43] that even overrides AWS's own internal
+[10:46] admin hierarchy. A true worm write once
+[10:51] read many storage solution.
+[10:52] Exactly. The only AWS feature designed
+[10:55] to provide that level of absolute
+[10:56] regulatory grade immutability even
+[10:59] against the accounts root user is S3
+[11:01] object lock specifically used in
+[11:03] compliance mode.
+[11:04] you enable object lock in compliance
+[11:06] mode on that central S3 bucket, set the
+[11:08] 10-year retention period. Once that
+[11:10] object version is written and the
+[11:11] retention period is locked in, nobody,
+[11:13] not even root can delete that object
+[11:15] version or shorten the retention period
+[11:16] until it expires naturally after 10
+[11:18] years. It provides that guaranteed
+[11:21] legally defensible persistence.
+[11:22] That's a powerful control. Really
+[11:24] changes the game for critical logs.
+[11:27] Okay, let's shift from compliance
+[11:28] mandates to operational costs. A common
+[11:31] headache, big data lakes. We've got
+[11:33] pabytes, pabytes of uncompressed JSON
+[11:35] data sitting in S3. People are querying
+[11:38] it using Amazon Athena, but the query
+[11:40] costs are skyhigh because Athena scans
+[11:43] the whole file every time.
+[11:44] Yep. Classic Athena cost issue. Athena's
+[11:47] pricing model is based directly on the
+[11:49] amount of data scanned per query and
+[11:51] scanning pabytes of raw JSON is
+[11:53] incredibly inefficient. JSON is row
+[11:56] oriented. So even if you only need data
+[11:58] from one or two columns or fields,
+[12:00] Athena often has to read through the
+[12:02] entire row, the entire file structure.
+[12:04] That inefficiency translates directly to
+[12:06] big bills.
+[12:07] So the fix here isn't necessarily to
+[12:08] ditch Athena, but rather to change the
+[12:10] data itself to make those scans way more
+[12:13] Precisely. The standard architectural
+[12:14] solution is to pre-process that data.
+[12:16] You typically use an AWS glue job,
+[12:19] that's the ETL service, to convert the
+[12:20] raw JSON data into a compressed columner
+[12:23] format. The most common one is Apache
+[12:25] format. The most common one is Apache paret.
+[12:26] And why parquet?
+[12:27] Because columner formats like parquet
+[12:29] store data by column, not by row. This
+[12:32] means Athena can be much smarter. If
+[12:34] your query only needs two columns out of
+[12:36] 50, Athena can read only the data for
+[12:38] those two columns and completely skip
+[12:39] the other 48. Plus, parquet usually
+[12:42] offers good compression.
+[12:43] So, drastically less data scanned per
+[12:45] dramatically less. Often 80%, 90%,
+[12:48] sometimes even more reduction in scanned
+[12:51] data volume. Yes, running the glue
+[12:53] conversion job costs something, but the
+[12:55] savings on the downstream Athena queries
+[12:57] almost always make it hugely worthwhile,
+[13:00] especially at pedabyte scale.
+[13:01] That's a critical optimization for any
+[13:03] large-scale data lake. Yeah.
+[13:05] Okay, two more quick ones. First,
+[13:07] self-service governance. How does a
+[13:09] central IT team let development teams
+[13:11] provision their own infrastructure? You
+[13:13] know, VPCs, EKS clusters, RDS databases
+[13:17] from a kind of pre-approved menu,
+[13:18] ensuring everything stays compliant with
+[13:21] company standards,
+[13:22] right? You want to enable developers but
+[13:24] maintain control. You need a service
+[13:25] that acts as both a catalog and a
+[13:26] gatekeeper for standardized templates.
+[13:28] The purpose-built AWS service for this
+[13:30] is AWS service catalog. Central IT
+[13:33] defines and publishes products. These
+[13:35] are essentially preconfigured cloud for
+[13:37] templates representing approved
+[13:39] architectures. Developers can then
+[13:41] browse the catalog and launch these
+[13:42] products themselves self-service style
+[13:45] knowing they're automatically compliant
+[13:46] without needing manual reviews for every
+[13:49] single deployment.
+[13:50] Got it. Governance through curated
+[13:53] self-service. And finally, let's touch
+[13:55] on storage for containers. An
+[13:56] application's been containerized move to
+[13:58] Amazon EKS. It needs persistent storage,
+[14:01] but it also needs to be shared file
+[14:03] storage. multiple pods maybe running on
+[14:06] different nodes need to read and write
+[14:08] small files concurrently to the same
+[14:10] file system.
+[14:10] Key phrase there, shared file storage.
+[14:13] That immediately rules out things like
+[14:15] Amazon EBS volumes, the block storage,
+[14:17] because typically an EBS volume can only
+[14:19] be attached to one EC2 instance, and
+[14:22] therefore usually only pods on that
+[14:24] single EKS node at a time,
+[14:26] right? You can't easily share an EBS
+[14:28] volume across multiple nodes for
+[14:29] concurrent write access. So what's the
+[14:32] managed AWS service that does provide
+[14:34] that scalable shared file system
+[14:36] experience suitable for containers?
+[14:38] That would be Amazon Elastic File System
+[14:40] or Amazon EFS. EFS provides a managed
+[14:44] NFS network file system service. It's
+[14:47] designed to be mounted concurrently by
+[14:49] potentially hundreds or thousands of
+[14:51] clients, including EKS pods running
+[14:53] across many different EC2 nodes. It
+[14:56] gives you that scalable, shared,
+[14:57] persistent file access needed in many
+[14:59] containerized applications.
+[15:01] If the whole promise of the cloud
+[15:03] initially at least was about agility,
+[15:05] about moving faster, how much
+[15:07] centralized governance is the right
+[15:08] amount? You know, how much
+[15:10] standardization using tools like service
+[15:12] catalog can an organization enforce
+[15:14] before it starts to maybe stifle the
+[15:16] very innovation it wanted to unlock by
+[15:18] going to the cloud?
+[15:19] That's a great question. Finding that
+[15:20] balance. Yeah, something for you to
+[15:22] think about until our next deep dive.

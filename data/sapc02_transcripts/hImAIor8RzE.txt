@@ -1,0 +1,1046 @@
+[0:00] Hello everyone, I'm Lee and welcome back
+[0:03] to our SAPC02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder, if
+[0:12] these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via super thanks. It's never expected,
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 121. A company is
+[0:28] running an application in the AWS cloud.
+[0:31] Recent application metrics show
+[0:32] inconsistent response times and a
+[0:35] significant increase in error rates.
+[0:37] Calls to third party services are
+[0:39] causing the delays. Currently, the
+[0:42] application calls thirdparty services
+[0:44] synchronously by directly invoking an
+[0:46] AWS Lambda function. A solution's
+[0:48] architect needs to decouple the third
+[0:50] party service calls and ensure that all
+[0:52] the calls are eventually completed.
+[0:55] Which solution will meet these
+[0:56] requirements? A. Use an Amazon simple Q
+[1:00] service Amazon SQS Q to store events and
+[1:04] invoke the Lambda function. B. Use an
+[1:07] AWS step function state machine to pass
+[1:10] events to the Lambda function. C. Use an
+[1:14] Amazon event bridge rule to pass events
+[1:16] to the Lambda function. D. Use an Amazon
+[1:19] simple notification service, Amazon SNS
+[1:23] topic to store events and invoke the
+[1:25] Lambda function. This question tests
+[1:27] your knowledge of application
+[1:28] integration. Domain 3, specifically
+[1:31] focusing on decoupling architectures to
+[1:34] improve reliability and handle external
+[1:36] dependencies. The core problem is
+[1:38] synchronous coupling. The application
+[1:40] waits for the third party service to
+[1:42] respond. If the third party is slow or
+[1:45] down, the application stalls or fails.
+[1:48] To solve this, we need an asynchronous
+[1:50] pattern that buffers requests and
+[1:52] retries them until they succeed. Option
+[1:54] A, use an Amazon simple Q service.
+[1:57] Amazon SQSQ
+[1:59] is the correct answer. This is the
+[2:01] standard pattern for decoupling
+[2:03] components and ensuring reliable message
+[2:05] delivery. Decoupling. Instead of calling
+[2:08] the third party service directly, the
+[2:10] application simply drops a message into
+[2:12] an SQSQ and returns immediately. This
+[2:16] fixes the inconsistent response times
+[2:19] because the application is no longer
+[2:20] waiting for the slow external API.
+[2:23] Reliability ensure eventually completed
+[2:26] SQS acts as a durable buffer. The lambda
+[2:29] function pulls messages from the queue
+[2:31] to process them. If the third party
+[2:33] service fails or times out, the lambda
+[2:35] function fails and the message remains
+[2:38] in the queue after the visibility
+[2:40] timeout. It will be retrieded
+[2:42] automatically in the next poll. This
+[2:44] store and forward mechanism guarantees
+[2:46] that the task is not lost and will
+[2:48] eventually be processed when the
+[2:50] downstream service recovers. Option B,
+[2:52] use AWS Step Functions is incorrect.
+[2:56] While AWS Step Functions is a powerful
+[2:58] orchestrator that can handle retries and
+[3:01] error handling, it is primarily designed
+[3:03] for complex multi-step workflows, state
+[3:06] machines. For a simple requirement to
+[3:09] decouple and buffer a single task type,
+[3:11] SQS is the more fundamental and
+[3:14] cost-effective building block. SQS
+[3:16] specifically excels at storing events
+[3:19] buffering to smooth out traffic spikes
+[3:22] which is the primary need here. Option
+[3:24] C, use Amazon event bridge is incorrect.
+[3:27] Amazon event bridge is an event bus used
+[3:30] for routing events between services. eg
+[3:33] if state changes notify lambda. While it
+[3:37] is asynchronous, it is not designed to
+[3:39] be a durable work queue. It does not
+[3:41] offer the same level of granular control
+[3:43] over message polling, visibility,
+[3:45] timeouts, and batch processing that SQS
+[3:48] provides for ensuring task completion
+[3:50] against a flaky backend. Option D, use
+[3:53] Amazon SNS is incorrect. Amazon SNS is a
+[3:57] push mechanism. Pub/sub
+[4:00] pushes messages to Lambda immediately.
+[4:03] Lack of flow control. If the third party
+[4:06] service is down, SNS will keep hammering
+[4:08] the Lambda function with new
+[4:10] notifications. It does not provide the
+[4:12] pull mechanism of SQS that allows the
+[4:14] consumer Lambda to process messages at
+[4:17] its own pace, throttling or retry them
+[4:20] with the same flexibility, visibility
+[4:22] timeout as a Q. Therefore, the correct
+[4:25] solution is a question 122. A financial
+[4:30] company needs to create a separate AWS
+[4:32] account for a new digital wallet
+[4:34] application. The company uses AWS
+[4:37] organizations to manage its accounts. A
+[4:40] solutions architect uses the IM user
+[4:42] support one from the management account
+[4:44] to create a new member account with
+[4:46] to create a new member account with finance1@acample.com
+[4:48] as the email address. What should the
+[4:50] solutions architect do to create IM
+[4:52] users in the new member account?
+[4:55] Sign in to the AWS management console
+[4:58] with AWS account root user credentials
+[5:00] by using the 64 character password from
+[5:03] the initial AWS organization's email
+[5:05] sent to finance1@acample.com.
+[5:08] Set up the IM users as required. B. From
+[5:13] the management account, switch roles to
+[5:15] assume the organization account access
+[5:17] role with the account ID of the new
+[5:19] member account. Set up the IM users as
+[5:22] required. C. Go to the AWS management
+[5:26] console signin page. Choose sign in
+[5:29] using root account credentials. Sign in
+[5:32] by using the email address
+[5:33] by using the email address finance1@acample.com
+[5:36] and the management accounts root
+[5:37] password. Set up the IM users as
+[5:40] required. D. Go to the AWS management
+[5:44] console signin page. Sign in by using
+[5:47] the account ID of the new member account
+[5:49] and the support 1 IM credentials. Set up
+[5:52] the IM users as required. This question
+[5:54] tests your knowledge of management and
+[5:56] governance. Domain one specifically
+[5:59] focusing on AWS organizations and how
+[6:02] cross account access works for newly
+[6:04] created member accounts. The core
+[6:06] challenge is how do you log into a brand
+[6:08] new AWS account created via
+[6:11] organizations when you haven't set a
+[6:13] password for it yet? Option B, switch
+[6:16] roles to assume the organization account
+[6:18] access role is the correct answer. This
+[6:21] is the standard built-in mechanism for
+[6:23] accessing new accounts created via AWS
+[6:26] organizations. Automatic RO creation.
+[6:29] When you create a new member account
+[6:31] programmatically or via the
+[6:32] organizations console, AWS automatically
+[6:36] creates an IM role named organization
+[6:38] account access role unless you specify a
+[6:40] custom name inside that new account.
+[6:43] Permissions. This role has administrator
+[6:46] access permissions. Trust relationship.
+[6:49] Crucially, this role is configured to
+[6:52] trust the management account. the
+[6:54] workflow. The user support one in the
+[6:57] management account does not need to log
+[6:59] out. They simply use the switch ro
+[7:01] feature in the AWS console enter the new
+[7:04] account ID and the role name
+[7:06] organization account access role. This
+[7:08] grants them immediate admin access to
+[7:10] the new account to create users
+[7:13] configure VPCs etc. Option A, sign in
+[7:16] with root user credentials from email is
+[7:19] incorrect. No password sent. For
+[7:22] security reasons, AWS does not send a
+[7:25] password for the root user of the new
+[7:27] member account via email. Root access
+[7:29] process. If you actually wanted to log
+[7:32] in as the root user, which is generally
+[7:34] discouraged, you would have to go to the
+[7:36] login page, enter the email
+[7:39] login page, enter the email finance1@acample.com,
+[7:41] and complete the forgot password
+[7:43] recovery process to set a password for
+[7:45] the first time. The method described in
+[7:47] option as simply does not exist. Option
+[7:50] C, sign in using management accounts
+[7:53] root password is incorrect. Account
+[7:56] isolation. Every AWS account is a
+[7:59] distinct security boundary. The
+[8:01] credentials password of the management
+[8:04] accounts root user are valid only for
+[8:06] the management account. They do not
+[8:08] grant access to member accounts. The new
+[8:11] account finance1@acample.com
+[8:14] has its own completely separate root
+[8:16] credentials. Option D sign in using
+[8:19] support 1 im credentials is incorrect.
+[8:22] Identity scope IM users are local to the
+[8:25] account where they were created. The
+[8:27] user support one exists only inside the
+[8:30] management account. The new member
+[8:32] account has no knowledge of support one.
+[8:34] You cannot log directly into account B
+[8:37] using credentials from account A. You
+[8:39] must use the switch ro assume ro
+[8:41] mechanism described in option B to
+[8:43] bridge the gap. Therefore, the correct
+[8:46] solution is B. Question 123. A company
+[8:50] operates a static content distribution
+[8:52] platform that serves customers globally.
+[8:55] The customers consume content from their
+[8:57] own AWS accounts. The company serves its
+[9:01] content from an Amazon S3 bucket. The
+[9:04] company uploads the content from its on-
+[9:06] premises environment to the S3 bucket by
+[9:08] using an S3 file gateway. The company
+[9:11] wants to improve the platform's
+[9:12] performance and reliability by serving
+[9:14] content from the AWS region that is
+[9:17] geographically closest to customers. The
+[9:19] company must route the on- premises data
+[9:21] to Amazon S3 with minimal latency and
+[9:24] without public internet exposure. Which
+[9:26] combination of steps will meet these
+[9:28] requirements with the LE11 a operational
+[9:31] overhead? Choose to
+[9:34] implement S3 multi-reion access points.
+[9:38] B use S3 cross region replication CRR to
+[9:42] copy content to different regions. C.
+[9:46] Create an AWS Lambda function that
+[9:48] tracks the routing of clients to
+[9:50] regions. D. Use an AWS sightto-sightVPN
+[9:54] connection to connect to a multi-reion
+[9:56] access point. E. Use AWS private link
+[9:59] and AWS direct connect to connect to a
+[10:02] multi-reion access point. This question
+[10:04] tests your knowledge of storage domain 2
+[10:07] and hybrid networking specifically
+[10:09] focusing on optimizing global S3 access
+[10:12] performance and securing private
+[10:14] connectivity. The scenario has two
+[10:16] distinct requirements. Global
+[10:18] performance serve content from the
+[10:21] geographically closest region to the
+[10:22] customer. private ingestion. Route data
+[10:26] from on premises to S3 with minimal
+[10:28] latency and without public internet
+[10:30] exposure. Option A, implement S3
+[10:34] multi-region access points, MRAP, is the
+[10:38] correct answer? This addresses the
+[10:40] global performance requirement. How it
+[10:42] works? An S3 multi-reion access point
+[10:45] provides a single global endpoint. eg
+[10:49] provides a single global endpoint. eg map-123
+[10:52] access point s3- global amazon.com
+[10:57] behind this endpoint you can group
+[10:59] multiple buckets in different AWS
+[11:02] regions replicated via S3 replication
+[11:06] global routing when a client sends a
+[11:08] request to this global endpoint AWS
+[11:11] automatically routes the request over
+[11:13] the AWS global network to the bucket in
+[11:16] the region with the lowest latency
+[11:18] relative to that client. This happens
+[11:20] automatically without needing custom
+[11:22] logic or DNS changes. Option E, use AWS
+[11:26] private link and AWS direct connect to
+[11:28] connect to MAP is the correct answer.
+[11:31] This addresses the private ingestion
+[11:33] requirement. Private connectivity to
+[11:36] upload data from on premises without
+[11:38] public internet exposure, you need a
+[11:41] private path. AWS direct connect
+[11:44] provides the low latency physical link
+[11:46] endpoint access. AWS private link
+[11:50] interface VPC endpoints allows you to
+[11:53] access S3 multi-reion access points
+[11:55] privately from your VPC or on premises
+[11:58] network via direct connect. This ensures
+[12:01] the traffic stays entirely on the AWS
+[12:04] private network bypassing the public
+[12:06] internet. Option B, use S3 cross region
+[12:10] replication CRR is incorrect. While CRR
+[12:14] is technically required for multi-reion
+[12:16] access points to work, you need the data
+[12:19] in multiple buckets. Selecting CRR alone
+[12:22] is insufficient. CRR just moves the
+[12:24] data. It doesn't provide the intelligent
+[12:27] routing mechanism to send users to the
+[12:29] closest copy. You need the multi-reion
+[12:31] access point. Option A to handle the
+[12:34] routing logic. Option C, create a lambda
+[12:37] function for routing is incorrect. This
+[12:40] suggests building a custom routing
+[12:41] solution. Eg. Client asks Lambda which
+[12:45] region to use. Operational overhead.
+[12:48] This is high overhead. You would have to
+[12:51] write code to determine client location,
+[12:54] maintain a database of region health,
+[12:56] and handle the routing logic. Map option
+[12:59] A does this natively. Option D, use
+[13:02] sight to-sightVPN is incorrect. Latency.
+[13:06] The requirement specifically asks for
+[13:08] minimal latency. AWS Direct Connect, a
+[13:12] dedicated fiber connection, offers
+[13:14] significantly lower and more consistent
+[13:16] latency than a sight-to-sightVPN,
+[13:18] which traverses the public internet and
+[13:20] is subject to jitter and congestion.
+[13:22] Therefore, the correct combination is A
+[13:25] and E. Question 124. A company needs to
+[13:29] implement a patching process for its
+[13:31] servers. The on- premises servers and
+[13:33] Amazon EC2 instances use a variety of
+[13:36] tools to perform patching. Management
+[13:39] requires a single report showing the
+[13:41] patch status of all the servers and
+[13:43] instances. Which set of actions should a
+[13:45] solutions architect take to meet these
+[13:47] solutions architect take to meet these requirements?
+[13:50] Use AWS Systems Manager to manage
+[13:52] patches on the on premises servers and
+[13:54] EC2 instances. Use systems manager to
+[13:58] generate patch compliance reports. B.
+[14:01] Use AWS Ops Works to manage patches on
+[14:04] the on- premises servers and EC2
+[14:06] instances. Use Amazon Quicksite
+[14:09] integration with Opsworks to generate
+[14:11] patch compliance reports. C. Use an
+[14:14] Amazon EventBridge rule to apply patches
+[14:17] by scheduling an AWS systems manager
+[14:19] patch remediation job. Use Amazon
+[14:22] Inspector to generate patch compliance
+[14:24] reports. D. Use AWS Ops Works to manage
+[14:28] patches on the on premises servers and
+[14:30] EC2 instances. Use AWS X-Ray to post the
+[14:34] patch status to AWS systems manager
+[14:37] openter center to generate patch
+[14:38] compliance reports. This question tests
+[14:40] your knowledge of management and
+[14:42] governance. Domain one specifically
+[14:45] focusing on hybrid cloud operations and
+[14:47] patch management. The core requirement
+[14:49] is single pane of glass management. You
+[14:52] have a heterogeneous environment on
+[14:54] premises plus EC2 and currently use a
+[14:58] variety of tools. You need to
+[15:00] consolidate this into one unified
+[15:02] workflow for both execution, patching
+[15:05] and reporting compliance. Option A, use
+[15:09] AWS systems manager SSM patch manager is
+[15:14] the correct answer. This is the native
+[15:16] dedicated service for this exact
+[15:18] requirement. Unified Management AWS
+[15:21] Systems Manager Agent SSM agent can be
+[15:25] installed on both Amazon EC2 instances
+[15:28] and on premises servers via hybrid
+[15:31] activations. This allows you to treat
+[15:33] them as a single fleet of managed
+[15:35] instances. Patch manager. This specific
+[15:39] capability within SSM allows you to
+[15:41] define patch baselines, rules for which
+[15:44] updates to approve, and apply them
+[15:46] across your entire fleet, regardless of
+[15:48] where the server physically resides.
+[15:50] Reporting. SSM automatically collects
+[15:53] inventory and patch data. It provides
+[15:56] built-in compliance reports that show
+[15:58] exactly which instances are compliant or
+[16:00] non-compliant with your baselines,
+[16:02] satisfying the requirement for a single
+[16:04] report. Option B, use AWS Ops Works and
+[16:08] Quicksite is incorrect. Obsolescence.
+[16:11] AWS Opsworks is a configuration
+[16:14] management service based on Chef/Puppet.
+[16:17] While it can run scripts to patch
+[16:18] servers, it is not a purpose-built patch
+[16:21] management solution like SSM patch
+[16:23] manager. It requires significantly more
+[16:26] overhead to write custom
+[16:27] overhead to write custom recipes/manifests
+[16:29] for patching. Reporting complexity. Ops
+[16:32] works does not natively output patch
+[16:34] compliance reports in the standardized
+[16:36] way management likely wants. Integrating
+[16:39] it with Quicksite would require building
+[16:40] a custom data pipeline, extract logs,
+[16:44] S3- Athena-quicksite,
+[16:47] which is high operational overhead
+[16:49] compared to SSM's built-in reporting.
+[16:51] Option C, use event bridge and Amazon
+[16:54] inspector is incorrect. Tool mismatch.
+[16:57] Amazon inspector is primarily a
+[16:59] vulnerability scanner. finding CVEes.
+[17:02] While Inspector Classic and the new
+[17:04] Inspector can detect missing patches, it
+[17:07] is a detective tool, not a remediation
+[17:10] tool. It does not apply patches itself.
+[17:13] Fragmented solution. Using EventBridge
+[17:15] to trigger SSM jobs is a valid
+[17:18] automation step, but relying on
+[17:20] Inspector for the reporting creates a
+[17:21] disjointed workflow compared to using
+[17:23] SSM for both the action and the
+[17:26] reporting. Furthermore, Inspector
+[17:28] support for on premises agents has
+[17:30] varied over time. Inspector Classic
+[17:32] versus V2, whereas SSM is the definitive
+[17:36] tool for hybrid management. Option D,
+[17:38] use AWS Ops works and AWS X-Ray is
+[17:42] incorrect. Wrong tool. AWS X-Ray is a
+[17:46] distributed tracing tool for debugging
+[17:48] application performance. Latency errors.
+[17:52] It has absolutely nothing to do with OS
+[17:54] level patch management or compliance
+[17:56] reporting. It cannot read the Windows
+[17:58] registry or Linux package manager to
+[18:01] determine patch status. Therefore, the
+[18:03] correct solution is a question 125.
+[18:07] Company is expanding. The company plans
+[18:10] to separate its resources into hundreds
+[18:12] of different AWS accounts in multiple
+[18:15] AWS regions. A solutions architect must
+[18:18] recommend a solution that denies access
+[18:20] to any operations outside of
+[18:22] specifically designated regions. Which
+[18:24] solution will meet these requirements?
+[18:27] A. Create IM roles for each account.
+[18:30] Create IM policies with conditional
+[18:33] allow permissions that include only
+[18:35] approved regions for the accounts. B.
+[18:38] Create an organization in AWS
+[18:41] organizations. Create IM users for each
+[18:44] account. Attach a policy to each user to
+[18:46] block access to regions where an account
+[18:49] cannot deploy infrastructure. C. Launch
+[18:52] an AWS control tower landing zone.
+[18:55] Create O use and attach SCPs that deny
+[18:58] access to run services outside of the
+[19:00] approved regions. D. Enable AWS security
+[19:05] hub in each account. Create content
+[19:07] trolls to specify the regions where an
+[19:10] account can deploy infrastructure. This
+[19:12] question tests your knowledge of
+[19:13] management and governance. Domain one
+[19:16] specifically specifically focusing on
+[19:18] multi-account governance and region
+[19:20] denial strategies. The key constraints
+[19:23] are scale hundreds of different AWS
+[19:26] accounts. Governance, deny access to any
+[19:30] operations outside of specifically
+[19:32] designated regions. To solve this, we
+[19:35] need a centralized governance tool that
+[19:37] can apply a preventative guardrail
+[19:39] across the entire organization without
+[19:41] needing to touch each account
+[19:42] individually. Option C, launch AWS
+[19:45] control tower and attach SCPs is the
+[19:48] correct answer. This is the standard
+[19:51] best practice solution for setting up
+[19:53] and governing a multi-account
+[19:55] environment. AWS control tower. This
+[19:58] service automates the setup of a secure
+[20:00] landing zone based on AWS organizations
+[20:04] best practices. It simplifies the
+[20:06] creation and management of hundreds of
+[20:08] accounts. Region deny guardrail control
+[20:11] tower provides a preconfigured region
+[20:14] deny guardrail which is implemented as a
+[20:16] service control policy or SCP
+[20:19] preventative control. By applying this
+[20:21] SCP to an organizational unit OU, you
+[20:25] effectively block any API call made to a
+[20:28] non-approved region for every account in
+[20:30] that OU. Even the root user of a member
+[20:32] account cannot bypass this restriction.
+[20:35] This meets the requirement perfectly
+[20:37] with minimal operational overhead.
+[20:39] Option A, create IM roles for each
+[20:42] account is incorrect. Operational
+[20:44] nightmare. Managing individual IM roles
+[20:47] and policies across hundreds of accounts
+[20:50] is not scalable. You would have to
+[20:53] ensure every single role in every
+[20:55] account has this specific condition. If
+[20:57] a user creates a new role and forgets
+[20:59] the condition, the protection is lost,
+[21:02] not a hard boundary. IM policies apply
+[21:05] to principles users/rolls.
+[21:08] They do not set a hard boundary on the
+[21:10] account itself. An SCP is superior
+[21:13] because it sets the maximum available
+[21:15] permissions for the entire account.
+[21:17] Option B, create IM users for each
+[21:20] account is incorrect. Bad practice using
+[21:23] IM users long-term credentials is
+[21:26] generally discouraged in favor of
+[21:28] federation SSO scale. Just like option
+[21:32] A, creating and managing individual
+[21:35] users and attaching policies in hundreds
+[21:37] of accounts is manually intensive and
+[21:39] prone to error. It does not provide
+[21:42] centralized control. Option D, enable
+[21:45] AWS security hub is incorrect. Mechanism
+[21:49] AWS security hub is a detective service
+[21:52] monitoring. It can scan your environment
+[21:54] and alert you if resources are deployed
+[21:57] in the wrong region. Compliance check,
+[21:59] but it cannot prevent the operation from
+[22:01] happening in real time. The requirement
+[22:03] is to deny access, which requires a
+[22:06] preventative control SCP, not a
+[22:09] detective one. Therefore, the correct
+[22:11] solution is C. Question 126. A company
+[22:15] is using AWS organizations to manage
+[22:18] multiple accounts. Due to regulatory
+[22:21] requirements, the company wants to
+[22:23] restrict specific member accounts to
+[22:25] certain AWS regions where they are
+[22:27] permitted to deploy resources. The
+[22:30] resources in the accounts must be
+[22:31] tagged, enforced based on a group
+[22:34] standard, and centrally managed with
+[22:36] minimal configuration. What should a
+[22:38] solutions architect do to meet these
+[22:40] requirements? A. Create an AWS config
+[22:44] rule in the specific member accounts to
+[22:46] limit regions and apply a tag policy. B.
+[22:50] From the AWS billing and cost management
+[22:53] console in the management account,
+[22:55] disable regions for the specific member
+[22:57] accounts and apply a tag policy on the
+[22:59] root. C. Associate the specific member
+[23:02] accounts with the root. Apply a tag
+[23:05] policy and an SCP using conditions to
+[23:07] limit regions. D. Associate the specific
+[23:11] member accounts with a new OU. Apply a
+[23:14] tag policy and an SCP using conditions
+[23:17] to limit regions. This question tests
+[23:19] your knowledge of management and
+[23:20] governance. Domain one specifically
+[23:23] leveraging AWS organizations features
+[23:26] like organizational units O use service
+[23:29] control policies SCPs and tag policies
+[23:33] for centralized governance. T18 he
+[23:36] requirements are targeting specific
+[23:38] accounts. The restrictions apply only to
+[23:41] specific member accounts not the entire
+[23:44] organization. Preventative control
+[23:47] restrict deployment to certain regions.
+[23:49] governance enforce tagging standards.
+[23:52] Option D, associate accounts with a new
+[23:54] OU and apply policies is the correct
+[23:57] answer. This solution uses the
+[23:59] hierarchical power of AWS organizations
+[24:02] to apply governance efficiently.
+[24:04] Organizational unit OU creating a
+[24:07] dedicated OU groups the specific member
+[24:10] accounts together. This allows you to
+[24:12] apply policies once to the container the
+[24:15] OU rather than attaching them to every
+[24:18] individual account satisfying the
+[24:20] minimal configuration requirement. SCP
+[24:23] service control policy. You can attach
+[24:25] an SCP to this OU that includes a deny
+[24:28] statement with a condition eg string not
+[24:31] equals AWS requested region us
+[24:37] one us
+[24:39] two. This strictly prevents resource
+[24:42] deployment in unauthorized regions. Tag
+[24:45] policy. You can attach a tag policy to
+[24:48] the OU to define and enforce
+[24:50] standardized tags. Eg. capitalization
+[24:54] allowed values for resources created by
+[24:56] accounts in that group. Option A. Create
+[24:59] an AWS config rule in specific accounts
+[25:02] is incorrect. Decentralized. Creating
+[25:05] rules in the specific member accounts
+[25:07] implies logging into each account
+[25:09] individually or using stack sets which
+[25:12] has higher overhead than applying a
+[25:13] policy to an OU. Detective versus
+[25:16] preventative. While AWS config can
+[25:19] detect if a resource is in the wrong
+[25:21] region or missing a tag remediation. It
+[25:24] is generally a detective control. An SCP
+[25:27] is a stronger preventative control that
+[25:29] stops the API call before the resource
+[25:31] is even created. Option B, disable
+[25:34] regions in billing console is incorrect
+[25:37] mechanism. While you can enable slash
+[25:39] disable opt-in regions like Hong Kong or
+[25:42] Milan via the account settings, you
+[25:45] generally cannot disable standard
+[25:46] regions like US East one or EU West one
+[25:51] through the billing console for member
+[25:53] accounts in a granular way that acts as
+[25:55] a permission boundary. Tag policy
+[25:57] location. Tag policies are features of
+[26:00] AWS organizations applied to O use or
+[26:03] roots not configured via the billing
+[26:06] console settings. Option C, associate
+[26:09] accounts with the root is incorrect.
+[26:11] Blast radius. The root contains all
+[26:14] accounts in the organization. If you
+[26:16] apply a restrictive region SCP to the
+[26:19] root, you block every account, including
+[26:21] the management account and other
+[26:22] unaffected teams from deploying to other
+[26:25] regions. The requirement specifically
+[26:27] targets specific member accounts. So you
+[26:30] must isolate them in their own U. Option
+[26:32] D to avoid impacting the rest of the
+[26:35] company. Therefore, the correct solution
+[26:37] is D. Question 127. An e-commerce
+[26:41] company is revamping its IT
+[26:43] infrastructure and is planning to use
+[26:46] AWS services. The company's CIO has
+[26:48] asked a solutions architect to design a
+[26:51] simple, highly available and loosely
+[26:54] coupled order processing application.
+[26:56] The application is responsible for
+[26:58] receiving and processing orders before
+[27:00] storing them in an Amazon Dynamo DB
+[27:02] table. The application has a sporadic
+[27:05] traffic pattern and should be able to
+[27:06] scale during marketing campaigns to
+[27:08] process the orders with minimal delays.
+[27:11] Which of the following is the most
+[27:12] reliable approach to meet the
+[27:14] requirements? A, receive the orders in
+[27:18] an Amazon EC2 hosted database and use
+[27:20] EC2 instances to process them. B,
+[27:24] receive the orders in an Amazon SQSQ and
+[27:27] invoke an AWS Lambda function to process
+[27:29] them. C. Receive the orders using the
+[27:33] AWS Step Functions program and launch an
+[27:36] Amazon ECS container to process them. D.
+[27:40] Receive the orders in Amazon Kinesis
+[27:42] data streams and use Amazon EC2
+[27:44] instances to process them. This question
+[27:47] tests your knowledge of application
+[27:48] integration, domain 3 and serverless
+[27:52] architectures. The goal is to design a
+[27:54] system that handles sporadic traffic and
+[27:57] enforces loose coupling between the
+[27:59] order ingestion and processing
+[28:01] components. The key requirements are
+[28:04] loosely coupled. The receiving component
+[28:06] should not break if the processing
+[28:08] component is slow or down. Sporadic
+[28:11] component is slow or down. Sporadic traffic/scaling.
+[28:12] The system must handle zero traffic and
+[28:15] sudden massive spikes. Marketing
+[28:17] campaigns without manual intervention.
+[28:20] Simple and highly available. Minimize
+[28:22] infrastructure management. Serverless.
+[28:25] Option B. Receive orders in SQS and
+[28:28] invoke Lambda is the correct answer.
+[28:30] This is the classic serverless async
+[28:33] processing pattern designed exactly for
+[28:35] this use case. Amazon SQS loose
+[28:38] coupling. The Q acts as a durable
+[28:40] buffer. When orders spike during a
+[28:42] marketing campaign, SQS absorbs the
+[28:45] volume immediately without crashing. The
+[28:47] receiving tier eg API gateway simply
+[28:52] drops the message in the queue and
+[28:53] returns success to the user. This
+[28:56] decouples the ingestion from the
+[28:57] processing speed. AWS Lambda sporadic
+[29:01] scaling Lambda functions are
+[29:03] eventdriven. They scale automatically
+[29:05] based on the number of messages in the
+[29:07] queue. If there are no orders, you pay
+[29:10] nothing. If there are 10,000 orders, AWS
+[29:13] spins up 10,000 concurrent Lambda
+[29:15] executions within account limits to
+[29:18] process them in parallel with minimal
+[29:20] delay. This meets the sporadic traffic
+[29:22] and simple requirements perfectly.
+[29:25] Option A, EC2 hosted database and EC2
+[29:28] processing is incorrect. Tight coupling.
+[29:32] Receiving orders directly into a
+[29:34] database, especially one hosted on EC2,
+[29:38] creates a bottleneck. If the DB locks up
+[29:40] under load, the checkout process fails
+[29:43] for the customer. Operational overhead.
+[29:46] Hosting a database on EC2 requires
+[29:48] manual management, patching, backups,
+[29:52] scaling. Using EC2 for processing
+[29:55] requires configuring autoscaling groups
+[29:57] to handle the sporadic spikes, which is
+[29:59] slower to react than Lambda. Option C,
+[30:02] AWS Step Functions and Amazon ECS is
+[30:06] incorrect. Wrong tool for ingestion. AWS
+[30:10] Step Functions is a workflow
+[30:11] orchestrator, not a high throughput
+[30:14] ingestion buffer. While it can be used,
+[30:16] standard practice for high volume order
+[30:18] ingestion is to buffer in SQS first to
+[30:21] ensure durability. Complexity managing
+[30:24] Amazon ECS containers involves more
+[30:27] configuration, cluster capacity, service
+[30:30] definitions, task definitions compared
+[30:33] to the simple native code execution of
+[30:35] Lambda. Option D, Amazon Kinesis data
+[30:38] streams and EC2 is incorrect. Use case
+[30:42] mismatch. Kinesis data streams is
+[30:44] designed for real-time analytics and
+[30:46] ordered log data eg click streams IoT
+[30:50] telemetry. While it can process orders,
+[30:53] it introduces complexity around sharding
+[30:56] manual scaling of stream capacity which
+[30:59] is harder to manage during sporadic
+[31:00] spikes compared to SQS which scales
+[31:03] practically infinitely without
+[31:05] configuration. EC2 as noted in option A
+[31:09] using EC2 consumers requires managing
+[31:11] autoscaling groups which adds
+[31:13] operational overhead compared to Lambda.
+[31:16] Therefore, the correct solution is B.
+[31:19] Question 128. A company used Amazon EC2
+[31:23] instances to deploy a web fleet to host
+[31:25] a blog site. The EC2 instances are
+[31:28] behind an application load balancer ALB
+[31:31] and are configured in an autoscaling
+[31:33] group. The web application stores all
+[31:35] blog content on an Amazon EFS volume.
+[31:38] The company recently added a feature for
+[31:40] bloggers to add video to their posts,
+[31:43] attracting 10 times the previous user
+[31:45] traffic. At peak times of day, users
+[31:48] report buffering and timeout issues
+[31:50] while attempting to reach the site or
+[31:52] watch videos, which is the most
+[31:54] costefficient and scalable deployment
+[31:56] that will resolve the issues for users.
+[31:59] Reconfigure Amazon EFS to enable maximum
+[32:02] IO. B. Update the blog site to use
+[32:06] instance store volumes for storage. Copy
+[32:09] the S16ite contents to the volumes at
+[32:11] launch and to Amazon S3 at shutdown. C.
+[32:15] Configure an Amazon CloudFront
+[32:17] distribution. Point the distribution to
+[32:19] an S3 bucket and migrate the videos from
+[32:22] EFS to Amazon S3. D. Set up an Amazon
+[32:27] CloudFront distribution for all site
+[32:29] contents and point the distribution at
+[32:31] the ALB. This question tests your
+[32:33] knowledge of storage performance domain
+[32:36] 2 and content delivery strategies. The
+[32:39] scenario describes a classic bottleneck
+[32:42] using a file system EFS to serve high
+[32:45] bandwidth static media videos to a
+[32:48] massive audience. The problem, Amazon
+[32:50] EFS is designed for shared file access,
+[32:53] NFS, not for high throughput media
+[32:56] streaming to thousands of concurrent
+[32:58] internet users. The buffering and
+[33:00] timeout issues are caused by EFS hitting
+[33:02] its throughput limits or EC2 instances
+[33:05] saturating their network bandwidth
+[33:06] trying to serve these heavy video files.
+[33:09] The goal, offload this traffic to a
+[33:12] service designed for static content
+[33:13] delivery at scale. Option C, migrate
+[33:16] videos to S3 and use CloudFront is the
+[33:19] correct answer. This is the standard
+[33:21] architectural pattern for serving static
+[33:23] media, images, videos cost effectively
+[33:27] storage. Amazon S3 moving videos from
+[33:30] EFS to Amazon S3 is significantly
+[33:33] cheaper and more durable. S3 is
+[33:35] practically infinitely scalable for
+[33:37] storage delivery. Amazon CloudFront
+[33:40] CloudFront is a content delivery network
+[33:42] CDN that caches content at edge
+[33:45] locations closer to the users. This
+[33:48] eliminates buffering by delivering video
+[33:50] from a local server rather than the
+[33:52] origin. Offloading by serving the heavy
+[33:55] video traffic directly from
+[33:56] video traffic directly from S3/Cloudfront.
+[33:58] You remove the load from your EC2
+[34:00] instances and EFS. Your web servers now
+[34:03] only handle the lightweight HTML/PHP
+[34:06] traffic, resolving the timeouts. Option
+[34:09] A, reconfigure EFS to max IO is
+[34:13] incorrect. Cost and efficiency. While
+[34:16] max IO mode increases throughput, it
+[34:18] comes with higher latency for file
+[34:20] operations. More importantly, serving
+[34:23] video traffic through EC2 plus EFS is
+[34:26] architecturally inefficient. You are
+[34:28] paying for expensive EC2 compute and
+[34:30] expensive EFS storage throughput just to
+[34:32] act as a file server. Whereas S3 plus
+[34:35] CloudFront is purpose-built and cheaper
+[34:37] for this use case. Option B, use
+[34:39] instance store volumes is incorrect.
+[34:42] Complexity and risk. Instance store is
+[34:45] ephemeral temporary. If an instance
+[34:48] stops or fails, the data is lost.
+[34:50] Creating a mechanism to copy data from
+[34:52] S3 at launch and back at shutdown is
+[34:54] fragile and complex to synchronize
+[34:56] across an autoscaling fleet. Eg.
+[34:59] handling new video uploads creates a
+[35:02] huge risk of data loss. Option D.
+[35:05] CloudFront distribution pointing at the
+[35:07] ALB is incorrect. Partial solution.
+[35:10] While putting CloudFront in front of the
+[35:12] ALB helps cache content, it leaves the
+[35:15] heavy video files stored on EFS. The
+[35:18] bottleneck remains when there is a cache
+[35:20] miss or for dynamic content. Cloudfront
+[35:23] still has to fetch the video from the
+[35:25] still has to fetch the video from the EC2FS
+[35:27] backend. This implies the EC2 instances
+[35:30] still need to mount EFS and read heavy
+[35:32] video files to serve them to CloudFront.
+[35:34] Option C is superior because it
+[35:36] completely decouples the heavy video
+[35:38] storage from the compute layer by moving
+[35:40] it to S3 which natively integrates with
+[35:42] CloudFront as a high performance origin.
+[35:45] Therefore, the correct solution is C.
+[35:48] Question 129. A company is running a
+[35:51] compute workload by using Amazon EC2
+[35:54] spot instances that are in an
+[35:55] autoscaling group. The launch template
+[35:58] uses two placement groups and a single
+[36:00] instance type. Recently, a monitoring
+[36:03] system reported autoscaling instance
+[36:05] launch failures that correlated with
+[36:07] longer wait times for system users. The
+[36:10] company needs to improve the overall
+[36:12] reliability of the workload. Which
+[36:14] solution will meet this requirement? A.
+[36:18] Replace the launch template with a
+[36:19] launch configuration to use an
+[36:21] autoscaling group that uses
+[36:23] attribute-based instance type selection.
+[36:25] B. Create a new launch template version
+[36:28] that uses attribute-based instance type
+[36:30] selection. Configure the autoscaling
+[36:33] group to use the new launch template
+[36:35] version. C. Update the launch template
+[36:38] autoscaling group to increase the number
+[36:40] of placement groups. D. Update the
+[36:44] launch template to use a larger instance
+[36:46] type. This question tests your knowledge
+[36:48] of reliability, domain 2, and EC2
+[36:51] autoscaling optimization, particularly
+[36:53] regarding the best practices for using
+[36:55] spot instances. The core issue described
+[36:58] is a lack of flexibility. The
+[37:00] configuration currently relies on a
+[37:03] single instance type. The root cause,
+[37:06] spot instance availability fluctuates
+[37:08] based on AWS spare capacity. If your
+[37:11] autoscaling group ASG is hardcoded to
+[37:14] request only one specific type eg
+[37:17] m5.large and AWS runs out of that
+[37:20] specific capacity in that availability
+[37:22] zone, you will experience launch
+[37:24] failures. This directly leads to the
+[37:27] reported system delays. The solution,
+[37:30] you must diversify the pool of instance
+[37:32] types the ASG is allowed to use. Option
+[37:35] B, use attribute-based instance type
+[37:38] selection in the launch template. is the
+[37:40] correct answer 56. This is the modern
+[37:44] most powerful feature for solving spot
+[37:46] capacity constraints. The mechanism
+[37:49] instead of rigid requirements eg must be
+[37:52] instead of rigid requirements eg must be C5.Large
+[37:54] you define hardware attributes eg I need
+[37:57] an instance with two vCPUs and 4 GB of
+[38:00] RAM. The result, the autoscaling group
+[38:03] automatically scans the entire AWS
+[38:06] inventory, C5, M5, T3, C4, etc. to
+[38:12] identify every instance type that meets
+[38:14] your criteria. This expands your
+[38:16] potential spot pool from a single type
+[38:19] to potentially dozens of types. The
+[38:22] statistical probability of all those
+[38:24] instance types running out of capacity
+[38:26] simultaneously is near zero,
+[38:28] significantly increasing reliability.
+[38:30] Option A, use a launch configuration is
+[38:33] incorrect. Legacy technology launch
+[38:36] configurations are deprecated. AWS
+[38:39] strongly recommends using launch
+[38:41] templates for all new workloads. Feature
+[38:44] parody. Launch configurations do not
+[38:46] support advanced features like
+[38:48] attribute-based instance type selection
+[38:50] or flexible mixed instance policies in
+[38:52] the same way launch templates do. Option
+[38:55] C, increase the number of placement
+[38:57] groups is incorrect. Counterproductive
+[39:00] placement groups, especially cluster
+[39:02] groups, are used to pack instances
+[39:05] physically close together for network
+[39:06] performance. However, imposing strict
+[39:09] physical location constraints makes it
+[39:11] harder for AWS to find spare spot
+[39:13] capacity, not easier. Adding more
+[39:16] placement group constraints would likely
+[39:18] increase the rate of launch failures.
+[39:21] Option D, use a larger instance type is
+[39:24] incorrect. Fails to solve the root
+[39:26] cause. Switching from one specific type
+[39:29] eg m5.large
+[39:31] to another specific type eg m5.large
+[39:36] simply shifts the single point of
+[39:38] failure. If AWS runs out of the larger
+[39:40] instance type, you will face the exact
+[39:43] same problem. The key to spot
+[39:45] reliability is diversity, not sizing.
+[39:48] Therefore, the correct solution is B.
+[39:51] Question 130. A financial services
+[39:54] company loaded millions of historical
+[39:56] stock trades into an Amazon Dynamob
+[39:59] table. The table uses on demand capacity
+[40:02] mode. Once each day at midnight, a few
+[40:05] million new records are loaded into the
+[40:07] table. Application read activity against
+[40:10] the table happens in bursts throughout
+[40:12] the day and a limited set of keys are
+[40:15] repeatedly looked up. The company needs
+[40:17] to reduce costs associated with Dynamo
+[40:20] DB. Which strategy should a solutions
+[40:22] architect recommend to meet this
+[40:24] requirement? A. Deploy an Amazon elastic
+[40:29] cluster in front of the Dynamob table.
+[40:32] B. Deploy DynamoB accelerator DAX.
+[40:36] Configure DynamoB autoscaling. Purchase
+[40:39] savings plans in cost explorer. C. Use
+[40:44] provisioned capacity mode. Purchase
+[40:46] savings plans in cost explorer. D.
+[40:50] Deploy DynamoB accelerator DAX. Use
+[40:54] provisioned capacity mode. Configure
+[40:56] DynamoB autoscaling. This question tests
+[40:59] your knowledge of cost optimization,
+[41:01] domain 3, and database performance.
+[41:04] Specifically focusing on tuning Amazon
+[41:06] DynamoB for predictable high-volume
+[41:09] workloads. The scenario highlights three
+[41:11] key cost drivers that need optimization.
+[41:14] Read pattern. Limited set of keys are
+[41:17] repeatedly looked up. Hot keys. Write
+[41:20] pattern once each day at midnight.
+[41:23] Millions of new records. Predictable
+[41:26] spike. Capacity mode. Currently using on
+[41:29] demand which is the most expensive per
+[41:31] request pricing model. Suitable for
+[41:34] unpredictable traffic but wasteful for
+[41:36] predictable bursts. Option D. Deploy DAX
+[41:39] use provision capacity and configure
+[41:41] autoscaling is the correct answer. This
+[41:44] combination addresses every cost
+[41:46] inefficiency mentioned. DAX Dynamob
+[41:50] accelerator for the limited set of keys
+[41:52] repeatedly looked up. DAX is the perfect
+[41:55] solution. It is a fully managed
+[41:57] in-memory cache for Dynamo DB. Instead
+[42:00] of paying for a read capacity unit RCU,
+[42:03] every time you fetch the same hotkey,
+[42:05] DAX serves it from memory microsconds
+[42:07] latency at a fraction of the cost. This
+[42:10] drastically reduces the RCU consumption
+[42:13] on the main table. Provisioned capacity
+[42:15] mode. The current ondemand mode is
+[42:18] convenient but expensive. $125 per
+[42:22] million rights since the workload has a
+[42:24] predictable pattern. Daily midnight
+[42:26] loads. Switching to provisioned capacity
+[42:29] allows you to pay a significantly lower
+[42:31] hourly rate. Approximate 5-7x cheaper
+[42:34] for steady state. Autoscaling. This
+[42:37] handles the bursts throughout the day
+[42:39] and the midnight right spike. When the
+[42:41] midnight load starts, autoscaling
+[42:44] increases the right capacity units WCU.
+[42:48] When it finishes, it scales down. This
+[42:50] creates a costefficient curve that
+[42:52] matches demand without paying the
+[42:54] premium on demand rates. Option A,
+[42:57] deploy Amazon Elastic is incorrect.
+[43:00] Operational overhead. While elastic
+[43:03] cache can cache DynamoB data, it
+[43:05] requires significant code changes,
+[43:08] application side caching to manage cache
+[43:10] invalidation and population look aside
+[43:13] pattern. DAX is API compatible with
+[43:15] Dynamob write through/read through
+[43:19] meaning you just point your application
+[43:20] to the DAX endpoint with zero code
+[43:23] rewrite. Missing features, this option
+[43:26] does not address the expensive ondemand
+[43:28] capacity mode setting. you would still
+[43:30] be overpaying for the database
+[43:32] throughput itself. Option B, DAX plus
+[43:35] autoscaling plus savings plans is
+[43:38] incorrect. Mode mismatch. This option
+[43:41] misses the critical step of switching to
+[43:43] provisioned capacity. Savings plans
+[43:46] compute savings plans apply to EC2,
+[43:49] Fargate and Lambda. They do not apply to
+[43:52] DynamoB on demand or provision
+[43:55] throughput. Dynamo DB reserved capacity
+[43:58] often confused with savings plans
+[44:01] requires you to commit to a specific
+[44:02] unit of provisioned capacity. You cannot
+[44:05] buy a reservation for ondemand usage.
+[44:08] Nor can you buy a generic savings plan
+[44:10] for Dynamo DB in the way this option
+[44:12] implies. Option C provisioned capacity
+[44:15] plus savings plans is incorrect. Missing
+[44:19] cash. This ignores the repeatedly looked
+[44:21] up keys optimization. Without a cache
+[44:24] DAX, you are still paying full price for
+[44:27] every single read of those hot keys,
+[44:30] which is inefficient. Pricing model
+[44:32] error. As noted in option B, purchase
+[44:35] savings plans is the wrong terminology
+[44:37] for Dynamo DB cost optimization. You
+[44:40] would purchase reserved capacity. And
+[44:42] even then, without DAX, you aren't
+[44:44] solving the read heavy cost issue
+[44:46] effectively. Therefore, the correct
+[44:48] solution is D. And that wraps up our 10
+[44:51] questions for today. If you found this
+[44:53] breakdown helpful, please share it with
+[44:56] your friends and colleagues who share
+[44:57] the goal of conquering the AWS SAP C02
+[45:02] certification. Let's build a strong
+[45:04] collaborative learning community
+[45:06] together. Make sure to join me in the
+[45:08] next video for our next set of
+[45:10] questions. Happy learning.

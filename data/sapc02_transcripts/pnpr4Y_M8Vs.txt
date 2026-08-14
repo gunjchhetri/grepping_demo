@@ -1,0 +1,1185 @@
+[0:00] Hello everyone, I'm Lee and welcome back
+[0:03] to our SAPC02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder, if
+[0:12] these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via super thanks. It's never expected,
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 41. A company is
+[0:27] planning to migrate its on- premises
+[0:29] VMware cluster of 120 VMs to AWS. The
+[0:33] VMs have many different operating
+[0:35] systems and many custom software
+[0:37] packages installed. The company also has
+[0:39] an on- premises NFS server that is 10
+[0:42] terabytes in size. The company has set
+[0:44] up a 10 Gbits per second AWS Direct
+[0:47] Connect connection to AWS for the
+[0:49] migration. Which solution will complete
+[0:52] the migration to AWS in the least amount
+[0:54] of time? A. Export the on- premises VMs
+[0:58] and copy them to an Amazon S3 bucket.
+[1:01] Use VM import. Export to create AMIs
+[1:04] from the VM images that are stored in
+[1:06] Amazon S3. Order an AWS Snowball Edge
+[1:10] device. Copy the NFS server data to the
+[1:13] device. Restore the NFS server data to
+[1:16] an Amazon EC2 instance that has NFS
+[1:19] configured. B. Configure AWS application
+[1:23] migration service with a connection to
+[1:25] the VMware cluster. Create a replication
+[1:28] job for the VMS. Create an Amazon
+[1:31] elastic file system. Amazon EFS file
+[1:35] system. Configure AWS data sync to copy
+[1:38] the NFS server data to the EFS file
+[1:40] system over the direct connect
+[1:42] connection. C. Recreate the VMs on AWS
+[1:46] as Amazon EC2 instances. Install all the
+[1:50] required software packages. Create an
+[1:53] Amazon FSX for Luster file system.
+[1:56] Configure AWS data sync to copy the NFS
+[1:59] server data to the FSX for Lustre file
+[2:01] system over the direct connect
+[2:03] connection. D. Order two AWS Snowball
+[2:07] Edge devices. Copy the VMs and the NFS
+[2:10] server data to the devices. Run VM
+[2:13] import. Export after the data from the
+[2:15] devices is loaded to an Amazon S3
+[2:18] bucket. Create an Amazon Elastic file
+[2:21] system. Amazon EFS file system. Copy the
+[2:25] NFS server data from Amazon S3 to the
+[2:28] EFS file system. All right. To find the
+[2:30] solution for the least amount of time,
+[2:33] we need to find the fastest migration
+[2:35] method for both the 120 VMs and the 10
+[2:37] TB NFS server. A critical piece of
+[2:40] information is the existing 10 Gbits per
+[2:43] second direct connect connection. This
+[2:45] high-speed dedicated link is our primary
+[2:48] asset. A 10 Gbits per second link can
+[2:51] theoretically transfer 10 terab of data
+[2:53] in just a few hours. Any solution
+[2:56] involving an offline device like AWS
+[2:58] Snowball will take days for shipping and
+[3:00] handling, making it a much slower
+[3:02] option. Therefore, we should look for a
+[3:05] solution that utilizes the network
+[3:07] connection. Let's evaluate the options
+[3:09] based on this.
+[3:11] Use VM import export order and AWS
+[3:15] Snowball Edge device. This option is
+[3:18] incorrect because it's slow in two ways.
+[3:21] First, VM import export is a dated and
+[3:24] time-conuming process for migrating VMs.
+[3:27] Second, as we just established,
+[3:28] ordering, loading, and shipping a
+[3:30] Snowball device is significantly slower
+[3:32] than transferring 10 terabytes over an
+[3:34] existing 10 GBs per second link. B.
+[3:38] Configure AWS application migration
+[3:41] service. Configure AWS data sync over
+[3:44] the direct connect connection. This is
+[3:47] the correct answer. It combines the
+[3:49] fastest purpose-built AWS service for
+[3:52] each part of the migration. VM's AWS
+[3:56] application migration service. MGN is
+[4:00] the go-to service for fast lift and
+[4:02] shift VM migrations. It performs
+[4:05] continuous block level replication of
+[4:07] the source VMs to a lowcost staging
+[4:10] area. This allows the VMs to be launched
+[4:12] on AWS with a cut over window of just
+[4:15] minutes which is the fastest possible
+[4:17] method. NFS data Amazon EFS is the
+[4:21] correct target as it's the managed NFS
+[4:24] compatible service. AWS data sync is a
+[4:27] service designed to accelerate data
+[4:29] transfers over a network. Using data
+[4:32] sync over the 10 Gbits per second direct
+[4:34] connect link is the fastest way to move
+[4:36] the 10 terabytes of file data. C.
+[4:39] Recreate the VMs on AWS. Install all the
+[4:43] required software packages. This is
+[4:46] incorrect because it would be the
+[4:47] slowest possible method for the VMs. The
+[4:50] problem states the VMs have many custom
+[4:53] software packages. Manually rebuilding
+[4:56] 120 complex VMs would be a massive
+[4:59] time-consuming rearchitecture project,
+[5:01] not a fast migration. D. Order two AWS
+[5:05] Snowball Edge devices. This option is
+[5:08] incorrect for the same reason as option
+[5:10] A. It relies on the offline snowball
+[5:13] process, which is far slower than using
+[5:15] the 10 Gbits per second direct connect
+[5:17] link that is already in place. This
+[5:19] entire path VMs and data would be
+[5:22] bottlenecked by physical shipping
+[5:24] logistics directly violating the least
+[5:26] amount of time requirement. Therefore,
+[5:29] the correct solution is B. It uses AWS
+[5:32] application migration service MGN for
+[5:35] the fastest possible VM cut over and AWS
+[5:38] data sync over the existing 10 Gbits per
+[5:41] second direct connect for the fastest
+[5:43] possible transfer of the file data.
+[5:45] Question 42. A company wants to migrate
+[5:48] to AWS. The company is running thousands
+[5:51] of VMs in a VMware ESG environment. The
+[5:55] company has no configuration management
+[5:57] database and has little knowledge about
+[5:59] the utilization of the VMware portfolio.
+[6:01] A solution's architect must provide the
+[6:04] company with an accurate inventory so
+[6:06] that the company can plan for a
+[6:07] cost-effective migration. Which solution
+[6:10] will meet these requirements with the
+[6:12] least operational overhead? A use AWS
+[6:15] systems manager patch manager to deploy
+[6:18] migration evaluator to each VM. Review
+[6:21] the collected data in Amazon Quicksite.
+[6:24] Identify servers that have high
+[6:26] utilization. Remove the servers that
+[6:29] have high utilization from the migration
+[6:31] list. Import the data to AWS migration
+[6:34] hub. B. Export the VMware portfolio to a
+[6:39] CSV file. Check the disk utilization for
+[6:42] each server. Remove servers that have
+[6:45] high utilization. Export the data to AWS
+[6:48] application migration service. Use AWS
+[6:52] server migration service AWS SMS to
+[6:56] migrate the remaining servers. C. Deploy
+[7:00] the migration evaluator agentless
+[7:02] collector to the ESG hypervisor. Review
+[7:05] the collected data in migration
+[7:07] evaluator. Identify inactive servers.
+[7:10] Remove the inactive servers from the
+[7:12] migration list. Import the data to AWS
+[7:16] migration hub. D. Deploy the AWS
+[7:20] application migration service agent to
+[7:22] each VM. When the data is collected, use
+[7:25] Amazon Redshift to import and analyze
+[7:27] the data. Use Amazon Quicksite for data
+[7:30] visualization. All right. This question
+[7:32] is about choosing the right AWS tools
+[7:35] and strategy for large-scale discovery
+[7:37] and assessment of an on- premises VMware
+[7:39] environment focusing on minimizing
+[7:41] effort. The key challenges are the lack
+[7:44] of existing inventory/utilization
+[7:46] data and the large number of VMs. Least
+[7:49] operational overhead strongly points
+[7:52] towards agentless discovery methods.
+[7:54] With that foundation, let's analyze the
+[7:56] options in order. Option A is incorrect.
+[8:00] Using Systems Manager Patch Manager to
+[8:02] deploy agents isn't its primary purpose
+[8:04] and assumes Systems Manager is already
+[8:06] configured for all VMs. Installing an
+[8:09] agent on thousands of individual VMs
+[8:11] represents high operational overhead.
+[8:14] Furthermore, identifying and removing
+[8:16] high utilization servers is the opposite
+[8:18] of cost-effective planning. You
+[8:20] typically prioritize migrating highly
+[8:23] utilized servers perhaps after right
+[8:25] sizing and eliminate low utilization or
+[8:28] inactive ones. Option B is incorrect.
+[8:31] Relying on a basic CSV export from
+[8:33] VMware likely won't provide sufficient
+[8:36] utilization data. Manually checking
+[8:38] utilization across thousands of servers
+[8:40] is extremely high operational overhead.
+[8:43] Removing high utilization servers is
+[8:46] incorrect logic. Application migration
+[8:48] service MGN and server migration service
+[8:52] SMS are primarily migration execution
+[8:56] tools not assessment tools. Option C is
+[8:59] the correct answer. This describes the
+[9:01] standard recommended and low overhead
+[9:04] approach using AWS purpose-built
+[9:06] assessment tool. Migration evaluator MIA
+[9:09] service is specifically designed for
+[9:11] assessing on premises workloads for
+[9:13] migration providing inventory
+[9:16] utilization data and TCO projections.
+[9:19] Agentless collector. MI offers an
+[9:21] agentless collector that connects
+[9:23] directly to vsenter or ESG hosts to
+[9:26] gather data about the VMs without
+[9:28] needing software installed on each guest
+[9:30] OS. This significantly minimizes
+[9:32] operational overhead compared to
+[9:34] agent-based approaches, especially at
+[9:37] scale. Review data in migration
+[9:39] evaluator. The service provides built-in
+[9:41] tools for analysis. Identify inactive
+[9:44] servers. This is the correct logic for
+[9:47] cost optimization. Find servers that
+[9:49] aren't being used and remove them from
+[9:51] the migration scope. Import to migration
+[9:54] hub. This is a best practice for
+[9:56] tracking the overall migration progress.
+[9:58] Option D is incorrect. The application
+[10:01] migration service MGN agent is primarily
+[10:05] for replicating servers during
+[10:07] migration, not initial assessment.
+[10:10] Deploying agents to thousands of VMs is
+[10:12] high operational overhead. Using red
+[10:15] shift and quicksite for analysis adds
+[10:17] unnecessary complexity and cost when
+[10:19] migration evaluator provides these
+[10:21] capabilities specifically for migration
+[10:23] assessment. Therefore, the correct
+[10:25] solution is C as it uses the appropriate
+[10:28] AWS assessment tool migration evaluator
+[10:32] with its low overhead agentless
+[10:33] collector and applies the correct logic
+[10:36] for cost optimization
+[10:38] identifying inactive servers. Question
+[10:40] 43. A company is running a critical
+[10:43] application that uses an Amazon RDS for
+[10:46] MySQL database to store data. The RDSDB
+[10:49] instance is deployed in multi-AZ mode. A
+[10:52] recent RDS database failover test caused
+[10:55] a 40-cond outage to the application. A
+[10:58] solutions architect needs to design a
+[11:00] solution to reduce the outage time to
+[11:02] less than 20 seconds. Which combination
+[11:04] of steps should the solutions architect
+[11:07] take to meet these requirements? Choose
+[11:09] take to meet these requirements? Choose three.
+[11:11] Use Amazon elastic for me in front of
+[11:14] the database. B. Use Amazon Elastic for
+[11:18] Reddus in front of the database. C. Use
+[11:22] RDS proxy in front of the database. D.
+[11:26] Migrate the database to Amazon Aurora
+[11:28] MySQL. E. Create an Amazon Aurora
+[11:32] replica. F. Create an RDS for MySQL read
+[11:37] replica. All right. This problem is a
+[11:39] classic example of optimizing RTO. The
+[11:42] current solution standard RDS for MySQL
+[11:45] in multi-AZ is good, but a 40-cond
+[11:48] outage is typical for it. This outage is
+[11:50] primarily caused by two things. First,
+[11:53] the time it takes for the standby
+[11:54] instance to be promoted and second, the
+[11:57] time it takes for the application to
+[11:58] resolve the new database IP address, a
+[12:00] DNS update, and then reestablish its
+[12:03] entire connection pool. Our goal is to
+[12:05] get this well under 20 seconds. This
+[12:08] requires us to attack both the database
+[12:10] failover time and the application's
+[12:12] connection recovery time. Let's evaluate
+[12:14] the options.
+[12:17] Use Amazon elastic cache for me in front
+[12:20] of the database. This is incorrect. A
+[12:22] cache is a read performance
+[12:24] optimization. It does nothing to speed
+[12:27] up the failover of the right master
+[12:28] database. When the database fails over,
+[12:32] any write operations or cache misread
+[12:34] operations will still experience the
+[12:36] full 40-second outage. B. Use Amazon
+[12:40] Elastic for Reddus in front of the
+[12:42] database. This is incorrect for the same
+[12:44] reason as option A. While Elastic for
+[12:47] Reddus is an excellent service, its
+[12:50] purpose is to reduce read latency, not
+[12:52] to improve the RTO of the master
+[12:54] database during a failover. C. Use RDS
+[12:58] proxy in front of the database. This is
+[13:01] a correct choice. This is one of the
+[13:03] primary use cases for RDS proxy. The
+[13:06] proxy sits between your application and
+[13:08] the database, managing a warm pool of
+[13:11] connections. When the database fails
+[13:13] over, the application's connections to
+[13:16] the proxy remain active. The proxy
+[13:18] detects the database failure, holds
+[13:21] incoming requests, and quickly connects
+[13:23] to the newly promoted primary instance.
+[13:26] This process is much faster than DNS
+[13:28] propagation and completely masks the
+[13:30] connection reestablishment logic from
+[13:31] the application often reducing failover
+[13:34] related outages from 40 plus seconds to
+[13:36] singledigit seconds. D. Migrate the
+[13:40] database to Amazon Aurora MySQL. This is
+[13:43] a correct choice. Amazon Aurora's
+[13:45] cloudnative architecture is
+[13:47] fundamentally different from standard
+[13:49] RDS and is designed for much faster
+[13:51] failover. Because all instances in an
+[13:53] Aurora cluster share the same underlying
+[13:55] storage volume, promoting a read replica
+[13:58] to a new primary writer is a much faster
+[14:00] operation, often under 30 seconds and
+[14:02] even faster when combined with a proxy
+[14:05] than the traditional standby promotion
+[14:06] in RDS. E. Create an Amazon Aurora
+[14:10] replica. This is a correct choice and a
+[14:13] necessary prerequisite for option D to
+[14:15] be effective. An Aurora cluster must
+[14:18] have a replica, a reader instance to
+[14:21] provide high availability. If the
+[14:23] primary writer instance fails, Aurora
+[14:25] promotes one of the Aurora replicas to
+[14:27] be the new writer. Without a replica,
+[14:29] there is no failover target and you have
+[14:31] no HA. Therefore, migrating to Aurora D
+[14:36] and creating a replica E are a package
+[14:39] deal. F. create an RDS for MySQL read
+[14:43] replica. This is incorrect. A standard
+[14:46] RDS read replica is not a high
+[14:48] availability failover target. It uses
+[14:51] asynchronous replication and is intended
+[14:53] for read scaling. The multi-AZ feature
+[14:56] uses a separate synchronous standby
+[14:59] instance. Promoting a standard read
+[15:01] replica is a slow manual process that
+[15:03] would take far longer than the current
+[15:05] 40 outage. Therefore, the correct
+[15:08] combination is C, D, and E. Migrating to
+[15:12] Aurora D and adding a replica E provides
+[15:15] a database backend with a much faster
+[15:17] internal failover time. Adding RDS proxy
+[15:20] C in front of that Aurora cluster makes
+[15:23] the failover almost transparent to the
+[15:25] application by managing the connection
+[15:27] pool. This combined architecture will
+[15:30] easily meet the sub 202 requirement.
+[15:33] Question 44. A company plans to migrate
+[15:36] a legacy on premises application to AWS.
+[15:40] The application is a Java web
+[15:42] application that runs on Apache Tomcat
+[15:44] with a PostgreSQL database. The company
+[15:47] does not have access to the source code
+[15:49] but can deploy the application Java
+[15:51] archive JR files. The application has
+[15:54] increased traffic at the end of each
+[15:56] month. Which solution will meet these
+[15:59] requirements with the least operational
+[16:01] requirements with the least operational overhead?
+[16:03] Launch Amazon EC2 instances in multiple
+[16:06] availability zones. Deploy Tomcat and
+[16:09] PostgresQL to all the instances by using
+[16:11] Amazon Elastic File System. Amazon EFS
+[16:15] mount points. Use AWS Step Functions to
+[16:18] deploy additional EC2 instances to scale
+[16:21] for increased traffic. B. Provision
+[16:24] Amazon Elastic Kubernetes Service Amazon
+[16:27] EKS in an autoscaling group across
+[16:30] multiple AWS regions. Deploy Tomcat and
+[16:33] PostgreSQL in the container images. Use
+[16:36] a network load balancer to scale for
+[16:39] increased traffic. C. Ref actor the Java
+[16:42] application into Python-based
+[16:44] containers. Use AWS Lambda functions for
+[16:48] the application logic. Store application
+[16:51] data in Amazon Dynamob global tables.
+[16:54] Use AWS storage gateway and Lambda
+[16:57] concurrency to scale for increased
+[16:59] traffic. D. Use AWS elastic beantoalk to
+[17:03] deploy the Tomcat servers with
+[17:04] autoscaling in multiple availability
+[17:06] zones. Store application data in an
+[17:09] Amazon RDS for PostgresQL database.
+[17:12] Deploy Amazon CloudFront and an
+[17:15] application load balancer to scale for
+[17:17] increased traffic. All right, let's
+[17:19] break down the requirements. This is key
+[17:22] to finding the right answer. Techstack.
+[17:24] The application is Tomcat running J
+[17:27] files and a PostgreSQL database.
+[17:30] Critical constraint. The company does
+[17:32] not have access to the source code. This
+[17:35] is the most important clue. It means any
+[17:37] solution requiring refactoring,
+[17:40] recompiling or code changes like
+[17:42] changing the database type or
+[17:43] application language is immediately
+[17:45] disqualified. Scalability. The solution
+[17:49] must handle increased traffic at the end
+[17:51] of the month, which implies a need for
+[17:53] of the month, which implies a need for autoscaling.
+[17:54] Deciding factor, the solution must have
+[17:57] the least operational overhead. This
+[17:59] tells us to strongly favor fully managed
+[18:01] platform as a service, pass, and manage
+[18:04] database services over building
+[18:06] everything manually on EC2. Let's
+[18:08] evaluate the options based on these
+[18:11] points. A deploy to Tomcat and
+[18:14] PostgresQL to all the instances. This is
+[18:17] incorrect. This architecture is deeply
+[18:19] flawed. Running your database PostgreSQL
+[18:23] on the same instances as your web
+[18:25] servers Tomcat makes scaling impossible.
+[18:28] When a new instance is launched by your
+[18:30] complex step functions process, it will
+[18:33] have an empty database. When an instance
+[18:35] is terminated, you will lose part of
+[18:37] your data. This is a stateful
+[18:39] non-scalable design with high
+[18:41] operational overhead. B. Provision
+[18:45] Amazon Elastic Kubernetes Service Amazon
+[18:48] EKS deploy Tomcat and Postgregql in the
+[18:52] container images. This is incorrect.
+[18:55] While containerization is a valid
+[18:57] modernization path, it is far from the
+[18:59] least operational overhead. EKS is a
+[19:03] powerful but complex service to manage.
+[19:05] More importantly, this option suggests
+[19:08] running the PostgreSQL database inside a
+[19:10] container. Managing stateful workloads
+[19:13] like a relational database in Kubernetes
+[19:15] is an advanced high overhead task that
+[19:17] is the opposite of what is required
+[19:19] here. C. Refactor the Java application
+[19:23] into Python-based containers. Use Amazon
+[19:26] Dynamo DB. This option is incorrect and
+[19:29] a non-starter. The very first constraint
+[19:32] we identified is does not have access to
+[19:35] the source code. It is impossible to
+[19:37] refactor the Java application into
+[19:40] Python without the source code. This
+[19:42] option proposes a complete rewrite of
+[19:44] the application which is a massive
+[19:46] project not a migration. D. Use AWS
+[19:51] elastic beantoalk to deploy the Tomcat
+[19:53] servers. Store application data in an
+[19:56] Amazon RDS for PostgreSQL. This is the
+[19:59] correct answer. It is the only solution
+[20:02] that respects all the constraints and
+[20:04] uses the best low overhead services for
+[20:06] the job application.
+[20:09] AWS elastic beantoalk is a fully managed
+[20:12] pass. It has a Tomcat platform that is
+[20:15] designed to take your JR file and run
+[20:17] it. This meets the no source code
+[20:19] requirement perfectly. Scalability.
+[20:22] Elastic Beantock automatically
+[20:24] provisions and manages the application
+[20:26] load balancer and the autoscaling group
+[20:29] for you handling the end-of- traffic
+[20:31] spikes with minimal effort. Database. It
+[20:34] correctly decouples the database by
+[20:36] using Amazon RDS for PostgreSQL which is
+[20:39] a fully managed service for the exact
+[20:41] database technology the application
+[20:43] already uses. This means no changes are
+[20:46] needed. Therefore, the correct solution
+[20:49] is D. It is the only option that
+[20:51] respects the no source code constraint
+[20:53] by using AWS elastic beantoalk which is
+[20:56] a pass designed to run Java/tomcat
+[20:59] applications from their binary files. It
+[21:02] provides the least operational overhead
+[21:04] by managing the load balancing and
+[21:05] autoscaling and correctly uses the
+[21:08] managed Amazon RDS service for the
+[21:10] persistent database. Question 45. A
+[21:13] startup company recently migrated a
+[21:15] large e-commerce website to AWS. The
+[21:18] website has experienced a 70% increase
+[21:21] in sales. Software engineers are using a
+[21:24] private GitHub repository to manage
+[21:27] code. The DevOps team is using Jenkins
+[21:30] for builds and unit testing. The
+[21:32] engineers need to receive notifications
+[21:34] for bad builds and zero downtime during
+[21:36] deployments. The engineers also need to
+[21:38] ensure any changes to production are
+[21:40] seamless for users and can be rolled
+[21:42] back in the event of a major issue. The
+[21:45] software engineers have decided to use
+[21:47] AWS code pipeline to manage their build
+[21:50] and deployment process. Which solution
+[21:52] will meet these requirements?
+[21:55] Use GitHub websockets to trigger the
+[21:57] code pipeline pipeline. Use the Jenkins
+[22:00] plug-in for AWS code build to conduct
+[22:03] unit testing. Send alerts to an Amazon
+[22:05] SNS topic for any bad builds. Deploy in
+[22:09] an in place all at once deployment
+[22:11] configuration using AWS code deploy. B.
+[22:15] Use GitHub web hooks to trigger the code
+[22:17] pipeline pipeline. Use the Jenkins
+[22:20] plugin for AWS code build to conduct
+[22:22] unit testing. Send alerts to an Amazon
+[22:25] SNS topic for any bad builds. Deploy in
+[22:28] a blue/green deployment using AWS code
+[22:32] deploy. C. Use GitHub websockets to
+[22:35] trigger the code pipeline pipeline. Use
+[22:38] AWS X-Ray for unit testing and static
+[22:41] code analysis. Send alerts to an Amazon
+[22:44] SNS topic for any bad builds. Deploy in
+[22:47] a blue/green deployment using AWS code
+[22:50] deploy. D. Use GitHub web hooks to
+[22:54] trigger the code pipeline pipeline. Use
+[22:56] AWS X-ray for unit testing and static
+[22:59] code analysis. Send alerts to an Amazon
+[23:02] SNS topic for any bad builds. Deploy in
+[23:05] an in place all at once deployment
+[23:07] configuration using AWS code deploy. All
+[23:10] right, this question is asking us to
+[23:12] build a complete CI/CD pipeline using
+[23:15] AWS code pipeline as the orchestrator.
+[23:18] We have several key requirements we must
+[23:20] meet. Source: Integrate with an existing
+[23:24] private GitHub repository. Build.
+[23:27] Integrate with an existing Jenin server
+[23:29] for builds and tests. Notifications.
+[23:32] Send alerts for bad builds. Deployment.
+[23:35] The critical one must have zero downtime
+[23:37] and be easy to roll back. This last
+[23:39] requirement is the most important one
+[23:41] and will be the deciding factor. Let's
+[23:44] evaluate the options in order.
+[23:47] GitHub websockets deploy in an in place
+[23:50] all at once. This option is incorrect
+[23:53] for two major reasons. First, the
+[23:55] standard mechanism for triggering code
+[23:57] pipeline from GitHub is web hooks, not
+[24:00] websockets. Second, and more
+[24:02] importantly, an in place all at once
+[24:05] deployment is the riskiest strategy. It
+[24:07] stops all your application instances,
+[24:10] deploys the new code, and starts them
+[24:12] again. This causes significant planned
+[24:15] downtime and directly violates the zero
+[24:18] downtime requirement. B. GitHub web
+[24:21] hooks Jenkins plug-in deploy in a
+[24:24] blue/green deployment. This is the
+[24:27] correct answer. Let's walk through why.
+[24:30] Trigger. It correctly uses GitHub web
+[24:32] hooks, which is the standard eventdriven
+[24:35] way to trigger code pipeline on a code
+[24:37] change. Build. It correctly identifies
+[24:40] that a Jenkins plug-in would be used.
+[24:42] Code pipeline has a built-in provider to
+[24:45] connect to an existing Jenkins server as
+[24:47] a build or test action respecting the
+[24:50] current setup. Notifications.
+[24:52] Amazon SNS is the correct standard
+[24:55] service for sending out notifications.
+[24:58] Deployment. This is the key. A
+[25:00] blue/green deployment is the gold
+[25:02] standard for achieving zero downtime and
+[25:05] easy roll backs. Code deploy provisions
+[25:07] a new separate green environment,
+[25:10] deploys the new code to it, and then
+[25:12] after tests seamlessly shifts traffic
+[25:15] from the old blue environment to the new
+[25:17] one. If anything goes wrong, rolling
+[25:19] back is as simple as telling code deploy
+[25:21] to shift traffic back to the original
+[25:23] blue environment which is still running.
+[25:25] C. GitHub websockets use AWS X-ray for
+[25:30] unit testing. This option is incorrect
+[25:33] on multiple fronts. First, it uses the
+[25:36] wrong trigger mechanism websockets.
+[25:38] Second, it suggests using AWS X-ray for
+[25:42] unit testing. This is a fundamental
+[25:44] misunderstanding of the service. AWS
+[25:47] X-Ray is a distributed tracing service
+[25:49] for debugging and performance analysis
+[25:52] in production. It is not a unit testing
+[25:54] or code analysis tool. D. Use AWS X-ray
+[25:59] for unit testing. Deploy in an in place
+[26:02] all at once. This option is also
+[26:04] incorrect for two reasons. It makes the
+[26:07] same mistake as option C by suggesting
+[26:09] AWS X-ray for unit testing. It also
+[26:12] makes the same mistake as option A by
+[26:14] proposing an in place all at once
+[26:16] deployment which fails the zero downtime
+[26:18] requirement. Therefore, the correct
+[26:21] solution is B. It is the only option
+[26:23] that correctly identifies the trigger
+[26:25] mechanism web hooks respects the
+[26:28] existing tooling Jenkins and proposes a
+[26:30] deployment strategy blue/green
+[26:33] that actually meets the critical
+[26:35] business needs for zero downtime and
+[26:37] safe rollbacks. Question 46. A company
+[26:40] is migrating a legacy application from
+[26:42] an on premises data center to AWS. The
+[26:46] application uses MongoDB as a key value
+[26:49] database. According to the company's
+[26:51] technical guidelines, all Amazon EC2
+[26:54] instances must be hosted in a private
+[26:56] subnet without an internet connection.
+[26:59] In addition, all connectivity between
+[27:01] applications and databases must be
+[27:03] encrypted. The database must be able to
+[27:06] scale based on demand. Which solution
+[27:08] will meet these requirements? A. Create
+[27:12] new Amazon document DB with MongoDB
+[27:15] compatibility tables for the application
+[27:17] with provisioned IOPS volumes. Use the
+[27:20] instance endpoint to connect to Amazon
+[27:22] document DB. B. Create new Amazon
+[27:26] Dynamob tables for the application with
+[27:28] on demand capacity. Use a gateway VPC
+[27:32] endpoint for DynamoB to connect to the
+[27:34] DynamoB tables. C. Create new Amazon
+[27:38] Dynamob tables for the application with
+[27:41] on demand capacity. Use an interface VPC
+[27:44] endpoint for DynamoB to connect to the
+[27:46] DynamoB tables. D. Create new Amazon
+[27:50] document DB with MongoDB compatibility
+[27:53] tables for the application with
+[27:55] provisioned IOPS volumes. Use the
+[27:58] cluster endpoint to connect to Amazon
+[28:00] document DB. All right. To find the
+[28:02] correct solution, we need to focus on
+[28:04] four key requirements. Database type.
+[28:07] The current database is MongoDB, but
+[28:10] it's explicitly used as a key value
+[28:12] database. This gives us two options. A
+[28:15] MongoDB compatible service, Amazon
+[28:18] document DB, or the purpose-built AWS
+[28:21] key value service, Amazon DynamoB.
+[28:24] Scalability. The database must scale
+[28:27] based on demand. This points to a
+[28:29] serverless or autoscaling feature.
+[28:32] Networking. The application instances
+[28:34] are in a private subnet without an
+[28:36] internet connection. This is a critical
+[28:39] constraint. Any AWS service they connect
+[28:42] to that lives outside the VPC like
+[28:44] Dynamo DB must be accessed via a VPC
+[28:47] endpoint. Security connectivity must be
+[28:51] encrypted which is a standard feature
+[28:53] TLS for all these services. Let's
+[28:56] evaluate the options against these
+[28:58] evaluate the options against these requirements.
+[29:00] Amazon document DB use the instance
+[29:03] endpoint. This option is incorrect.
+[29:06] While document DB is MongoDB compatible,
+[29:09] it's a best practice to always connect
+[29:11] to the cluster endpoint, not an
+[29:14] individual instance endpoint. Connecting
+[29:16] to an instance endpoint creates a single
+[29:18] point of failure and bypasses the high
+[29:20] availability features of the cluster.
+[29:22] This is an architectural anti-attern. B.
+[29:26] Amazon Dynamo DB on demand capacity use
+[29:30] a gateway VPC endpoint. This is the
+[29:33] correct answer. It perfectly addresses
+[29:35] every requirement. Database type. It
+[29:38] uses Amazon Dynamob the purpose-built
+[29:42] fully managed key value database which
+[29:44] is the best fit for the key value
+[29:46] workload. Scalability. It specifies on
+[29:50] demand capacity which is the exact
+[29:52] feature that meets the scale based on
+[29:54] demand requirement with zero operational
+[29:56] overhead. Networking. It uses a gateway
+[30:00] VPC endpoint. Dynamob is a public
+[30:03] service. So a private subnet needs an
+[30:05] endpoint to reach it. A gateway endpoint
+[30:07] is the standard highly available and
+[30:10] cost-free way to provide private
+[30:11] connectivity from a VPC to DynamoB
+[30:14] without using the internet. C. Amazon
+[30:17] Dynamo DB ondemand capacity use an
+[30:21] interface VPC endpoint. This option is
+[30:24] incorrect because it's a suboptimal
+[30:26] choice. While DynamoB is correct, it
+[30:29] specifies an interface VPC endpoint. An
+[30:32] interface endpoint powered by private
+[30:35] link can be used for Dynamob, but it is
+[30:38] a newer feature that has an hourly cost
+[30:40] and data processing fees. The original
+[30:43] standard and cost-free solution for NVPC
+[30:46] connectivity to Dynamo DB is the gateway
+[30:48] endpoint as specified in option B. Given
+[30:52] that both work, the gateway endpoint is
+[30:54] the simpler and more standard answer for
+[30:56] this scenario. D. Amazon document DB use
+[31:01] the cluster endpoint. This option is
+[31:03] incorrect though it's much better than
+[31:05] option A correctly uses the cluster
+[31:08] endpoint. However, it's not the best
+[31:10] solution for two reasons. First, the
+[31:13] prompt specifies a key value workload
+[31:16] for which DynamoB is the superior
+[31:18] purpose-built tool. Second, the scaling
+[31:21] model for document DB adding/resizing
+[31:24] instances is not as truly on demand as
+[31:28] the serverless throughput scaling of
+[31:29] DynamoB. Therefore, the correct solution
+[31:32] is B. It selects the right purpose-built
+[31:35] database Dynamob, the right scaling
+[31:38] model on demand, and the right private
+[31:41] connectivity mechanism, gateway VPC
+[31:43] endpoint. Question 47. A company wants
+[31:47] to use AWS for disaster recovery for an
+[31:50] on- premises application. The company
+[31:52] has hundreds of Windows-based servers
+[31:54] that run the application. All the
+[31:56] servers mount a common share. The
+[31:59] company has an RTO of 15 minutes and an
+[32:01] RPO of 5 minutes. The solution must
+[32:04] support native failover and fallback
+[32:06] capabilities. Which solution will meet
+[32:09] these requirements most cost
+[32:11] effectively? A. Create an AWS storage
+[32:15] gateway file gateway. Schedule daily
+[32:17] Windows Server backups. Save the data to
+[32:20] Amazon S3. During a disaster, recover
+[32:24] the on-remises servers from the backup.
+[32:27] During failback, run the on- premises
+[32:29] servers on Amazon EC2 instances. B.
+[32:33] Create a set of AWS cloud for templates
+[32:36] to create infrastructure. Replicate all
+[32:39] data to Amazon elastic file system
+[32:42] Amazon EFS by using AWS data sync.
+[32:46] During a disaster, use AWS code pipeline
+[32:49] to deploy the templates to restore the
+[32:51] on- premises servers. Fail back the data
+[32:54] by using data sync. C. Create an AWS
+[32:58] cloud development kit AWS CDK pipeline
+[33:02] to stand up a multi-sight active active
+[33:04] environment on AWS. Replicate data into
+[33:07] Amazon S3 by using the S3 sync command.
+[33:11] During a disaster, swap DNS endpoints to
+[33:14] point to AWS. Fail back the data by
+[33:17] using the S3 sync command. D. Use AWS
+[33:21] elastic disaster recovery to replicate
+[33:24] the on- premises servers. Replicate data
+[33:26] to an Amazon FSX for Windows file server
+[33:29] file system by using AWS data sync.
+[33:32] Mount the file system to AWS servers
+[33:36] during a disaster. Fail over the on-
+[33:38] premises servers to AWS. Fail back to
+[33:42] new or existing servers by using elastic
+[33:44] disaster recovery. Option A is
+[33:47] incorrect. This solution fails on the
+[33:50] two most critical requirements. The RPO
+[33:52] is 5 minutes. A daily backup solution
+[33:55] results in an RPO of 24 hours. This
+[33:59] fails the data loss requirement by a
+[34:01] massive margin. Furthermore, recovering
+[34:04] hundreds of servers from backups is a
+[34:06] slow manual process that would never
+[34:08] meet the 15-minute RTO. Option B is
+[34:11] incorrect. This is a complex, high
+[34:14] overhead, do-it-yourself DR solution.
+[34:17] First, it suggests replicating to Amazon
+[34:20] EFS. EFS is an NFS compatible file
+[34:24] system. The on- premises servers are
+[34:26] Windows-based, meaning their common
+[34:28] share is almost certainly SMB. This is a
+[34:31] protocol mismatch. Second, relying on
+[34:34] custom cloud formation and code pipeline
+[34:36] pipelines for an emergency failover is
+[34:38] operationally complex and much riskier
+[34:40] than a managed DR service, making it
+[34:43] unlikely to meet the 15-minute RTO.
+[34:46] Option C is incorrect. This is even more
+[34:49] complex than option B. Building a
+[34:51] multi-sight active active environment is
+[34:53] a massive rearchitecture, not a
+[34:56] cost-effective DR solution. More
+[34:58] importantly, it suggests using S3 sync
+[35:00] for the common share data. S3 is an
+[35:03] object store, not a file system. An
+[35:06] application expecting a common share and
+[35:08] SMB file mount cannot be pointed at an
+[35:11] S3 bucket without significant code
+[35:13] changes. Option D is the correct answer.
+[35:17] This choice perfectly combines the
+[35:19] purpose-built AWS services for this
+[35:21] exact scenario. Servers AWS elastic
+[35:25] disaster recovery DRS is the service
+[35:29] designed for this. It uses continuous
+[35:32] block level replication to keep a
+[35:34] lowcost replicated copy of the on-
+[35:36] premises servers in AWS which directly
+[35:39] meets the 5-minute RPO. Its automated
+[35:42] orchestration capabilities allow for
+[35:44] launching the recovery servers in
+[35:45] minutes meeting the 15-minute RTO. It
+[35:49] also explicitly supports native failover
+[35:51] and fallback file share. It correctly
+[35:55] identifies that the Windows common share
+[35:57] should be replicated to Amazon FSX for
+[36:00] Windows file server which is the native
+[36:02] SMB service on AWS. Using AWS data sync
+[36:06] provides the continuous high-speed
+[36:09] replication needed to meet the RPO for
+[36:11] the file data. Therefore, the correct
+[36:13] solution is D. It is the only option
+[36:16] that uses the correct purpose-built and
+[36:18] managed AWS services, AWS DRS, AWS data
+[36:23] sync, and Amazon FSX for Windows to meet
+[36:26] the strict RTO and RPO requirements for
+[36:29] both the servers and their shared file
+[36:31] system. all while providing the required
+[36:33] native failback capabilities. Question
+[36:36] 48. A solutions architect is
+[36:38] investigating an issue in which a
+[36:40] company cannot establish new sessions in
+[36:43] Amazon Workspaces. An initial analysis
+[36:46] indicates that the issue involves user
+[36:48] profiles. The Amazon Workspaces
+[36:50] environment is configured to use Amazon
+[36:52] FSX for Windows File Server as the
+[36:55] profile share storage. The FSX for
+[36:57] Windows file server file system is
+[36:59] configured with 10 TB of storage. The
+[37:02] solutions architect discovers that the
+[37:04] file system has reached its maximum
+[37:06] capacity. The solutions architect must
+[37:09] ensure that users can regain access. The
+[37:12] solution also must prevent the problem
+[37:14] from occurring again. Which solution
+[37:17] will meet these requirements?
+[37:20] Remove old user profiles to create
+[37:22] space. Migrate the user profiles to an
+[37:25] Amazon FSX for Luster file system. B.
+[37:29] Increase capacity by using the update
+[37:31] file system command. Implement an Amazon
+[37:34] Cloudatch metric that monitors free
+[37:36] space. Use Amazon Event Bridge to invoke
+[37:39] an AWS Lambda function to increase
+[37:42] capacity as required. C. Monitor the
+[37:45] file system by using the free storage
+[37:48] capacity metric in Amazon Cloudatch. Use
+[37:51] AWS step functions to increase the
+[37:53] capacity as required. D. Remove old user
+[37:57] profiles to create space. Create an
+[38:00] additional FSX for Windows file server
+[38:03] file system. Update the user profile
+[38:05] redirection for 50% of the users to use
+[38:08] the new file system. All right, this is
+[38:10] a classic the disk is full problem. But
+[38:13] in a cloudnative context, we have two
+[38:16] very clear requirements. Immediate fix.
+[38:19] We must ensure that users can regain
+[38:21] access, which means we need to free up
+[38:23] or add space right now. Long-term fix.
+[38:27] We must prevent the problem from
+[38:28] occurring again, which implies an
+[38:30] automated proactive solution, not a
+[38:33] manual cleanup task. With these two
+[38:35] goals in mind, let's analyze the options
+[38:38] in order.
+[38:40] Remove old user profiles. Migrate to an
+[38:44] Amazon FSX for Luster file system. This
+[38:47] option is incorrect. While removing old
+[38:50] profiles would provide an immediate fix,
+[38:52] the long-term solution is technically
+[38:54] flawed. Amazon FSX for luster is a high
+[38:57] performance pussed file system designed
+[39:00] for workloads like HPC and machine
+[39:02] learning. Windows user profiles require
+[39:05] the SMB protocol which is provided by
+[39:08] FSX for Windows file server. You cannot
+[39:11] simply migrate to FSX for Luster. It's
+[39:14] the wrong tool for the job. B. Increase
+[39:17] capacity. Update file system command.
+[39:20] Implement a cloudatch metric event
+[39:23] bridge lambda function to increase
+[39:26] capacity. This is the correct answer.
+[39:28] It's a complete two-part solution that
+[39:31] addresses both requirements perfectly.
+[39:34] Immediate fix. It starts with increase
+[39:36] capacity by using the update file system
+[39:39] command. This is a feature of FSX for
+[39:42] Windows. You can dynamically increase
+[39:44] the storage capacity of your existing
+[39:47] file system. This immediately creates
+[39:49] new space and allows users to log in
+[39:51] again. Long-term fix. It then describes
+[39:55] a robust automated workflow. You monitor
+[39:58] the free storage capacity metric in
+[40:00] Cloudatch. You use Amazon Event Bridge,
+[40:03] which is the new name for Cloudatch
+[40:05] events to trigger an AWS Lambda function
+[40:08] when that metric drops below a certain
+[40:10] threshold. The Lambda function then
+[40:12] programmatically runs the update file
+[40:14] system command for you before the disk
+[40:17] ever becomes 100% full. This is the
+[40:20] ideal hands-off cloud solution. C.
+[40:24] Monitor the file system. Use AWS Step
+[40:27] Functions to increase the capacity. This
+[40:30] option is incomplete. It only describes
+[40:32] the long-term preventative solution and
+[40:35] step functions is a valid though perhaps
+[40:37] more complex way to do it. However, it
+[40:40] completely ignores the immediate crisis.
+[40:42] The file system is already full. This
+[40:45] solution doesn't fix the current
+[40:47] problem, so users still can't regain
+[40:49] access. D. Remove old user profiles.
+[40:53] Create an additional FSX for Windows.
+[40:56] Date 50% of the users. This option is
+[41:00] incorrect because it's operationally
+[41:02] complex and inefficient. Removing old
+[41:05] user profiles is a manual reactive task,
+[41:09] not a preventative solution. The
+[41:11] long-term plan, creating a second file
+[41:13] system and splitting your users, is an
+[41:15] administrative nightmare. You now have
+[41:17] two systems to manage, monitor, and
+[41:19] patch, and you've just created a new
+[41:21] problem. What happens when one of those
+[41:23] file systems fills up? This increases
+[41:26] operational overhead and doesn't truly
+[41:28] solve the root problem. Therefore, the
+[41:30] correct solution is B. It's the only one
+[41:33] that provides both a valid immediate
+[41:35] fix, scaling the existing file system,
+[41:38] and a correct, automated, long-term
+[41:40] solution to prevent the issue from ever
+[41:42] happening again. Question 49. A company
+[41:46] is collecting data from a large set of
+[41:48] IoT devices. The data is stored in an
+[41:51] Amazon S3 data lake. Data scientists
+[41:54] perform analytics on Amazon EC2
+[41:56] instances that run in two public subnets
+[41:59] in a VPC in a separate AWS account. The
+[42:02] data scientists need access to the data
+[42:04] lake from the EC2 instances. The EC2
+[42:07] instances already have an assigned role
+[42:09] with permissions to access Amazon S3.
+[42:12] According to company policies, only
+[42:14] authorized networks are allowed to have
+[42:16] access to the IoT data. Which
+[42:19] combination of steps should a solutions
+[42:21] architect take to meet these
+[42:22] requirements? Choose to A create a
+[42:26] gateway VPC endpoint for Amazon S3 in
+[42:29] the data scientist's VPC. B create an S3
+[42:33] access point in the data scientist's AWS
+[42:36] account for the data lake. C update the
+[42:40] EC2 instance role. Add a policy with a
+[42:42] condition that allows the S3 get object
+[42:45] action when the value for the S3 data
+[42:48] access point on condition key is a valid
+[42:51] access point. ARN D. Update the VPC
+[42:54] route table to route S3 traffic to an S3
+[42:57] access point. E add an S3 bucket policy
+[43:01] with a condition that allows the S3 get
+[43:04] object action when the value for the S3
+[43:07] data access point on condition key is a
+[43:09] valid access point ARN. All right, let's
+[43:11] analyze this. We have two core
+[43:14] requirements. First, we need to enable
+[43:16] cross account access. EC2 instances in
+[43:20] account B need to read from an S3 bucket
+[43:22] in account A. Second, we must enforce a
+[43:26] strict security policy that access is
+[43:28] only allowed from an authorized network,
+[43:30] the data scientists VPC in account B.
+[43:33] The EC2 instances already have an IM
+[43:35] role with S3 get object permission. This
+[43:39] is half the puzzle. We still need the S3
+[43:42] bucket policy in account A to grant
+[43:44] access to that role from account B. This
+[43:46] bucket policy is the perfect place to
+[43:48] enforce our authorized network rule.
+[43:51] Let's evaluate the options based on this
+[43:53] two-part network path and network aware
+[43:56] policy solution. A. Create a gateway VPC
+[44:00] endpoint for Amazon S3 in the data
+[44:03] scientists VPC. This is a correct
+[44:05] choice. A gateway VPC endpoint is the
+[44:08] network path part of our solution. It
+[44:10] does two things. It creates a private
+[44:12] route from the data scientist's VPC to
+[44:14] the S3 service. So traffic doesn't
+[44:17] traverse the public internet. More
+[44:19] importantly, it gives the VPC a unique
+[44:22] verifiable identity AWS source that we
+[44:26] can use in a resource policy. This is
+[44:29] the only option on the list that
+[44:31] establishes a secure network that can be
+[44:34] authorized. B. Create an S3 access point
+[44:38] in the data scientist's AWS account.
+[44:40] This is incorrect. An S3 access point
+[44:43] for the data lake would need to be
+[44:45] created in the data lakes account.
+[44:47] Account A, not the data scientist's
+[44:50] account. C. Update the EC2 instance
+[44:53] role. Add a policy with a condition.
+[44:56] This is incorrect. This is an identity
+[44:59] based policy. While it's a good security
+[45:01] practice to restrict a role to a
+[45:03] specific resource, it doesn't solve the
+[45:06] authorized network requirement. If the
+[45:08] EC2 instances credentials were to leak,
+[45:11] this policy would not stop someone from
+[45:13] using them from an unauthorized network.
+[45:15] The network level restriction must be
+[45:17] enforced on the resource, the bucket. D.
+[45:21] Update the VPC route table to route S3
+[45:24] traffic to an S3 access point. This is
+[45:27] incorrect. This describes a feature that
+[45:30] does not exist. VPC route tables can
+[45:33] route traffic to gateways like an
+[45:34] internet gateway, NAT gateway, or VPC
+[45:38] endpoint, but not directly to an S3
+[45:41] access point. E add an S3 bucket policy
+[45:44] with a condition that allows the S3 get
+[45:48] object action. This is the correct
+[45:50] choice because it represents the network
+[45:52] aware policy part of our solution. This
+[45:54] is the resource policy on the S3 bucket
+[45:57] in account A that grants the cross
+[45:59] account access. This policy is where we
+[46:02] enforce the network boundary. When
+[46:04] combined with option A, this policy
+[46:07] would check that the request is coming
+[46:08] from the specific gateway VPC endpoint
+[46:11] AWS source created in the data
+[46:15] scientist's account. This ensures that
+[46:17] even with valid credentials, the request
+[46:20] is denied unless it originates from the
+[46:22] authorized network. Note the condition
+[46:25] key S3 data access point AR in the
+[46:28] option is a common typo in these
+[46:30] questions. The correct condition key to
+[46:32] pair with a gateway endpoint is AWS
+[46:35] source. This option is the only one that
+[46:38] correctly identifies the mechanism and
+[46:41] S3 bucket policy and the action adding a
+[46:44] condition required to lock down access.
+[46:47] Therefore, the correct answers are A and
+[46:49] E. A creates the private authorized
+[46:52] network path. E creates the mandatory
+[46:55] security policy on the S3 bucket that
+[46:57] locks down access to only that
+[46:59] authorized network path. Question 50. A
+[47:02] solutions architect has deployed a web
+[47:04] application that serves users across two
+[47:06] AWS regions under a custom domain. The
+[47:10] application uses Amazon Route 53
+[47:12] latencybased routing. The solutions
+[47:15] architect has associated weighted record
+[47:17] sets with a pair of web servers in
+[47:19] separate availability zones for each
+[47:21] region. The solutions architect runs a
+[47:23] disaster recovery scenario. When all the
+[47:26] web servers in one region are stopped,
+[47:29] route 53 does not automatically redirect
+[47:31] users to the other region. Which of the
+[47:34] following are possible root causes of
+[47:36] this issue? Choose two. A. The weight
+[47:40] for the region where the web servers
+[47:41] were stopped is higher than the weight
+[47:43] for the other region. B. One of the web
+[47:46] servers in the secondary region did not
+[47:48] pass its HTTP health check. C. Latency
+[47:53] resource record sets cannot be used in
+[47:55] combination with weighted resource
+[47:56] record sets. D. The setting to evaluate
+[48:00] target health is not turned on for the
+[48:02] latency alias resource record set that
+[48:04] is associated with the domain in the
+[48:06] region where the web servers were
+[48:07] stopped. E. An HTTP health check has not
+[48:11] been set up for one or more of the
+[48:12] weighted resource record sets associated
+[48:15] with the stopped web servers. All right,
+[48:17] this is a common gotcha when setting up
+[48:19] multi-reion failover. The core problem
+[48:21] is that the solutions architect expects
+[48:23] Route 53 to just know that the servers
+[48:26] are down. Route 53 is a DNS service. It
+[48:30] doesn't automatically know the state of
+[48:32] your endpoints unless you explicitly
+[48:34] tell it how to check them. This telling
+[48:36] is done via health checks. For failover
+[48:39] to work, two things must be true. You
+[48:42] must have health checks on the
+[48:43] individual endpoints, the weighted
+[48:45] records. The parent record, the latency
+[48:48] alias record, must be configured to use
+[48:50] the health status of its targets to make
+[48:52] routing decisions. The symptom no
+[48:55] failover tells us there's a break in
+[48:57] this health checking chain. Let's
+[48:59] analyze the options. A. The weight for
+[49:02] the region where the web servers were
+[49:04] stopped is higher than the other region.
+[49:06] This is incorrect. The primary routing
+[49:09] policy here is latency. Latency based
+[49:12] routing sends 100% of a user's traffic
+[49:15] to the lowest latency endpoint for them.
+[49:17] Weight is not a factor in this initial
+[49:20] decision. Weight would only apply within
+[49:22] the region if the latency record pointed
+[49:24] to a weighted set, but it doesn't
+[49:26] control the failover between regions. B.
+[49:30] One of the web servers in the secondary
+[49:32] region did not pass its HTTP health
+[49:34] check. This is incorrect. A problem in
+[49:37] the secondary DR region would not
+[49:40] prevent users from being routed away
+[49:42] from the primary failed region. This
+[49:46] might cause the failover to fail, but it
+[49:48] doesn't explain why the failover isn't
+[49:50] being initiated in the first place. C.
+[49:53] Latency resource record sets cannot be
+[49:56] used in combination with weighted
+[49:57] resource record sets. This is factually
+[50:00] incorrect. Using a latency alias record
+[50:03] to point to a set of weighted records
+[50:05] within a region is a very common and
+[50:07] valid HA pattern. This allows you to
+[50:09] route users to the nearest region
+[50:11] latency and then distribute their
+[50:13] traffic across instances within that
+[50:15] region weighted D. The setting to
+[50:19] evaluate target health is not turned on
+[50:21] for the latency alias resource record
+[50:23] set. This is a correct choice. This is a
+[50:26] classic misconfiguration. When you use
+[50:29] an alias record, which latency records
+[50:31] often are, there is a specific toggle
+[50:34] evaluate target health. If this is set
+[50:37] to false, Route 53 will always return
+[50:40] this record based on its latency policy.
+[50:42] Even if all of its underlying targets,
+[50:44] the weighted records are marked as
+[50:47] unhealthy. For failover to work, this
+[50:49] must be set to true. This is a very
+[50:52] likely root cause. E. an HTTP health
+[50:56] check has not been set up for one or
+[50:58] more of the weighted resource record
+[50:59] sets. This is also a correct choice.
+[51:02] This is the other half of the problem.
+[51:04] You cannot evaluate target health as an
+[51:07] option D. If there is no health to
+[51:10] evaluate if the weighted records
+[51:12] pointing to the EC2 instances have no
+[51:14] health checks associated with them,
+[51:16] route 53 has no mechanism to learn that
+[51:18] the servers were stopped. it will assume
+[51:21] they are healthy and continue to return
+[51:23] their IP addresses. Therefore, the
+[51:25] correct answers are D and E. Both
+[51:28] represent a fundamental failure in the
+[51:30] health checking mechanism that is
+[51:31] required to make route 53's failover
+[51:34] logic work. And that wraps up our 10
+[51:36] questions for today. If you found this
+[51:39] breakdown helpful, please share it with
+[51:41] your friends and colleagues who share
+[51:42] the goal of conquering the AWS SAP C02
+[51:47] certification. Let's build a strong
+[51:50] collaborative learning community
+[51:51] together. Make sure to join me in the
+[51:54] next video for our next set of
+[51:55] next video for our next set of questions.

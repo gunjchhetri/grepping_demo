@@ -1,0 +1,522 @@
+[0:00] Hello. Today we'll be going through
+[0:01] practice questions 81 to 90 for the AWS
+[0:04] Solutions Architect Professional Exam.
+[0:07] Let's begin. An entertainment company
+[0:10] recently launched the new game to ensure
+[0:12] a good experience for players during the
+[0:14] launch period. The company deployed a
+[0:16] static quantity of 12 R6G16X
+[0:19] large Amazon EC2 instances behind a
+[0:22] network load balancer. The company's
+[0:24] operations team used the Amazon
+[0:26] Cloudatch agent and a custom metric to
+[0:28] include memory utilization in its
+[0:30] monitoring strategy. Analysis of the
+[0:33] Cloudatch metrics from the launch period
+[0:35] showed consumption at about one quarter
+[0:37] of the CPU and memory that the company
+[0:39] expected. Initial demand for the game
+[0:42] has subsided and has become more
+[0:43] variable. The company decides to use an
+[0:46] autoscaling group that monitors the CPU
+[0:48] and memory consumption to dynamically
+[0:50] scale the instance fleet. A solutions
+[0:53] architect needs to configure the
+[0:54] autoscaling group to meet demand in the
+[0:57] most cost-effective way. Which solution
+[0:59] will meet these requirements?
+[1:03] The correct answer is B. Configure the
+[1:06] autoscaling group to deploy M6G.4X
+[1:09] large instances. Configure a minimum
+[1:11] capacity of three, a desired capacity of
+[1:14] three, and a maximum capacity of 12. The
+[1:17] company's monitoring data showed that
+[1:19] the original R6G16 large instances were
+[1:22] underutilized only using about 25% of
+[1:25] CPU and memory. This means they are
+[1:28] overprovisioned. The workload is
+[1:29] balanced between compute and memory use.
+[1:32] So a general purpose instance like
+[1:34] M6G.4X large is the best cost-effective
+[1:37] fit. Using autoscaling to adjust between
+[1:40] 3 and 12 instances allows the system to
+[1:42] scale with variable demand while
+[1:44] reducing costs. Why data options are
+[1:47] incorrect? A C6G.4x
+[1:50] large compute optimized instances are
+[1:52] designed for CPU inensive workloads, not
+[1:55] workloads that also consume moderate
+[1:57] memory. Since both CPU and memory are
+[2:00] underused, switching to compute
+[2:02] optimized instances doesn't match the
+[2:04] workload profile. C R 6G.4X large.
+[2:08] Although smaller than R6G16X
+[2:11] large, this still prioritizes memory
+[2:13] performance unnecessarily since memory
+[2:16] usage was low, staying on a memory
+[2:18] optimized family would not be
+[2:20] costefficient. D. R6G.8X large. This
+[2:23] still uses the memory optimized family
+[2:25] and keeps a large instance size, just
+[2:28] fewer of them. It won't improve cost
+[2:30] efficiency or match the mixed CPU or
+[2:33] memory usage pattern observed.
+[2:35] Therefore, the correct answer is B. A
+[2:37] financial services company loaded
+[2:39] millions of historical stock trades into
+[2:41] an Amazon Dynamo DB table. The table
+[2:44] uses on demand capacity mode. Once each
+[2:47] day at midnight, a few million new
+[2:49] records are loaded into the table.
+[2:51] Application read activity against the
+[2:53] table happens in bursts throughout the
+[2:55] day and a limited set of keys are
+[2:57] repeatedly looked up. The company needs
+[3:00] to reduce costs associated with Dynamo
+[3:02] DB. Which strategy should a solutions
+[3:05] architect recommend to meet this
+[3:07] architect recommend to meet this requirement?
+[3:10] The correct answer is D. Deploy Dynamo
+[3:13] DB accelerator. Use provision capacity
+[3:16] mode. Configure Dynamo DB autoscaling.
+[3:19] Dynamo DB is currently using ondemand
+[3:22] capacity which automatically scales but
+[3:24] costs more when predictable workloads
+[3:26] exist. Since the workload pattern is
+[3:28] known, large writes once a day and
+[3:30] repeated reads on the same keys. Using
+[3:33] provision capacity with autoscaling will
+[3:35] reduce cost while maintaining
+[3:37] flexibility. Adding DEX provides an
+[3:39] in-memory cache for the hot keys that
+[3:41] are repeatedly queried, further reducing
+[3:43] read costs and latency. Why the other
+[3:45] options are incorrect? A deploy an
+[3:48] Amazon elastic cache cluster in front of
+[3:50] the Dynamo DB table. While elastic cache
+[3:53] could cache reads, DAX is a
+[3:55] purpose-built caching layer for Dynamo
+[3:57] DB that integrates natively with the SDK
+[3:59] and handles consistency automatically.
+[4:02] Using elastic cache adds unnecessary
+[4:04] complexity. B. Deploy DAX, configure
+[4:07] autoscaling, and purchase savings plans.
+[4:10] Savings plans apply to compute services
+[4:13] like EC2 or Fargate, not Dynamo DB. This
+[4:16] option doesn't address the core issue,
+[4:19] Dynamo DB's cost model. The table will
+[4:21] still be on on demand capacity mode
+[4:24] which is more expensive for predictable
+[4:26] workloads. C use provision capacity mode
+[4:29] and purchase savings plans. Switching to
+[4:31] provision capacity helps but savings
+[4:34] plans again don't apply to Dynamo DB and
+[4:36] without DEX there is no caching to
+[4:38] reduce repeated read costs. Therefore
+[4:41] the correct answer is D. A company has
+[4:44] millions of objects in an Amazon S3
+[4:46] bucket. The objects are in the S3
+[4:49] standard storage class. All the S3
+[4:51] objects are accessed frequently. The
+[4:53] number of users and applications that
+[4:56] access the objects is increasing
+[4:57] rapidly. The objects are encrypted with
+[5:00] serverside encryption with AWS KMS keys.
+[5:04] A solutions architect reviews the
+[5:06] company's monthly AWS invoice and
+[5:08] notices the AWS KMS costs are increasing
+[5:11] because of the high number of requests
+[5:13] from Amazon S3. The solution's architect
+[5:16] needs to optimize costs with minimal
+[5:19] changes to the application. Which
+[5:21] solution will meet these requirements
+[5:23] with the least operational overhead?
+[5:27] The correct answer is B. Create a new S3
+[5:31] bucket that has serverside encryption
+[5:33] with Amazon S3 manage keys as the
+[5:35] encryption type. Use S3 batch operations
+[5:38] to copy the existing objects to the new
+[5:40] S3 bucket. Specify S SES3. AWSKMS
+[5:45] charges per request when data is
+[5:47] accessed or uploaded. So with millions
+[5:50] of objects and frequent access, KMS
+[5:52] request costs grow quickly. Switching to
+[5:55] S SES3, which uses Amazon S3 manage
+[5:58] keys, removes per request KMS costs
+[6:01] while still keeping server site
+[6:03] encryption. This change minimizes
+[6:05] operational effort and cost while
+[6:07] maintaining encryption and requiring
+[6:09] minimal code modification. Since S3
+[6:12] handles S SES3 automatically, why the
+[6:14] other options are incorrect? A S S.
+[6:18] This requires the application to provide
+[6:20] encryption keys with every request. It
+[6:22] introduces significant operational
+[6:24] overhead and complexity for key
+[6:26] management making it unsuitable for a
+[6:29] minimal change solution. C. AWS Cloud
+[6:32] HSM. Cloud HSM provides dedicated
+[6:35] hardware security modules for custom key
+[6:38] storage, but it is far more expensive
+[6:40] and operationally complex than KMS or S3
+[6:42] manage keys. D S3 intelligent tiering.
+[6:46] Changing storage class to intelligent
+[6:48] tiering doesn't affect KMS encryption
+[6:50] costs. The problem lies with frequent
+[6:53] KMS key usage, not storage costs or
+[6:55] access frequency. Therefore, the correct
+[6:58] answer is B. A company has an
+[7:00] application that is deployed on Amazon
+[7:02] EC2 instances behind an ALB. The
+[7:05] instances are part of an autoscaling
+[7:07] group. The application has unpredictable
+[7:10] workloads and frequently scales out and
+[7:12] in. The company's development team wants
+[7:14] to analyze application logs to find ways
+[7:17] to improve the application's
+[7:18] performance. However, the logs are no
+[7:21] longer available after instances scale
+[7:23] in. Which solution will give the
+[7:26] development team the ability to view the
+[7:28] application logs after a scale-in event?
+[7:32] The correct answer is B. Configure the
+[7:35] EC2 instances to publish logs to Amazon
+[7:38] Cloudatch logs by using the unified
+[7:40] Cloudatch agent. When EC2 instances in
+[7:44] an autoscaling group are terminated
+[7:46] during scalein, their local logs are
+[7:48] deleted. Sending application logs to
+[7:50] Cloudatch logs ensures they persist
+[7:52] independently of instance life cycle
+[7:55] events. This allows the development team
+[7:57] to access, query and analyze historical
+[8:00] logs even after instances are
+[8:02] terminated. Why the other options are
+[8:04] incorrect? A. Enable access logs for the
+[8:07] ALB. ALB access logs only capture
+[8:10] request level details, not application
+[8:13] level locks. They don't contain the
+[8:15] detailed debugging or performance
+[8:16] insights the developers need. C. Modify
+[8:20] the autoscaling group to use a step
+[8:22] scaling policy. This changes how scaling
+[8:25] occurs but doesn't address lock
+[8:26] persistence. Logs will still be lost
+[8:28] when instances terminate. D. Instrument
+[8:31] the application with AWS X-ray tracing.
+[8:34] X-ray helps trace requests and identify
+[8:37] performance bottlenecks, but is not a
+[8:39] logging solution. It doesn't retain or
+[8:42] display the actual application logs that
+[8:44] were lost after scalein. Therefore, the
+[8:46] correct answer is B. A company runs an
+[8:49] unauthenticated static website that
+[8:51] includes a registration form for users.
+[8:54] The website uses Amazon S3 for hosting
+[8:56] and uses Amazon CloudFront as the
+[8:59] content delivery network with AWSWAF
+[9:02] configured. When the registration form
+[9:04] is submitted, the website calls an
+[9:06] Amazon API gateway API endpoint that
+[9:09] invokes an AWS Lambda function to
+[9:12] process the payload and forward the
+[9:13] payload to an external API call. During
+[9:16] testing, a solutions architect
+[9:18] encounters a cross origin resource
+[9:21] sharing error. The solutions architect
+[9:23] confirms that the CloudFront
+[9:25] distribution origin has the access
+[9:26] control allow origin header set to
+[9:29] control allow origin header set to www.agample.com.
+[9:31] What should the solutions architect do
+[9:33] to resolve the error?
+[9:37] The correct answer is C. Enable the
+[9:40] course setting on the API gateway API
+[9:43] endpoint. Ensure that the API endpoint
+[9:46] is configured to return all responses
+[9:48] that have the access control allow
+[9:50] origin header set to www.agample.com.
+[9:53] The course error occurs because browsers
+[9:56] block cross origin requests unless the
+[9:58] API explicitly allows the requesting
+[10:01] origin. In this case, the request comes
+[10:03] from the S3 hosted website via
+[10:05] CloudFront to the API gateway endpoint.
+[10:08] So API gateway must include the course
+[10:10] header in its response. This setting
+[10:13] ensures browsers accept the response and
+[10:15] allow the call. Why the other options
+[10:17] are incorrect? A. Change the course
+[10:19] configuration on the S3 bucket. S3
+[10:22] course settings apply only to requests
+[10:24] made directly to the S3 bucket. Since
+[10:27] the course error happens between the
+[10:29] website and the API gateway, changing S3
+[10:32] settings won't help. B. Enable course in
+[10:35] settings won't help. B. Enable course in AWSWAF.
+[10:37] AWSWAF. AWSWAF
+[10:38] does not handle or inject course
+[10:40] headers. It filters and blocks web
+[10:42] requests based on security rules not for
+[10:45] managing browser origin permissions. D.
+[10:48] Enable course on the lambda function.
+[10:50] Course must be handled at the HTTP layer
+[10:53] which is API gateway in this
+[10:55] architecture. Lambda runs the backend
+[10:57] logic and is unaware of HTTP request
+[11:00] headers or coursees unless the API
+[11:02] gateway passes them through. Therefore,
+[11:04] the correct answer is C. A solutions
+[11:07] architect needs to review the design of
+[11:09] an Amazon EMR cluster that is using the
+[11:11] EMR file system. The cluster performs
+[11:14] tasks that are critical to business
+[11:16] needs. The cluster is running Amazon EC2
+[11:19] on demand instances at all times for all
+[11:21] task primary and core nodes. The EMR
+[11:24] tasks run each morning starting at 1:00
+[11:27] a.m. and takes 6 hours to finish
+[11:29] running. The amount of time to complete
+[11:31] the processing is not a priority because
+[11:33] the data is not referenced until late in
+[11:35] the day. The solutions architect must
+[11:38] review the architecture and suggest a
+[11:40] solution to minimize the compute costs.
+[11:43] Which solution should the solutions
+[11:44] architect recommend to meet these
+[11:46] architect recommend to meet these requirements?
+[11:49] The correct answer is B. Launch the
+[11:52] primary and core nodes on ondemand
+[11:54] instances. Launch the task nodes on spot
+[11:56] instances in an instance fleet.
+[11:59] Terminate the cluster including all
+[12:01] instances when the processing is
+[12:03] completed. Purchase compute savings
+[12:04] plans to cover the ondemand instance
+[12:06] usage. Primary and core nodes in an EMR
+[12:10] cluster are essential for cluster
+[12:11] stability and data integrity. These
+[12:14] should remain on demand to prevent data
+[12:16] loss. Task nodes, however, perform
+[12:19] processing work that can tolerate
+[12:20] interruption, making spot instances
+[12:23] ideal for cost savings. Terminating the
+[12:26] cluster after the six-hour daily
+[12:27] workload ensures no idle costs between
+[12:30] runs and savings plans further reduce
+[12:32] the predictable ondemand expenses for
+[12:35] the always needed nodes. Why the other
+[12:37] options are incorrect? A. Launch all
+[12:39] nodes on spot instances. Spot instances
+[12:42] can be reclaimed at any time risking
+[12:44] cluster failure since EMR's primary and
+[12:47] core nodes are critical for coordination
+[12:49] and HDFS data storage. This setup is
+[12:52] unreliable for business critical
+[12:54] workloads. C keep all nodes on demand.
+[12:58] This setup ensures stability but wastes
+[13:00] money as spot instances can
+[13:02] significantly reduce cost for
+[13:04] non-critical nodes. It doesn't optimize
+[13:06] compute costs effectively. D. Terminate
+[13:09] only the task nodes. Keeping the cluster
+[13:12] running after the daily job completes
+[13:14] wastes compute resources since the data
+[13:16] isn't needed until later in the day.
+[13:19] Terminating the entire cluster is more
+[13:21] costefficient. Therefore, the correct
+[13:23] answer is B. A company's interactive web
+[13:26] application uses an Amazon CloudFront
+[13:28] distribution to serve images from an
+[13:30] Amazon S3 bucket. Occasionally, third
+[13:33] party tools ingest corrupted images into
+[13:36] the S3 bucket. This image corruption
+[13:38] causes a poor user experience in the
+[13:41] application later. The company has
+[13:43] successfully implemented and tested
+[13:45] Python logic to detect corrupt images. A
+[13:47] solutions architect must recommend a
+[13:49] solution to integrate the detection
+[13:51] logic with minimal latency between the
+[13:53] ingestion and serving. Which solution
+[13:55] will meet these requirements?
+[13:59] The correct answer is C. Use an S3 event
+[14:02] notification that invokes an AWS Lambda
+[14:05] function. This is the best solution
+[14:07] because it provides nearrealtime
+[14:09] detection with minimal latency between
+[14:11] image upload and validation. Here's how
+[14:14] it works. When a new image is uploaded
+[14:17] to the S3 bucket, S3 event notifications
+[14:20] can immediately trigger a Lambda
+[14:22] function that runs the Python logic to
+[14:24] detect corruption. If the image is
+[14:26] valid, it stays. If not, the Lambda can
+[14:29] quarantine or delete it. This ensures
+[14:31] that only valid images are later served
+[14:33] by CloudFront maintaining a good user
+[14:36] experience. Why the other options are
+[14:38] incorrect? A lambda at edge viewer
+[14:41] response. Viewer response triggers run
+[14:44] after CloudFront serves the image to the
+[14:46] client. So the corrupted image would
+[14:48] have already been delivered. Too late to
+[14:50] detect or prevent. B. Lambda at edge.
+[14:53] Origin response. Origin response
+[14:55] triggers execute after CloudFront
+[14:57] fetches the image from S3. Again, too
+[15:00] late. The corrupted file would already
+[15:02] be requested and cached. D. S3 event
+[15:05] notification with snap functions. This
+[15:08] adds unnecessary complexity and latency.
+[15:10] Step functions are useful for multi-step
+[15:12] workflows, not simple per file
+[15:14] validation. Therefore, the correct
+[15:16] answer is C. A company is expanding. The
+[15:20] company plans to separate its resources
+[15:22] into hundreds of different AWS accounts
+[15:24] in multiple AWS regions. A solution's
+[15:28] architect must recommend a solution that
+[15:30] denies access to any operations outside
+[15:32] of specifically designated regions.
+[15:34] Which solution will meet these
+[15:36] Which solution will meet these requirements?
+[15:39] The correct answer is C. Launch an AWS
+[15:42] control tower landing zone, create OUS,
+[15:45] and attach SCPs that deny access to run
+[15:48] services outside of the approved
+[15:50] regions. AWS control tower automates the
+[15:53] setup of a multi-account environment
+[15:55] using AWS organizations and provides
+[15:57] governance at scale. SCPs are the right
+[16:00] mechanism to enforce region-based
+[16:02] restrictions across all accounts in an
+[16:05] organization. They apply to all AM users
+[16:08] and roles in the member accounts
+[16:10] regardless of permissions. This ensures
+[16:12] that no resources can be deployed or
+[16:14] accessed outside the designated regions.
+[16:17] Why the other options are incorrect? AM
+[16:20] rules with region-based allow policies.
+[16:23] AM rules control permissions within an
+[16:26] individual account but cannot prevent
+[16:28] region usage organizationwide. They are
+[16:30] also harder to maintain across hundreds
+[16:33] of accounts. Bam users with region
+[16:36] blocking policies. AM user level
+[16:39] policies do not scale across many
+[16:41] accounts and do not provide centralized
+[16:43] control. SCPs in organizations are the
+[16:45] correct mechanism for this type of
+[16:47] enforcement. D. AWS security hub
+[16:50] controls. Security Hub provides
+[16:52] compliance checks and visibility but
+[16:54] cannot enforce restrictions or deny
+[16:56] actions. It only reports findings. It
+[16:59] does not block access to regions.
+[17:01] Therefore, the correct answer is C. A
+[17:03] company wants to refactor its retail
+[17:06] ordering web application that currently
+[17:08] has a load balanced Amazon EC2 instance
+[17:10] fleet for web hosting, database API
+[17:13] services, and business logic. The
+[17:15] company needs to create a decoupled
+[17:17] scalable architecture with a mechanism
+[17:20] for retaining failed orders while also
+[17:22] minimizing operational costs. Which
+[17:24] solution will meet these requirements?
+[17:28] The correct answer is C. Use Amazon S3
+[17:32] for web hosting with AWS AppSync for
+[17:35] database API services. Use Amazon Simple
+[17:38] Q service for order queuing. Use AWS
+[17:42] Lambda for business logic with an Amazon
+[17:44] SQS dead letter Q for retaining failed
+[17:46] orders. This architecture is fully
+[17:49] serverless, decoupled and scales
+[17:51] automatically with demand, ideal for
+[17:54] minimizing operational costs. S3
+[17:56] provides a lowcost static web host.
+[17:58] AppSync provides scalable GraphQL APIs
+[18:02] to access or update back-end data. SQS
+[18:05] decouples the order submission process
+[18:07] and buffers requests. Lambda handles
+[18:09] business logic without managing servers.
+[18:12] The dead letter Q automatically retains
+[18:14] failed messages for later review or
+[18:16] reprocessing ensuring no lost orders.
+[18:19] Why the other options are incorrect? A
+[18:21] ECS with SQS longing. ECS introduces
+[18:25] unnecessary operational overhead
+[18:27] compared to lambda for an eventdriven
+[18:30] workflow. Long polling is not an
+[18:32] effective retention mechanism. A dead
+[18:34] letter Q is B. Amazon MQ and Step
+[18:37] Functions. Amazon MQ is a managed broker
+[18:40] service not needed for this simple
+[18:42] queuing pattern. Step functions adds
+[18:44] orchestration complexity and cost where
+[18:47] a simple Lambda function with SQS is
+[18:49] sufficient. D light sale with SES and
+[18:52] EKS. Light sale is for smallcale
+[18:55] applications not suitable for scalable
+[18:58] architectures. SEES is an email service
+[19:01] not a queuing service. EKS is expensive
+[19:04] and overkill for this use case.
+[19:06] Therefore, the correct answer is C. A
+[19:09] company hosts a web application on AWS
+[19:12] in the US East1 region. The application
+[19:15] servers are distributed across three
+[19:17] availability zones behind an application
+[19:19] load balancer. The database is hosted in
+[19:22] a MySQL database on an Amazon EC2
+[19:25] instance. A solutions architect needs to
+[19:28] design a cross region data recovery
+[19:30] solution using AWS services with an RTO
+[19:33] of less than 5 minutes and an RPO of
+[19:35] less than 1 minute. The solutions
+[19:37] architect is deploying application
+[19:39] servers in US West 2 and has configured
+[19:42] Amazon Route 53 health checks and DNS
+[19:44] failover to US West 2. Which additional
+[19:47] step should the solutions architect
+[19:49] step should the solutions architect take?
+[19:51] The correct answer is B. Migrate the
+[19:53] database to an Amazon Aurora global
+[19:56] database with the primary in US East one
+[19:58] and the secondary in US- West 2. Aurora
+[20:01] global database is purpose-built for
+[20:03] cross region disaster recovery and
+[20:05] provides the fastest RTO RPO combination
+[20:08] among managed databases. RPO of under 1
+[20:11] minute because it replicates data
+[20:13] asynchronously with typically under a
+[20:15] second of lag between regions. RTO of
+[20:18] under five minutes is because the
+[20:19] secondary region can be promoted to
+[20:21] primary in just a few minutes with
+[20:23] minimal downtime. This meets the
+[20:25] company's recovery objectives while
+[20:27] keeping management simple and highly
+[20:29] available across regions. Why the other
+[20:31] options are incorrect? Eight. RDS for my
+[20:34] SQL with cross region read replica. RDS
+[20:37] cross region replicas use asynchronous
+[20:40] replication and typically have higher
+[20:42] latency. Promoting a replica to primary
+[20:44] also takes longer than 5 minutes. So it
+[20:47] doesn't meet the RTOR RPO goals. C RDS
+[20:51] for MySQL multi-AZ deployment. Multi-AZ
+[20:54] provides high availability within a
+[20:56] single region only. It does not offer
+[20:58] cross region failover capability. D
+[21:01] MySQL standby on EC2 in another region.
+[21:05] Manually managing replication failover
+[21:07] and promotion between EC2 databases
+[21:10] increases operational overhead and
+[21:12] cannot reliably achieve RTO less than 5
+[21:14] minutes or RPO less than 1 minute.
+[21:17] Therefore, the correct answer is B. We
+[21:19] have come to the end of today's video.
+[21:21] If you like the video, please make sure
+[21:23] to like and subscribe. Goodbye.

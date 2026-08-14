@@ -1,0 +1,9 @@
+.aws-sam/
+node_modules/
+dist/
+.env
+.env.local
+coverage/
+frontend/config.js
+*.tsbuildinfo
+*.log

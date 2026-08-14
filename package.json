@@ -1,0 +1,39 @@
+{
+  "name": "db-less-rag-s3-files",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DB-less RAG with S3 Files, ripgrep, and provider-agnostic LangChain LLMs.",
+  "scripts": {
+    "build": "sam build",
+    "sam:validate": "sam validate",
+    "sam:deploy": "sam deploy",
+    "deploy": "npm run sam:validate && npm run build && npm run sam:deploy",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"frontend/js/*.js\" \"*.{mjs,json,yaml,md}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"frontend/js/*.js\" \"*.{mjs,json,yaml,md}\"",
+    "typecheck": "tsc --noEmit",
+    "frontend:dev": "python3 -m http.server 5173 --directory frontend"
+  },
+  "dependencies": {
+    "@aws-lambda-powertools/logger": "^2.34.0",
+    "@aws-sdk/client-s3": "^3.879.0",
+    "@aws-sdk/client-secrets-manager": "^3.879.0",
+    "@aws-sdk/s3-request-presigner": "^3.1109.0",
+    "@langchain/anthropic": "^0.3.16",
+    "@langchain/aws": "^0.1.8",
+    "@langchain/core": "^0.3.72",
+    "@langchain/openai": "^0.3.17",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/aws-lambda": "^8.10.145",
+    "@types/node": "^22.15.21",
+    "@types/pdf-parse": "^1.1.4",
+    "eslint": "^10.8.1",
+    "prettier": "^3.9.6",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.67.0"
+  }
+}

@@ -1,0 +1,1215 @@
+[0:00] Hello everyone, I'm Lee and welcome back
+[0:03] to our SAPC02
+[0:05] series. Let's move straight on to the
+[0:07] next 10 questions to get you ready for
+[0:09] the exam. Just a quick reminder, if
+[0:12] these breakdowns are valuable to you,
+[0:14] you can now support the team directly
+[0:16] via super thanks. It's never expected,
+[0:19] but it helps us create more quality
+[0:21] content. Now, let's get right to the key
+[0:23] concepts. Question 21. A company is
+[0:27] building a solution in the AWS cloud.
+[0:30] Thousands of devices will connect to the
+[0:32] solution and send data. Each device
+[0:35] needs to be able to send and receive
+[0:37] data in real time over the MQTT
+[0:39] protocol. Each device must authenticate
+[0:42] by using a unique X509 certificate.
+[0:45] Which solution will meet these
+[0:47] requirements with the least operational
+[0:49] overhead? A. Set up AWS IoT core for
+[0:54] each device. Create a corresponding
+[0:56] Amazon MQ and provision a certificate.
+[0:59] Connect each device to Amazon MQ. B.
+[1:03] Create a network load balancer NLB and
+[1:06] configure it with an AWS Lambda
+[1:08] authorizer. Run an MQTT broker on Amazon
+[1:12] EC2 instances in an autoscaling group.
+[1:15] Set the autoscaling group as the target
+[1:17] for the NLB. Connect each device to the
+[1:20] NLB. C.
+[1:22] Set up AWS IoT core for each device.
+[1:26] Create a corresponding AWS IoT thing and
+[1:29] provision a certificate. Connect each
+[1:32] device to AWS IoT core. D. Set up an
+[1:35] Amazon API gateway HTTP API and a
+[1:39] network load balancer NLB. Create
+[1:42] integration between API gateway and the
+[1:45] NLB. Configure a mutual TLS certificate
+[1:48] authorizer on the HTTP API. Run an MQTT
+[1:53] broker on an Amazon EC2 instance that
+[1:55] the NLB targets. Connect each device to
+[1:58] the NLB. All right, this question gives
+[2:01] us a very clear set of technical
+[2:03] requirements for an IoT solution. Let's
+[2:05] list them out. Protocol must support
+[2:08] MQTT for realtime two-way communication.
+[2:12] Authentication must support device
+[2:14] authentication using X509 certificates.
+[2:18] scale must handle thousands of devices.
+[2:22] Operational overhead. The solution must
+[2:25] have the least possible operational
+[2:27] overhead. This is the most critical
+[2:29] constraint and tells us to strongly
+[2:31] favor fully managed purpose-built
+[2:33] services over do-it-yourself DIY
+[2:36] solutions. With these requirements, we
+[2:38] are looking for a fully managed service
+[2:40] that is designed specifically for IoT
+[2:43] workloads. Let's evaluate the options.
+[2:46] A. Set up AWS IoT core for each device.
+[2:51] Create a corresponding Amazon MQ. This
+[2:54] option is incorrect because it
+[2:56] misunderstands the roles of the
+[2:57] services. While it correctly identifies
+[3:00] AWS IoT Core as the starting point, it
+[3:03] then incorrectly involves Amazon MQ. AWS
+[3:06] IoT core provides its own fully managed
+[3:09] MQTT message broker. Amazon MQ is a
+[3:12] managed service for different message
+[3:14] brokers like ActiveMQ and Rabbit MQ and
+[3:16] is not used for direct MQTT device
+[3:19] connectivity in an IoT core
+[3:20] architecture. B. Run an MQTT broker on
+[3:25] Amazon EC2 instances in an autoscaling
+[3:27] group. This option is incorrect because
+[3:30] it would create the most operational
+[3:31] overhead directly violating the key
+[3:34] requirement. This DIY approach would
+[3:36] make the company responsible for
+[3:38] provisioning EC2 instances, installing,
+[3:41] configuring, patching, and scaling the
+[3:43] MQTT broker software, managing security,
+[3:46] and building a custom authentication
+[3:48] mechanism. This is a significant amount
+[3:50] of work compared to a managed service.
+[3:53] C. Set up AWS IoT Core for each device.
+[3:58] Create a corresponding AWS IoT thing and
+[4:01] provision a certificate. Connect each
+[4:03] device to AWS IoT Core. This is the
+[4:06] correct answer. This option perfectly
+[4:09] describes the standard best practice
+[4:12] approach using the purpose-built service
+[4:14] for this exact use case. AWS IoT Core is
+[4:17] a fully managed service that provides a
+[4:19] scalable MQTT broker, a device registry
+[4:23] where you define things, and robust
+[4:25] security mechanisms, including native
+[4:28] support for X509 certificate-based
+[4:31] authentication. This approach eliminates
+[4:33] the need to manage any underlying
+[4:35] infrastructure like EC2 instances or
+[4:38] load balancers for the MQTT broker, thus
+[4:41] meeting the least operational overhead
+[4:43] requirement perfectly. D. Set up an
+[4:46] Amazon API gateway HTTP API. Run an MQTT
+[4:51] broker on an Amazon EC2 instance. This
+[4:54] option is incorrect. It proposes an
+[4:57] overly complex and inefficient
+[4:59] architecture. API gateways primary
+[5:02] protocol is HTTP,
+[5:04] not MQTT. Though MQTT over websockets is
+[5:08] a possibility, it adds complexity. More
+[5:11] importantly, like option B, it relies on
+[5:14] a self-managed MQTT broker on EC2, which
+[5:17] results in high operational overhead.
+[5:20] Therefore, the correct solution is C.
+[5:23] AWS IoT Core is the purpose-built fully
+[5:26] managed AWS service that directly meets
+[5:28] all the requirements for a scalable IoT
+[5:30] solution using MQTT and X509
+[5:33] certificates with the minimum possible
+[5:34] operational effort. Question 22. A
+[5:38] utility company wants to collect usage
+[5:40] data every 5 minutes from its smart
+[5:42] meters to facilitate time of use
+[5:44] metering. When a meter sends data to
+[5:46] AWS, the data is sent to Amazon API
+[5:48] gateway, processed by an AWS Lambda
+[5:51] function, and stored in an Amazon
+[5:53] DynamoB table. During the pilot phase,
+[5:56] the Lambda functions took from 3 to 5
+[5:58] seconds to complete. As more smart
+[6:00] meters are deployed, the engineers
+[6:03] notice the Lambda functions are taking
+[6:04] from 1 to 2 minutes to complete. The
+[6:07] functions are also increasing in
+[6:09] duration as new types of metrics are
+[6:11] collected from the devices. There are
+[6:13] many provisioned throughput exceeded
+[6:15] exception errors while performing put
+[6:16] operations on DynamoB and there are also
+[6:19] many too many requests exception errors
+[6:21] from Lambda. Which combination of
+[6:23] changes will resolve these issues?
+[6:26] Choose to A increase the right capacity
+[6:29] units to the Dynamo DB table. B increase
+[6:33] the memory available to the Lambda
+[6:35] functions. C increase the payload size
+[6:39] from the smart meters to send more data.
+[6:41] Dstream the data into an Amazon Kinesis
+[6:44] data stream from API gateway and process
+[6:46] the data in batches. E collect data in
+[6:50] an Amazon SQS FIFO Q which triggers a
+[6:53] lambda function to process each message.
+[6:55] All right, this scenario is a textbook
+[6:57] case of an architecture that works well
+[6:59] at a small scale but fails under high
+[7:01] load. The question is very helpful
+[7:03] because it gives us the exact error
+[7:05] messages which are our primary clues to
+[7:08] the root causes. Provisioned throughput
+[7:10] exceeded exception on Dynamo DB. This is
+[7:13] an unambiguous error. It means the
+[7:15] application is attempting to write to
+[7:17] the DynamoB table at a higher rate than
+[7:19] the provisioned write capacity units.
+[7:22] WCUs allow the database is throttling
+[7:25] the requests. Too many requests
+[7:27] exception from lambda. In this
+[7:29] synchronous API gateway lambda pattern,
+[7:33] each API call triggers a lambda
+[7:35] function. This error means the sheer
+[7:37] volume of simultaneous requests is
+[7:39] exceeding the Lambda services
+[7:40] concurrency limits for the account
+[7:42] causing invocations to be throttled.
+[7:44] Increased Lambda duration. The functions
+[7:47] are getting slower because they are
+[7:48] likely retrying the throttle Dynamob put
+[7:51] operations waiting and retrying again
+[7:53] which extends their runtime. The
+[7:55] solution must address both the database
+[7:57] bottleneck and the flawed overly
+[7:59] synchronous invocation pattern. Let's
+[8:01] evaluate the options. A. increase the
+[8:05] right capacity units to the Dynamo DB
+[8:07] table. This is a correct choice. This
+[8:10] action directly addresses the
+[8:12] provisioned throughput exceeded
+[8:14] exception errors. By increasing the WCUs
+[8:17] on the Dynamo DB table, you provision
+[8:19] more right throughput allowing the table
+[8:21] to handle the higher volume of put
+[8:23] operations from the scaled out
+[8:24] application without throttling. B.
+[8:27] Increase the memory available to the
+[8:29] Lambda functions. This is incorrect.
+[8:32] Increasing a lambda functions memory
+[8:34] also increases its CPU allocation.
+[8:37] However, the problem is not that the
+[8:38] function is CPUbound or memory
+[8:40] constrained. The problem is that it is
+[8:42] I/Obound waiting for a downstream
+[8:45] service Dynamob that is throttling it.
+[8:48] Giving the function more power will not
+[8:50] make the database accept writes any
+[8:52] faster. C. Increase the payload size
+[8:55] from the smart meters to send more data.
+[8:58] This is incorrect. Sending more data per
+[9:00] request would likely exacerbate the
+[9:02] problem by increasing the processing
+[9:04] time and the amount of data to be
+[9:06] written to DynamoB per invocation
+[9:08] without fixing the underlying
+[9:09] architectural issues. Dstream the data
+[9:12] into an Amazon Kinesis data stream from
+[9:14] API gateway and process the data in
+[9:17] batches. This is a correct choice. This
+[9:20] is a fundamental architectural
+[9:21] improvement that solves the too many
+[9:23] requests exception. Instead of a
+[9:25] synchronous one col one invocation, API
+[9:28] gateway can be configured to quickly put
+[9:30] records into a Kinesis data stream.
+[9:33] Kinesis is designed to ingest massive
+[9:35] volumes of streaming data. The Lambda
+[9:38] function is then invoked with a batch of
+[9:40] records from the stream. This decouples
+[9:42] the ingestion from the processing,
+[9:44] dramatically reduces the number of
+[9:46] Lambda invocations, and allows for more
+[9:49] efficient batch writes to Dynamob. This
+[9:51] is the standard pattern for high
+[9:53] throughput data ingestion. E collect
+[9:56] data in an Amazon SQS FIFOQ. This option
+[10:00] is plausible but not the best choice.
+[10:02] While using a Q is the right idea to
+[10:04] buffer requests, an SQS FIFOQ is
+[10:07] designed for strict ordering and exactly
+[10:09] once processing, which comes at the cost
+[10:11] of significantly lower throughput
+[10:13] compared to Kinesis or even SQS standard
+[10:15] Q's. For a high volume smart meter use
+[10:18] case, the throughput limits of a FIFOQ
+[10:20] could become the new bottleneck. Kinesis
+[10:23] data streams as in option D is the
+[10:25] purpose-built service for this type of
+[10:27] high-vol data streaming. Therefore, the
+[10:30] correct answers are A and D. They work
+[10:33] together to create a scalable and
+[10:35] resilient solution. D rearchitects the
+[10:38] ingestion flow from a brittle
+[10:39] synchronous pattern to a robust scalable
+[10:41] streaming pattern using kinesis which
+[10:44] solves the lambda concurrency issue. A
+[10:46] correctly provisions the database
+[10:48] backend with enough write capacity to
+[10:50] handle the load from the processing
+[10:52] tier. Question 23. A company has many
+[10:55] services running in its on premises data
+[10:58] center. The data center is connected to
+[11:00] AWS using AWS Direct Connect DX and an
+[11:05] AWS using AWS Direct Connect DX and an IPSecVPN.
+[11:07] The service data is sensitive and
+[11:09] connectivity cannot traverse the
+[11:10] internet. The company wants to expand
+[11:13] into a new market segment and begin
+[11:15] offering its services to other companies
+[11:17] that are using AWS. Which solution will
+[11:20] meet these requirements?
+[11:23] Create a VPC endpoint service that
+[11:25] accepts TCP traffic. host it behind a
+[11:28] network load balancer and make the
+[11:30] service available over DX. B. Create a
+[11:34] VPC endpoint service that accepts HTTP
+[11:36] or HTTPS traffic. Host it behind an
+[11:40] application load balancer and make the
+[11:42] service available over DX. C. Attach an
+[11:46] internet gateway to the VPC and ensure
+[11:48] that network access control and security
+[11:50] group rules allow the relevant inbound
+[11:52] and outbound traffic. D. Attach a NAT
+[11:56] gateway to the VPC and ensure that
+[11:59] network access control and security
+[12:00] group rules allow the relevant inbound
+[12:02] and outbound traffic. All right, this
+[12:05] scenario is about creating a secure
+[12:07] private connection so that third-party
+[12:10] consumer VPCs can access a service that
+[12:12] originates in your provider on premises
+[12:15] data center. Let's break down the key
+[12:17] requirements. Service location. The
+[12:20] service is on premises but it's
+[12:22] accessible from the company's own AWS
+[12:24] VPC via direct connect. Consumer
+[12:27] location other companies in their own
+[12:30] separate AWS VPCs critical security
+[12:34] constraint connectivity cannot traverse
+[12:36] the internet. This set of requirements
+[12:39] is the exact use case for AWS private
+[12:41] link. Private link allows you to create
+[12:44] a VPC endpoint service in your VPC to
+[12:46] expose a service which other AWS
+[12:49] customers can then connect to by
+[12:50] creating an interface VPC endpoint in
+[12:53] their own VPC. This connection is
+[12:55] entirely private and stays on the AWS
+[12:58] backbone network. A critical technical
+[13:00] detail of private link is that the VPC
+[13:02] endpoint service must be fronted by a
+[13:05] network load balancer NLB. It does not
+[13:08] work with application load balancers
+[13:10] ALBs. With this knowledge, let's
+[13:13] evaluate the options.
+[13:16] Create a VPC endpoint service that
+[13:18] accepts TCP traffic. Host it behind a
+[13:21] network load balancer and make the
+[13:23] service available over DX. This is the
+[13:26] correct answer. It perfectly describes
+[13:28] the private link architecture. VPC
+[13:31] endpoint service. This is the provider
+[13:34] side component of private link. Network
+[13:37] load balancer. This is the required type
+[13:39] of load balancer for a VPC endpoint
+[13:42] service. The NLB can have targets that
+[13:44] are IP addresses allowing it to route
+[13:47] traffic over the direct connect
+[13:48] connection to the on- premises service.
+[13:50] TCP traffic. NLBs operate at the
+[13:54] transport layer layer 4 handling TCP
+[13:57] traffic. This solution meets all
+[13:59] requirements providing secure private
+[14:02] connectivity without using the internet.
+[14:05] B. Create a VPC endpoint service. Host
+[14:09] it behind an application load balancer.
+[14:12] This option is incorrect due to a key
+[14:14] technical limitation. As mentioned, a
+[14:17] VPC endpoint service, the foundation of
+[14:19] private link, can only be placed behind
+[14:22] a network load balancer. It is not
+[14:24] compatible with an application load
+[14:26] balancer. C. Attach an internet gateway
+[14:30] to the VPC. This is incorrect. An
+[14:33] internet gateway is used to provide
+[14:35] public internet access to and from a
+[14:37] VPC. This directly violates the strict
+[14:40] requirement that connectivity cannot
+[14:43] traverse the internet. D. Attach a NAT
+[14:46] gateway to the VPC. This is incorrect.
+[14:50] ANAT gateway is used to allow resources
+[14:52] in a private subnet to initiate outbound
+[14:55] connections to the internet. It cannot
+[14:57] be used to accept inbound connections
+[14:59] from other companies to host a service.
+[15:01] This also violates the no internet rule.
+[15:04] Therefore, the correct solution is A. It
+[15:07] is the only option that correctly
+[15:09] describes the AWS private link
+[15:10] architecture using a VPC endpoint
+[15:13] service and the required network load
+[15:14] balancer to securely expose an on-
+[15:16] premises service to other AWS customers
+[15:19] without using the internet. Question 24.
+[15:22] A company has an application that uses
+[15:24] Amazon EC2 instances in an autoscaling
+[15:27] group. The quality assurance QA
+[15:30] department needs to launch a large
+[15:32] number of short-lived environments to
+[15:33] test the application. The application
+[15:36] environments are currently launched by
+[15:37] the manager of the department using an
+[15:39] AWS cloud for template. To launch the
+[15:42] stack, the manager uses a role with
+[15:45] permission to use cloud for EC2 and
+[15:48] autoscaling APIs. The manager wants to
+[15:51] allow testers to launch their own
+[15:53] environments but does not want to grant
+[15:55] broad permissions to each user. Which
+[15:58] setup would achieve these goals? A.
+[16:01] Upload the AWS cloud for template to
+[16:04] Amazon S3. Give users in the QA
+[16:07] department permission to assume the
+[16:08] manager's role and add a policy that
+[16:10] restricts the permissions to the
+[16:12] template and the resources it creates.
+[16:14] Train users to launch the template from
+[16:16] the cloud for console. B. Create an AWS
+[16:21] service catalog product from the
+[16:22] environment template. Add a launch
+[16:24] constraint to the product with the
+[16:26] existing role. Give users in the QA
+[16:29] department permission to use AWS service
+[16:31] catalog APIs only. Train users to launch
+[16:35] the template from the AWS service
+[16:37] catalog console. C. Upload the AWS cloud
+[16:41] for template to Amazon S3. Give users in
+[16:45] the QA department permission to use
+[16:46] cloud form and S3 APIs with conditions
+[16:49] that restrict the permissions to the
+[16:51] template and the resources it creates.
+[16:53] Train users to launch the template from
+[16:55] the cloud for console. D. Create an AWS
+[17:00] elastic beantock application from the
+[17:02] environment template. Give users in the
+[17:05] QA department permission to use elastic
+[17:07] beantock permissions only. Train users
+[17:10] to launch elastic beantock environments
+[17:12] with the elastic beantock cli passing
+[17:15] the existing role to the environment as
+[17:16] a service role. All right, this problem
+[17:19] is about delegated permissions and
+[17:21] self-service. The core challenge is
+[17:23] allowing a group of users QA testers to
+[17:26] provision complex infrastructure defined
+[17:28] in a cloud for template without giving
+[17:30] them the powerful underlying permissions
+[17:33] like creating EC2 instances or
+[17:35] autoscaling groups directly. We need a
+[17:38] service that can act as a trusted
+[17:40] intermediary. This is the exact use case
+[17:43] for AWS service catalog. It allows
+[17:46] administrators to create a curated
+[17:47] portfolio of products which are
+[17:50] typically cloud for templates that end
+[17:52] users can deploy on demand without
+[17:55] needing permissions to the underlying
+[17:57] services. Let's evaluate the options
+[17:59] with this in mind.
+[18:02] Give users permission to assume the
+[18:04] manager's role. This is incorrect and a
+[18:07] poor security practice. Giving users the
+[18:10] ability to assume a powerful role even
+[18:12] with conditions is risky. It directly
+[18:15] contradicts the requirement to not grant
+[18:17] broad permissions to each user. The goal
+[18:20] is to abstract these permissions away
+[18:22] entirely, not to delegate them. B.
+[18:26] Create an AWS service catalog product.
+[18:29] Add a launch constraint to the product
+[18:31] with the existing role. This is the
+[18:34] correct answer. This perfectly describes
+[18:36] the intended use of AWS service catalog
+[18:39] for governance. Create a product. The
+[18:42] administrator takes the approved cloud
+[18:44] formation template and defines it as a
+[18:46] service catalog product. Add a launch
+[18:49] constraint. This is the key. The
+[18:51] administrator associates the manager's
+[18:53] powerful role with the product as a
+[18:55] launch constraint. Grant user
+[18:57] permissions. The QA testers are given IM
+[19:00] permissions only to use service catalog.
+[19:03] eg service catalog launch product they
+[19:07] are not given any EC2 or autoscaling
+[19:09] permissions when a tester launches the
+[19:12] product service catalog assumes the
+[19:14] constrained role on their behalf to
+[19:16] provision the cloud for stack this
+[19:18] provides a secure self-service portal
+[19:21] while adhering to the principle of least
+[19:23] privilege C
+[19:26] give users in the QA department
+[19:28] permission to use cloud for and S3 APIs
+[19:30] with conditions this is incorrect
+[19:33] While you can use complex IM conditions
+[19:35] to try and lock down cloud form
+[19:37] permissions, it's difficult to get right
+[19:39] and more importantly it still requires
+[19:42] you to grant the underlying EC2 and
+[19:43] autoscaling permissions to the users
+[19:45] themselves. Cloud form is a pass through
+[19:48] service. If the user running the stack
+[19:50] doesn't have permission to create an EC2
+[19:53] instance, the stack will fail. This
+[19:55] violates the do not grant broad
+[19:57] permissions rule. D. Create an AWS
+[20:01] elastic beantock application from the
+[20:03] environment template. This is incorrect
+[20:05] as it's the wrong tool for the job. The
+[20:08] environment is defined by a generic
+[20:10] cloud formation template. Elastic
+[20:12] beantoalk is a platform as a service
+[20:15] pass for deploying and managing
+[20:17] applications not a generalpurpose
+[20:19] self-service tool for provisioning
+[20:21] arbitrary cloud for templates. Service
+[20:24] catalog is designed for exactly that
+[20:26] purpose. Therefore, the correct solution
+[20:29] is B. AWS service catalog is the
+[20:32] purpose-built service that allows you to
+[20:34] create a curated portfolio of deployable
+[20:36] products, enabling users to launch
+[20:38] approved infrastructure without needing
+[20:40] direct permissions to the underlying AWS
+[20:42] services. Question 25. A company has a
+[20:46] website that serves many visitors. The
+[20:48] company deploys a back-end service for
+[20:50] the website in a primary AWS region and
+[20:53] a disaster recovery DR region. A single
+[20:57] Amazon CloudFront distribution is
+[20:59] deployed for the website. The company
+[21:01] creates an Amazon Route 53 record set
+[21:04] with health checks and a failover
+[21:05] routing policy for the primary region's
+[21:07] back-end service. The company configures
+[21:10] the route 53 record set as an origin for
+[21:12] the CloudFront distribution. The company
+[21:15] configures another record set that
+[21:17] points to the backend services endpoint
+[21:19] in the DR region as a secondary failover
+[21:21] record type. The TTL for both record
+[21:24] sets is 60 seconds. Currently, failover
+[21:27] takes more than 1 minute. A solution's
+[21:30] architect must design a solution that
+[21:32] will provide the fastest failover time.
+[21:35] Which solution will achieve this goal.
+[21:37] A. Deploy an additional CloudFront
+[21:40] distribution. Create a new route 53
+[21:43] failover record set with health checks
+[21:45] for both CloudFront distributions. B.
+[21:49] Set the TTL to 4 seconds for the
+[21:51] existing route 53 record sets that are
+[21:53] used for the backend service in each
+[21:55] region. C. Create new record sets for
+[21:58] the backend services by using a latency
+[22:01] routing policy. Use the record sets as
+[22:03] an origin in the CloudFront
+[22:05] distribution. D. Create a CloudFront
+[22:08] origin group that includes two origins,
+[22:11] one for each backend service region.
+[22:13] Configure origin failover as a cache
+[22:16] behavior for the CloudFront
+[22:17] distribution. All right. The core of
+[22:20] this problem is the slow failover time
+[22:22] which is explicitly stated to be more
+[22:25] than 1 minute. We need to find the root
+[22:27] cause of this delay and implement the
+[22:30] solution that provides the fastest
+[22:32] failover time. The current architecture
+[22:34] uses Amazon Route 53 for failover. When
+[22:38] CloudFront requests content from the
+[22:40] origin, it first resolves the origin's
+[22:42] domain name via DNS. Route 53's health
+[22:45] checks monitor the primary backend and
+[22:48] if it fails, Route 53 updates the DNS
+[22:51] record to point to the DR backend. The
+[22:53] reason this is slow is due to DNS
+[22:55] caching. The total failover time is the
+[22:58] sum of the route 53 health check failure
+[23:01] detection time plus the DNS records time
+[23:03] to live TTL. Even after route 53 marks
+[23:07] the primary as unhealthy, CloudFront
+[23:09] edge locations will continue to use the
+[23:11] cached IP address of the failed primary
+[23:13] origin until the 60-cond TTL expires.
+[23:17] This reliance on DNS is the bottleneck.
+[23:20] To get the fastest possible failover, we
+[23:22] need to remove the dependency on DNS.
+[23:25] The failover logic should be handled
+[23:27] directly within CloudFront itself. Let's
+[23:30] evaluate the options. A deploy an
+[23:34] additional CloudFront distribution.
+[23:36] Create a new route 53 failover record
+[23:39] set. This is incorrect. This solution
+[23:42] just moves the slow DNS-based failover
+[23:44] mechanism one layer up. Instead of
+[23:47] CloudFront's origin failing over slowly,
+[23:49] the entire CloudFront distribution would
+[23:51] fail over slowly at the DNS level. This
+[23:54] does not solve the underlying problem.
+[23:56] B. set the TTL to 4 seconds for the
+[24:00] existing route 53 record sets. This is
+[24:03] incorrect. While lowering the TTL would
+[24:06] certainly improve the failover time, it
+[24:08] would not be the fastest solution. There
+[24:10] would still be a delay for route 53
+[24:12] health checks to complete and for the up
+[24:14] to 4 second TTL to expire. A native
+[24:18] CloudFront solution will be faster. C.
+[24:21] Create new record sets by using a
+[24:24] latency routing policy. This is
+[24:26] incorrect. Latency based routing is for
+[24:29] performance optimization directing users
+[24:32] to the AWS region with the lowest
+[24:34] network latency for them. It is not a
+[24:36] high availability or failover solution.
+[24:39] If a region fails, latency routing will
+[24:42] not automatically redirect users to the
+[24:44] healthy region. D. Create a CloudFront
+[24:47] origin group that includes two origins.
+[24:50] Configure origin failover as a cache
+[24:52] behavior for the CloudFront
+[24:54] distribution. This is the correct
+[24:56] answer. This is the purpose-built AWS
+[24:59] feature for this exact use case. An
+[25:02] origin group allows you to specify a
+[25:04] primary and a secondary origin. You then
+[25:07] configure the cache behavior to use this
+[25:09] group. When CloudFront receives a
+[25:11] request, it sends it to the primary
+[25:14] origin. If the primary origin fails, eg
+[25:18] returns a 5xx error or times out.
+[25:20] CloudFront immediately and automatically
+[25:23] retries the same request against the
+[25:24] secondary origin. This failover happens
+[25:27] within milliseconds at the application
+[25:30] layer completely bypassing DNS. This is
+[25:33] the fastest possible failover mechanism
+[25:35] available. Therefore, the correct
+[25:38] solution is D. It replaces the slow
+[25:41] DNS-based failover with CloudFront's
+[25:43] native near instantaneous origin
+[25:45] failover feature, directly addressing
+[25:47] the requirement for the fastest possible
+[25:49] failover time. Question 26. A company is
+[25:53] collecting a large amount of data from a
+[25:55] fleet of IoT devices. Data is stored as
+[25:58] optimized row columnar OC files in the
+[26:02] Hadoop distributed file system HDFS on a
+[26:06] persistent Amazon EMR cluster. The
+[26:08] company's data analytics team queries
+[26:10] the data by using SQL in Apache Presto
+[26:13] deployed on the same EMR cluster.
+[26:15] Queries scan large amounts of data,
+[26:18] always run for less than 15 minutes, and
+[26:20] run only between 5:00 p.m. and 10 p.m.
+[26:23] The company is concerned about the high
+[26:25] cost associated with the current
+[26:27] solution. A solution's architect must
+[26:30] propose the most cost-effective solution
+[26:32] that will allow SQL data queries. Which
+[26:34] solution will meet these requirements?
+[26:38] Store data in Amazon S3. Use Amazon
+[26:41] Redshift Spectrum to query data. B.
+[26:44] Store data in Amazon S3. Use the AWS
+[26:48] Glue data catalog and Amazon Athena to
+[26:51] query data. C. Store data in EMR file
+[26:54] system. EMRFS.
+[26:57] Use Presto in Amazon EMR to query data.
+[27:00] D. Store data in Amazon Redshift. Use
+[27:04] Amazon Redshift to query data. All
+[27:06] right. The core of this problem is cost
+[27:08] optimization. Let's find the biggest
+[27:11] source of unnecessary cost in the
+[27:13] current architecture. The prompt tells
+[27:15] us they are using a persistent Amazon
+[27:17] EMR cluster, but that queries run only
+[27:20] between 5:00 p.m. and 10 p.m. This is a
+[27:23] huge red flag for cost inefficiency. A
+[27:26] persistent cluster means the company is
+[27:28] paying for EC2 instances 24 hours a day
+[27:31] even though they are sitting idle for 19
+[27:33] of those hours. Additionally, using HDFS
+[27:36] for storage ties the data to the life
+[27:38] cycle of the cluster which is not
+[27:40] durable or cost effective. The modern
+[27:43] cost-effective approach to data
+[27:45] analytics on AWS is to decouple storage
+[27:47] and compute. This means using a cheap
+[27:50] durable object store like Amazon S3 for
+[27:52] the data and then using a compute
+[27:54] service to query that data only when
+[27:56] needed. For intermittent ad hoc SQL
+[27:59] queries, a serverless paper query engine
+[28:02] is the most cost-effective option. Let's
+[28:05] evaluate the options based on this
+[28:07] evaluate the options based on this principle.
+[28:09] Store data in Amazon S3. Use Amazon
+[28:12] Redshift Spectrum to query data. This is
+[28:15] a plausible but not the most
+[28:17] cost-effective solution. Storing data in
+[28:19] S3 is the correct first step. Redshift
+[28:22] Spectrum can query data in S3, but to
+[28:25] use it, you need a running Amazon
+[28:27] Redshift cluster. A Redshift cluster,
+[28:30] even a small one, has a 24/7 cost
+[28:32] associated with it. For a workload that
+[28:35] only runs 5 hours a day, maintaining a
+[28:38] persistent data warehouse cluster is not
+[28:40] the cheapest option. B. Store data in
+[28:43] Amazon S3. Use the AWS Glue data catalog
+[28:47] and Amazon Athena to query data. This is
+[28:50] the correct answer. This solution
+[28:52] perfectly embodies the decoupled
+[28:55] serverless analytics pattern. Storage
+[28:58] data is moved from expensive HDFS to
+[29:01] lowcost highly durable Amazon S3.
+[29:04] Metadata. The AWS Glue data catalog is
+[29:08] used to create a serverless metadata
+[29:10] schema for the data in S3. Compute.
+[29:13] Amazon Athena is a completely serverless
+[29:16] query engine. There are no clusters to
+[29:18] manage and no idle compute costs. You
+[29:21] pay only for the data scanned by the
+[29:23] queries you run for a workload that is
+[29:25] active only 5 hours a day. This paper
+[29:28] query model is vastly more
+[29:30] cost-effective than any solution that
+[29:32] requires a persistent cluster. C. Store
+[29:35] data in EMR file system. EMRFS.
+[29:38] Use Presto in Amazon EMR to query data.
+[29:42] This is incorrect. While using EMRFS to
+[29:45] store data in S3 is an improvement over
+[29:47] HDFS, this solution still relies on an
+[29:50] Amazon EMR cluster to run Presto, this
+[29:53] doesn't solve the primary cost issue,
+[29:56] which is the 247 expense of the cluster
+[29:58] itself. The truly serverless option,
+[30:01] Athena, will be more cost effective for
+[30:04] this intermittent workload. D. Store
+[30:06] data in Amazon Redshift. Use Amazon
+[30:09] Redshift to query data. This is
+[30:12] incorrect. This approach requires you to
+[30:14] load the OC files from your data lake
+[30:16] into a Redshift data warehouse. This
+[30:19] adds the complexity and cost of an ETL
+[30:22] process. More importantly, it requires a
+[30:24] persistent Redshift cluster which is not
+[30:27] cost-effective for this workload
+[30:29] pattern. The goal is to query the data
+[30:31] in place not to load it into an
+[30:33] expensive always on warehouse.
+[30:35] Therefore, the correct solution is B.
+[30:38] The combination of Amazon S3 for storage
+[30:40] and Amazon Athena for serverless paper
+[30:43] query compute is the most cost-effective
+[30:45] architecture for intermittent SQL
+[30:46] queries on a data lake. Question 27. A
+[30:50] company is building an application that
+[30:52] will run on an AWS Lambda function.
+[30:55] Hundreds of customers will use the
+[30:57] application. The company wants to give
+[31:00] each customer a quota of requests for a
+[31:02] specific time period. The quotas must
+[31:05] match customer usage patterns. Some
+[31:07] customers must receive a higher quota
+[31:10] for a shorter time period. Which
+[31:12] solution will meet these requirements?
+[31:14] A. Create an Amazon API gateway rest API
+[31:18] with a proxy integration to invoke the
+[31:20] Lambda function for each customer.
+[31:23] Configure an API gateway usage plan that
+[31:26] includes an appropriate request quota.
+[31:28] Create an API key from the usage plan
+[31:30] for each user that the customer needs.
+[31:33] B. Create an Amazon API gateway HTTP API
+[31:37] with a proxy integration to invoke the
+[31:39] Lambda function for each customer.
+[31:42] Configure an API gateway usage plan that
+[31:45] includes an appropriate request quota.
+[31:47] Configure route level throttling for
+[31:49] each usage plan. Create an API key from
+[31:52] the usage plan for each user that the
+[31:54] customer needs. C. Create a Lambda
+[31:58] function alias for each customer.
+[32:00] Include a concurrency limit with an
+[32:02] appropriate request quota. Create a
+[32:05] Lambda function URL for each function
+[32:07] alias. Share the Lambda function URL for
+[32:10] each alias with the relevant customer.
+[32:13] D. Create an application load balancer
+[32:16] ALB in a VPC. Configure the Lambda
+[32:19] function as a target for the ALB.
+[32:22] Configure an AWSWAF
+[32:24] web ACL for the ALB for each customer.
+[32:28] Configure a ratebased rule that includes
+[32:30] an appropriate request quota. All right.
+[32:32] The core of this problem is to implement
+[32:35] a flexible per customer quota system for
+[32:37] a lambda based application. It's
+[32:39] important to distinguish a quota, eg
+[32:42] 10,000 requests per month, from simple
+[32:45] throttling or rate limiting, eg 100
+[32:49] requests per second. The solution needs
+[32:51] to track usage against a defined limit
+[32:53] over a period, day, week, month, and
+[32:58] identify individual customers to apply
+[33:00] their specific plan. This set of
+[33:02] requirements, API exposure, customer
+[33:05] identification, and usage quotas points
+[33:08] directly to the advanced features of
+[33:09] Amazon API gateway. Let's evaluate the
+[33:12] options. A. Create an Amazon API gateway
+[33:16] rest API. Configure an API gateway usage
+[33:20] plan. Create an API key. This is the
+[33:23] correct answer. It uses the right
+[33:25] combination of features from the right
+[33:27] service. API gateway rest API. This is
+[33:31] the specific type of API gateway that
+[33:34] supports the advanced features needed.
+[33:36] API keys. These are generated to
+[33:39] uniquely identify each customer. The
+[33:41] customer includes their key in requests.
+[33:44] Usage plans. This is the exact feature
+[33:47] designed for this requirement. You can
+[33:49] create different usage plans, eg gold,
+[33:53] silver, bronze, and configure specific
+[33:56] request quotas, eg 50,000 requests/mon,
+[34:01] and throttling limits for each. You then
+[34:03] associate a customer's API key with
+[34:06] their designated usage plan. This
+[34:08] solution is flexible and purpose-built
+[34:10] for the problem. B. Create an Amazon API
+[34:14] gateway HTTP API. Configure an API
+[34:18] gateway usage plan. This is incorrect
+[34:20] due to a critical technical distinction.
+[34:23] HTTP APIs do not support usage plans and
+[34:26] API keys. These features are exclusive
+[34:29] to the more traditional REST APIs. While
+[34:32] HTTP APIs are often a great choice for
+[34:35] simpler, lowerc cost APIs, they lack the
+[34:38] specific quota management functionality
+[34:40] required here. C. Create a lambda
+[34:43] function alias. Include a concurrency
+[34:46] limit. This is incorrect because it
+[34:48] misuses Lambda's features. A lambda
+[34:51] concurrency limit is not a quota. It
+[34:53] limits the number of simultaneous
+[34:56] executions of a function. A customer
+[34:58] could exhaust their entire quota in a
+[35:01] single second by making many parallel
+[35:03] requests and then be blocked. It does
+[35:05] not track usage over a time period like
+[35:07] a day or month, which is what a quota
+[35:10] system does. D. Configure an AWSWAF
+[35:14] web ACL for the ALB. For each customer,
+[35:17] configure a ratebased rule. This is
+[35:20] incorrect because it confuses rate
+[35:22] limiting with quotas. An AWSWAF
+[35:25] ratebased rule is a security feature
+[35:27] used for throttling to prevent DOS
+[35:29] attacks or abuse. Eg. Block an IP
+[35:32] address if it sends more than 500
+[35:34] requests in 5 minutes. It does not track
+[35:37] usage against a monthly or daily
+[35:39] allowance for a specific customer
+[35:41] identified by an API key. It's the wrong
+[35:44] tool for this business requirement.
+[35:46] Therefore, the correct solution is a
+[35:49] Amazon API gateway rest APIs combined
+[35:52] with usage plans and API keys provide
+[35:55] the exact purpose-built mechanism to
+[35:57] manage per customer quotas for an API.
+[35:59] Question 28. A financial company is
+[36:02] planning to migrate its web application
+[36:04] from on premises to AWS. The company
+[36:07] uses a third-party security tool to
+[36:09] monitor the inbound traffic to the
+[36:11] application. The company has used the
+[36:13] security tool for the last 15 years and
+[36:16] the tool has no cloud solutions
+[36:18] available from its vendor. The company's
+[36:20] security team is concerned about how to
+[36:22] integrate the security tool with AWS
+[36:25] technology. The company plans to deploy
+[36:27] the application migration to AWS on
+[36:30] Amazon EC2 instances. The EC2 instances
+[36:33] will run in an autoscaling group in a
+[36:36] dedicated VPC. The company needs to use
+[36:38] the security tool to inspect all packets
+[36:41] that come in and out of the VPC. This
+[36:43] inspection must occur in real time and
+[36:45] must not affect the application's
+[36:47] performance. A solutions architect must
+[36:50] design a target architecture on AWS that
+[36:53] is highly available within an AWS
+[36:55] region. Which combination of steps
+[36:57] should the solutions architect take to
+[36:59] meet these requirements? Choose to A
+[37:03] deploy the security tool on EC2
+[37:05] instances in a new autoscaling group in
+[37:08] the existing VPC. B deploy the web
+[37:12] application behind a network load
+[37:14] balancer. C. Deploy an application load
+[37:18] balancer in front of the security tool
+[37:20] instances. D. Provision a gateway load
+[37:22] balancer for each availability zone to
+[37:25] redirect the traffic to the security
+[37:26] tool. E. Provision a transit gateway to
+[37:30] facilitate communication between VPCs.
+[37:33] All right. This scenario is a classic
+[37:36] bring your own appliance challenge. We
+[37:38] need to insert a fleet of third party
+[37:40] security appliances running on EC2
+[37:44] directly into the network path to
+[37:45] inspect all traffic entering and leaving
+[37:47] a VPC. This needs to be done
+[37:50] transparently without the application
+[37:52] servers knowing and in a highly
+[37:54] available scalable way. This is the
+[37:56] exact use case for the gateway load
+[37:58] balancer GWLB.
+[38:01] The GWLB is a purpose-built AWS service
+[38:04] designed to deploy, scale, and manage
+[38:06] fleets of thirdparty virtual appliances
+[38:08] for tasks like firewalls, intrusion
+[38:11] detection/prevention systems, IDS/IPS,
+[38:15] and deep packet inspection. It acts as a
+[38:18] transparent bump in the wire. With this
+[38:21] in mind, let's analyze the options. A.
+[38:25] Deploy the security tool on EC2
+[38:27] instances in a new autoscaling group in
+[38:30] the existing VPC. This is a correct
+[38:32] choice. Since the security tool has no
+[38:35] native cloud solution, we must run its
+[38:37] software on EC2 instances to make this
+[38:40] fleet of virtual appliances highly
+[38:42] available and scalable. They must be
+[38:44] placed in an autoscaling group that
+[38:46] spans multiple availability zones. This
+[38:49] ensures that if one appliance fails,
+[38:51] it's automatically replaced and the
+[38:53] fleet can scale to handle changes in
+[38:55] traffic. B. Deploy the web application
+[38:59] behind a network load balancer. This is
+[39:01] incorrect. While the application itself
+[39:04] will likely need a load balancer, this
+[39:06] option doesn't solve the core problem of
+[39:08] how to inspect the traffic. Placing a
+[39:10] load balancer in front of the
+[39:12] application doesn't help route traffic
+[39:14] through the security appliances. The
+[39:16] inspection needs to happen before
+[39:18] traffic reaches the application's entry
+[39:20] point. C. Deploy an application load
+[39:24] balancer in front of the security tool
+[39:26] instances. This is incorrect. An
+[39:29] application load balancer ALB operates
+[39:32] at layer 7 HTTP/HTTPS
+[39:36] and is designed for web traffic. It
+[39:39] terminates TLS and forwards HTTP
+[39:41] requests. Security appliances often need
+[39:44] to inspect raw IP packets at layer 3 and
+[39:47] four, which an ALB would prevent. The
+[39:49] gateway load balancer is the correct
+[39:51] type of load balancer for this packet
+[39:53] level inspection use case. D. Provision
+[39:57] a gateway load balancer to redirect the
+[40:00] traffic to the security tool. This is a
+[40:02] correct choice. This is the other
+[40:04] essential half of the solution. The
+[40:07] gateway load balancer GWLB is the
+[40:10] service that sits in front of the fleet
+[40:12] of security appliances created in option
+[40:15] A. You then configure routing in your
+[40:17] VPC to send all ingress and egress
+[40:19] traffic to a gateway load balancer
+[40:21] endpoint which transparently forwards
+[40:23] the traffic to the GWLB for inspection.
+[40:26] The GWLB then distributes the traffic
+[40:29] across the healthy appliance instances.
+[40:31] This creates the required transparent
+[40:34] inline inspection architecture. E
+[40:37] provision a transit gateway to
+[40:39] facilitate communication between VPCs.
+[40:42] This is incorrect. A transit gateway is
+[40:44] a network hub used to connect many VPCs
+[40:47] and on- premises networks. The problem
+[40:50] described here is about inspecting
+[40:52] traffic for a single application VPC.
+[40:55] While you can build complex centralized
+[40:57] inspection architectures with transit
+[40:58] gateway and GWLB, the transit gateway
+[41:01] itself is not the component that
+[41:03] redirects traffic to the appliances for
+[41:04] inspection. The GWLB is therefore the
+[41:08] correct answers are A and D. They work
+[41:10] together to form a complete modern
+[41:13] inspection architecture. It creates the
+[41:15] scalable and highly available fleet of
+[41:18] virtual security appliances. D uses the
+[41:21] purpose-built gateway load balancer to
+[41:23] transparently route all VPC traffic
+[41:25] through that fleet for real-time
+[41:26] inspection. Question 29. A company is
+[41:30] running an application in the AWS cloud.
+[41:33] The application runs on containers in an
+[41:35] Amazon elastic container service Amazon
+[41:38] ECS cluster. The ECS tasks use the
+[41:41] Fargate launch type. The application's
+[41:44] data is relational and is stored in
+[41:46] Amazon Aurora MySQL. To meet regulatory
+[41:49] requirements, the application must be
+[41:52] able to recover to a separate AWS region
+[41:54] in the event of an application failure.
+[41:57] In case of a failure, no data can be
+[41:59] lost. Which solution will meet these
+[42:02] requirements with the least amount of
+[42:03] operational overhead?
+[42:06] Provision an Aurora replica in a
+[42:08] different region. B. Set up AWS data
+[42:12] sync for continuous replication of the
+[42:14] data to a different region. C. Set up
+[42:18] AWS database migration service AWSDMS
+[42:22] to perform a continuous replication of
+[42:24] the data to a different region. D. Use
+[42:28] Amazon Data Life Cycle Manager, Amazon
+[42:30] DLM to schedule a snapshot every 5
+[42:33] minutes. All right, the core of this
+[42:35] problem is finding a disaster recovery
+[42:37] solution for an Aurora database. Let's
+[42:40] focus on the most critical requirements
+[42:42] given in the scenario. Cross region
+[42:45] recovery. The solution must replicate
+[42:47] data to a separate AWS region.0 data
+[42:50] loss. The requirement that no data can
+[42:53] be lost translates to a recovery point
+[42:55] objective RPO of or as close as possible
+[42:58] to zero. This means we need continuous
+[43:01] replication, not periodic backups, least
+[43:05] operational overhead. The solution
+[43:07] should be simple to manage, favoring
+[43:09] native built-in features over more
+[43:11] complex separate services. With these
+[43:14] points in mind, we're looking for a
+[43:16] fully managed continuous cross region
+[43:19] replication feature that is native to
+[43:20] Amazon Aurora. Let's evaluate the
+[43:23] Amazon Aurora. Let's evaluate the options.
+[43:25] Provision an Aurora replica in a
+[43:27] different region. This is the correct
+[43:29] answer. Amazon Aurora has a built-in
+[43:32] fully managed feature for creating cross
+[43:34] region replicas. This can be either a
+[43:36] standard cross region read replica or
+[43:39] part of an Aurora global database. Both
+[43:41] provide continuous asynchronous
+[43:44] replication with a typical lag of
+[43:46] seconds. This gives you a very low RPO,
+[43:49] which is the closest a managed
+[43:50] relational database can get to the no
+[43:52] data can be lost requirement. Crucially,
+[43:55] because it's a native feature, it
+[43:57] involves very little operational
+[43:58] overhead. It's often as simple as a few
+[44:01] clicks in the console to set up. B. Set
+[44:04] up AWS data sync for continuous
+[44:07] replication. This is incorrect because
+[44:09] it's the wrong tool for the job. AWS
+[44:12] data sync is a service designed to move
+[44:14] large amounts of data between file
+[44:16] systems and object storage, eg from an
+[44:19] on- premises NFS server to Amazon S3 or
+[44:22] Amazon EFS. It does not work with
+[44:25] relational databases and cannot
+[44:27] replicate database transactions. C.
+[44:30] Setup AWS database migration service
+[44:34] Setup AWS database migration service AWSDMS
+[44:36] to perform a continuous replication.
+[44:38] This option is plausible but not the
+[44:40] best solution. AWSDMS can indeed perform
+[44:44] continuous replication change data
+[44:47] capture from one database to another
+[44:49] including across regions. However, it
+[44:52] violates the least amount of operational
+[44:55] overhead requirement. Setting up DMS
+[44:58] involves provisioning a separate
+[44:59] replication instance, configuring source
+[45:02] and target endpoints, and creating and
+[45:04] managing replication tasks. This is
+[45:07] significantly more complex and
+[45:08] operationally intensive than using
+[45:10] Aurora's simple native cross region
+[45:13] replica feature. D. Use Amazon Data Life
+[45:17] Cycle Manager, Amazon DM, to schedule a
+[45:20] snapshot every 5 minutes. This is
+[45:22] incorrect because it fails the most
+[45:24] critical requirement. No data can be
+[45:27] lost. A snapshot is a point in time
+[45:29] backup. A solution that takes a snapshot
+[45:32] every 5 minutes means you could lose up
+[45:34] to 5 minutes of data written since the
+[45:36] last snapshot was taken. This results in
+[45:38] an RPO of 5 minutes, which is
+[45:41] unacceptable given the requirements.
+[45:43] Therefore, the correct solution is a
+[45:46] provisioning a cross region Aurora
+[45:47] replica is the native, purpose-built,
+[45:50] and most operationally simple way to
+[45:51] achieve continuous replication for an
+[45:53] Aurora database. meeting the very low
+[45:56] RPO requirement. Question 30. A company
+[45:59] needs to architect a hybrid DNS
+[46:01] solution. This solution will use an
+[46:03] Amazon Route 53 private hosted zone for
+[46:06] the domaincloud.ample.com
+[46:08] for the resources stored within VPCs.
+[46:10] The company has the following DNS
+[46:12] resolution requirements. On premises
+[46:15] systems should be able to resolve and
+[46:17] connect to cloud.acample.com.
+[46:20] All VPCs should be able to resolve
+[46:22] cloud.agample.com. example.com. There is
+[46:25] already an AWS direct connect connection
+[46:27] between the on- premises corporate
+[46:29] network and AWS transit gateway. Which
+[46:32] architecture should the company use to
+[46:34] meet these requirements with the highest
+[46:36] performance? Eight. Associate the
+[46:39] private hosted zone to all the VPCs.
+[46:42] Create a route 53 inbound resolver in
+[46:44] the shared services VPC. Attach all VPCs
+[46:48] to the transit gateway and create
+[46:49] forwarding rules in the on- premises DNS
+[46:51] server for cloud.acample.com that point
+[46:54] to the inbound resolver. B. Associate
+[46:57] the private hosted zone to all the VPCs.
+[47:00] Deploy an Amazon EC2 conditional
+[47:02] forwarder in the shared services VPC.
+[47:05] Attach all VPCs to the transit gateway
+[47:08] and create forwarding rules in the on-
+[47:09] premises DNS server for
+[47:11] cloud.agample.com that point to the
+[47:13] conditional forwarder. C. Associate the
+[47:16] private hosted zone to the shared
+[47:18] services VPC. Create a route 53 outbound
+[47:22] resolver in the shared services VPC.
+[47:25] Attach all VPCs to the transit gateway
+[47:27] and create forwarding rules in the on-
+[47:29] premises DNS server for cloud.ample.com
+[47:32] that point to the outbound resolver. D.
+[47:35] Associate the private hosted zone to the
+[47:37] shared services VPC. Create a route 53
+[47:41] inbound resolver in the shared services
+[47:43] VPC. Attach the shared services VPC to
+[47:46] the transit gateway and create
+[47:48] forwarding rules in the on- premises DNS
+[47:50] server for cloud.agample.com that point
+[47:52] to the inbound resolver. All right, this
+[47:55] question requires us to solve two
+[47:57] distinct DNS resolution paths while
+[47:59] prioritizing performance on premises to
+[48:02] cloud. How do on premises systems
+[48:04] resolve names in a route 53 private
+[48:06] hosted zone? Cloud to cloud. How do all
+[48:10] the different VPCs resolve names in that
+[48:12] same private hosted zone? For the first
+[48:14] path, on premises to cloud, we need a
+[48:17] way for DNS queries from the on-
+[48:19] premises network to enter the AWS
+[48:21] ecosystem and be answered by Route 53.
+[48:25] The purpose-built, highly available, and
+[48:27] performance service for this is the
+[48:28] Route 53 resolver inbound endpoint. You
+[48:32] create this endpoint in a VPC and it
+[48:34] provides you with IP addresses that your
+[48:36] on- premises DNS server can forward
+[48:38] queries to. For the second path,
+[48:41] cloudtocloud, the simplest and highest
+[48:43] performance method to allow a VPC to
+[48:45] resolve a private hosted zone is to
+[48:47] directly associate the zone with that
+[48:49] VPC. This allows the VPC's default 2D
+[48:53] DNS resolver to handle the queries
+[48:55] natively without any extra network hops.
+[48:57] Let's evaluate the options based on
+[48:59] these best practices. A associate the
+[49:03] private hosted zone to all the VPCs.
+[49:06] Create a route 53 inbound resolver. This
+[49:09] is the correct answer. It perfectly
+[49:11] implements the best practice solution
+[49:13] for both requirements. Cloudtocloud.
+[49:17] It associates the private hosted zone to
+[49:19] all the VPCs which is the most direct
+[49:22] and highest performance method for intra
+[49:24] AWS resolution on premises to cloud. It
+[49:28] uses a route 53 inbound resolver and
+[49:30] configures the on- premises DNS server
+[49:32] to forward queries to it which is the
+[49:34] standard managed and highly available
+[49:37] way to handle this path. B. Deploy an
+[49:40] Amazon EC2 conditional forwarder. This
+[49:43] is incorrect. While you could
+[49:45] technically build your own DNS forwarder
+[49:47] on EC2 instances, this would have much
+[49:49] higher operational overhead, patching,
+[49:51] managing, scaling, and would be less
+[49:53] resilient than the fully managed Route
+[49:55] 53 resolver service. It would not
+[49:57] provide the highest performance compared
+[50:00] to the native managed service. C. Create
+[50:04] a route 53 outbound resolver. This is
+[50:07] incorrect because it uses the wrong
+[50:09] tool. A route 53 outbound resolver is
+[50:12] for the opposite direction. It's used to
+[50:14] forward queries from your VPCs to your
+[50:16] on- premises DNS servers. The
+[50:19] requirement here is for queries coming
+[50:21] inbound from on premises. D. Associate
+[50:24] the private hosted zone to the shared
+[50:26] services VPC. This is incorrect because
+[50:29] it fails to meet a key requirement. By
+[50:32] associating the private hosted zone with
+[50:34] only the shared services VPC, it fails
+[50:37] to provide a resolution path for all the
+[50:39] other VPCs in the organization. This
+[50:41] violates the rule that all VPCs should
+[50:44] be able to resolve cloud.ample.com.
+[50:47] Therefore, the correct solution is A. It
+[50:50] provides the highest performance and
+[50:52] operational simplicity by using direct
+[50:54] association for all the VPCs and the
+[50:56] purpose-built route 53 inbound resolver
+[50:58] for the on- premises network. And that
+[51:01] wraps up our 10 questions for today. If
+[51:03] you found this breakdown helpful, please
+[51:06] share it with your friends and
+[51:07] colleagues who share the goal of
+[51:08] conquering the AWS SAP C02
+[51:12] certification. Let's build a strong
+[51:15] collaborative learning community
+[51:16] together. Make sure to join me in the
+[51:19] next video for our next set of
+[51:21] questions. Happy learning.

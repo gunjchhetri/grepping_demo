@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f6f2ea" />
+    <title>TraceRAG — DB-less document Q&amp;A</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"></script>
+    <script src="config.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" data-icon="zap"></div>
+          <span>TraceRAG</span>
+        </div>
+        <div class="session-chip">
+          <span>session</span>
+          <code id="session-id">—</code>
+          <button id="reset-session" type="button" title="Start a new session">new</button>
+        </div>
+      </header>
+
+      <p class="lede">Upload a PDF and start talking to it.</p>
+
+      <section class="upload-card" id="upload-card">
+        <input id="file-input" type="file" accept="application/pdf" hidden />
+        <div class="upload-icon" data-icon="upload" data-icon-size="22"></div>
+        <div class="upload-text">
+          <strong>Drop a PDF here or click to upload</strong>
+          <span>The text is extracted in S3 — no database, no index.</span>
+        </div>
+      </section>
+
+      <section class="docs">
+        <div class="docs-heading">
+          <h2>Your documents</h2>
+          <span id="doc-count" class="doc-count">0</span>
+        </div>
+        <div class="document-list" id="document-list"></div>
+      </section>
+
+      <section class="chat">
+        <div class="chat-bar">
+          <textarea id="question-input" rows="1" placeholder="Select a document above, then ask a question…"></textarea>
+          <button class="ask-button" id="ask-button" type="button" disabled>
+            <span class="ask-icon" data-icon="message"></span>
+          </button>
+        </div>
+        <p class="chat-hint" id="active-doc">No document selected.</p>
+
+        <div class="answer-area" id="answer-area"></div>
+        <section class="debug-card" id="debug-card" hidden>
+          <button class="debug-toggle" id="debug-toggle" type="button">
+            <span><span data-icon="search"></span> How retrieval worked</span>
+            <span id="debug-chevron">▾</span>
+          </button>
+          <div class="timeline" id="timeline" hidden></div>
+        </section>
+      </section>
+
+      <footer><span id="notice">Ready.</span></footer>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
