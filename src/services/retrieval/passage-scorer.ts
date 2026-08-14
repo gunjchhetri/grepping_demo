@@ -1,9 +1,4 @@
-import type { QueryTerms } from "../types.js";
-
-const EXACT_WEIGHT = 4;
-const TECHNICAL_WEIGHT = 3;
-const KEYWORD_WEIGHT = 2;
-const MAX_PROXIMITY = 10;
+import type { QueryTerms } from "../../types/retrieval.js";
 
 /**
  * Ranks a passage by how strongly it answers the question.
@@ -15,12 +10,17 @@ const MAX_PROXIMITY = 10;
  * - matches sitting close together score 1 to 10
  */
 export class PassageScorer {
+  private static readonly exactWeight = 4;
+  private static readonly technicalWeight = 3;
+  private static readonly keywordWeight = 2;
+  private static readonly maxProximity = 10;
+
   public score(text: string, terms: QueryTerms, question: string, matchedLines: number[]): number {
     const lower = text.toLowerCase();
 
     return (
-      this.occurrences(lower, terms.exactTerms, EXACT_WEIGHT) +
-      this.occurrences(lower, terms.technicalTerms, TECHNICAL_WEIGHT) +
+      this.occurrences(lower, terms.exactTerms, PassageScorer.exactWeight) +
+      this.occurrences(lower, terms.technicalTerms, PassageScorer.technicalWeight) +
       this.coverage(lower, terms, question) +
       this.proximity(matchedLines)
     );
@@ -36,7 +36,7 @@ export class PassageScorer {
     const words = [...terms.keywords, ...terms.phrases, ...question.toLowerCase().split(/\s+/)];
     const present = words.filter((word) => word.length > 2 && text.includes(word));
 
-    return new Set(present).size * KEYWORD_WEIGHT;
+    return new Set(present).size * PassageScorer.keywordWeight;
   }
 
   /** Rewards matches that cluster together rather than scattering across the passage. */
@@ -47,6 +47,6 @@ export class PassageScorer {
 
     const spread = Math.max(...matchedLines) - Math.min(...matchedLines);
 
-    return Math.max(1, MAX_PROXIMITY - spread);
+    return Math.max(1, PassageScorer.maxProximity - spread);
   }
 }

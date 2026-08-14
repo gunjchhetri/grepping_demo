@@ -1,10 +1,11 @@
-import { icon } from "./icons.js";
-
-const STATUS_LABELS = { PROCESSING: "Extracting text…", READY: "Ready to ask" };
+import { Icons } from "./icons.js";
 
 /** Owns every DOM read and write, so app.js is only about state and flow. */
 export class View {
-  constructor() {
+  static statusLabels = { PROCESSING: "Extracting text…", READY: "Ready to ask" };
+
+  constructor(icons = new Icons()) {
+    this.icons = icons;
     this.elements = {
       uploadCard: document.getElementById("upload-card"),
       fileInput: document.getElementById("file-input"),
@@ -30,7 +31,7 @@ export class View {
   }
 
   setBusy(busy) {
-    this.elements.askIcon.innerHTML = icon(busy ? "loader" : "message");
+    this.elements.askIcon.innerHTML = this.icons.get(busy ? "loader" : "message");
     this.elements.askIcon.classList.toggle("spin", busy);
   }
 
@@ -45,9 +46,9 @@ export class View {
     if (!record) {
       hint.textContent = "No document selected.";
     } else if (record.status === "READY") {
-      hint.replaceChildren("Talking to ", bold(record.fileName), ".");
+      hint.replaceChildren("Talking to ", this.bold(record.fileName), ".");
     } else {
-      hint.replaceChildren(bold(record.fileName), ` — ${STATUS_LABELS[record.status] ?? record.status}`);
+      hint.replaceChildren(this.bold(record.fileName), ` — ${View.statusLabels[record.status] ?? record.status}`);
     }
   }
 
@@ -56,7 +57,7 @@ export class View {
     this.elements.docCount.textContent = String(documents.length);
 
     if (documents.length === 0) {
-      this.elements.documentList.replaceChildren(element("div", "empty-docs", "No documents yet."));
+      this.elements.documentList.replaceChildren(this.element("div", "empty-docs", "No documents yet."));
 
       return;
     }
@@ -68,20 +69,20 @@ export class View {
 
   documentRow(record, selectedId, onSelect) {
     const row = document.createElement("button");
-    const fileIcon = element("div", "file-icon");
-    const meta = element("div", "document-meta");
+    const fileIcon = this.element("div", "file-icon");
+    const meta = this.element("div", "document-meta");
 
     row.type = "button";
     row.className = `document-row${record.documentId === selectedId ? " selected" : ""}`;
     row.disabled = record.status !== "READY";
     row.addEventListener("click", () => onSelect(record.documentId));
 
-    fileIcon.innerHTML = icon("file");
+    fileIcon.innerHTML = this.icons.get("file");
     meta.append(
-      element("strong", "", record.fileName),
-      element("span", "", STATUS_LABELS[record.status] ?? record.status),
+      this.element("strong", "", record.fileName),
+      this.element("span", "", View.statusLabels[record.status] ?? record.status),
     );
-    row.append(fileIcon, meta, element("span", `status-badge ${record.status.toLowerCase()}`, record.status));
+    row.append(fileIcon, meta, this.element("span", `status-badge ${record.status.toLowerCase()}`, record.status));
 
     return row;
   }
@@ -96,45 +97,45 @@ export class View {
       return;
     }
 
-    const heading = element("div", "answer-heading");
-    const grounded = element("span", "grounded-label");
+    const heading = this.element("div", "answer-heading");
+    const grounded = this.element("span", "grounded-label");
 
     grounded.innerHTML = '<span class="status-dot"></span>';
     grounded.append("grounded");
-    heading.append(element("span", "answer-kicker", "Answer"), grounded);
-    area.append(heading, element("p", "answer-text", answer));
+    heading.append(this.element("span", "answer-kicker", "Answer"), grounded);
+    area.append(heading, this.element("p", "answer-text", answer));
 
     if (sources.length === 0) {
       return;
     }
 
-    const wrapper = element("div", "sources");
+    const wrapper = this.element("div", "sources");
 
-    wrapper.append(element("p", "eyebrow", "Sources"));
+    wrapper.append(this.element("p", "eyebrow", "Sources"));
 
     for (const source of sources) {
-      const card = element("div", "source-card");
+      const card = this.element("div", "source-card");
 
       card.append(
-        element("span", "", `p. ${source.pageNumbers.join(", ")}`),
-        element("p", "", `${source.text.slice(0, 180)}…`),
+        this.element("span", "", `p. ${source.pageNumbers.join(", ")}`),
+        this.element("p", "", `${source.text.slice(0, 180)}…`),
       );
       wrapper.append(card);
     }
 
     area.append(wrapper);
   }
-}
 
-function element(tag, className = "", text = "") {
-  const node = document.createElement(tag);
+  element(tag, className = "", text = "") {
+    const node = document.createElement(tag);
 
-  node.className = className;
-  node.textContent = text;
+    node.className = className;
+    node.textContent = text;
 
-  return node;
-}
+    return node;
+  }
 
-function bold(value) {
-  return element("b", "", value);
+  bold(value) {
+    return this.element("b", "", value);
+  }
 }

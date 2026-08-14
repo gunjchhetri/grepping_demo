@@ -5,6 +5,7 @@ import {
   PutObjectCommand,
   S3Client,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export interface S3Object {
   key: string;
@@ -25,12 +26,21 @@ export class S3Store {
     await this.put(key, JSON.stringify(value), "application/json");
   }
 
+  /** Returns a short-lived URL that lets the browser PUT one object straight to S3. */
+  public async presignPut(key: string, contentType: string, expiresIn: number): Promise<string> {
+    return getSignedUrl(
+      this.client,
+      new PutObjectCommand({ Bucket: this.bucket, Key: key, ContentType: contentType }),
+      { expiresIn },
+    );
+  }
+
   /** Reads and parses a JSON object, or returns undefined when the key does not exist. */
   public async readJson<T>(key: string): Promise<T | undefined> {
     const response = await this.client
       .send(new GetObjectCommand({ Bucket: this.bucket, Key: key }))
       .catch((error: unknown) => {
-        if (isMissing(error)) {
+        if (this.isMissing(error)) {
           return undefined;
         }
 
@@ -46,7 +56,7 @@ export class S3Store {
 
       return true;
     } catch (error: unknown) {
-      if (isMissing(error)) {
+      if (this.isMissing(error)) {
         return false;
       }
 
@@ -81,8 +91,8 @@ export class S3Store {
       new PutObjectCommand({ Bucket: this.bucket, Key: key, Body: body, ContentType: contentType }),
     );
   }
-}
 
-function isMissing(error: unknown): boolean {
-  return error instanceof Error && (error.name === "NotFound" || error.name === "NoSuchKey");
+  private isMissing(error: unknown): boolean {
+    return error instanceof Error && (error.name === "NotFound" || error.name === "NoSuchKey");
+  }
 }

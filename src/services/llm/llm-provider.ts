@@ -3,8 +3,8 @@ import { ChatAnthropic } from "@langchain/anthropic";
 import { ChatBedrockConverse } from "@langchain/aws";
 import type { BaseChatModel } from "@langchain/core/language_models/chat_models";
 import { ChatOpenAI } from "@langchain/openai";
-import { AppConfig } from "../config.js";
-import type { LlmProviderName } from "../types.js";
+import { AppConfig } from "../../config.js";
+import type { LlmProviderName } from "../../types/llm.js";
 
 /** Creates the configured LangChain chat model and loads credentials for external providers. */
 export class LlmProvider {

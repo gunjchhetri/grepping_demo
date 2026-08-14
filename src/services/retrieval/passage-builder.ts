@@ -1,10 +1,5 @@
-import type { QueryTerms, ScoredPassage } from "../types.js";
+import type { QueryTerms, ScoredPassage } from "../../types/retrieval.js";
 import { PassageScorer } from "./passage-scorer.js";
-
-const NEARBY_LINES = 12;
-const CONTEXT_LINES = 20;
-const MAX_PASSAGES = 8;
-const PAGE_MARKER = /^=== PAGE (\d+) ===$/;
 
 interface LineRange {
   start: number;
@@ -18,6 +13,11 @@ interface LineRange {
  * surrounding context, overlapping passages are merged, and the result is ranked.
  */
 export class PassageBuilder {
+  private static readonly nearbyLines = 12;
+  private static readonly contextLines = 20;
+  private static readonly maxPassages = 8;
+  private static readonly pageMarker = /^=== PAGE (\d+) ===$/;
+
   public constructor(private readonly scorer = new PassageScorer()) {}
 
   public build(
@@ -42,7 +42,7 @@ export class PassageBuilder {
         };
       })
       .sort((left, right) => right.score - left.score)
-      .slice(0, MAX_PASSAGES);
+      .slice(0, PassageBuilder.maxPassages);
   }
 
   /** Groups nearby matches, pads each group with context, then merges overlaps. */
@@ -53,13 +53,13 @@ export class PassageBuilder {
     for (const line of sorted) {
       const previous = merged.at(-1);
       const range = {
-        start: Math.max(1, line - CONTEXT_LINES),
-        end: Math.min(lineCount, line + CONTEXT_LINES),
+        start: Math.max(1, line - PassageBuilder.contextLines),
+        end: Math.min(lineCount, line + PassageBuilder.contextLines),
       };
 
       // Extend the open range when this match belongs to the same neighbourhood,
       // which is what keeps one topic in one passage instead of many fragments.
-      if (previous && range.start <= previous.end + NEARBY_LINES) {
+      if (previous && range.start <= previous.end + PassageBuilder.nearbyLines) {
         previous.end = Math.max(previous.end, range.end);
         continue;
       }
@@ -75,7 +75,7 @@ export class PassageBuilder {
     let page = 1;
 
     return lines.map((line) => {
-      const marker = line.match(PAGE_MARKER);
+      const marker = line.match(PassageBuilder.pageMarker);
 
       if (marker) {
         page = Number(marker[1]);

@@ -1,9 +1,9 @@
 import { Logger } from "@aws-lambda-powertools/logger";
 import { AppConfig } from "../../config.js";
-import { PdfTextService } from "../../documents/pdf-text-service.js";
-import { MountedDocuments } from "../../storage/mounted-documents.js";
-import { S3Keys } from "../../storage/s3-keys.js";
-import { S3Store } from "../../storage/s3-store.js";
+import { PdfTextService } from "../../services/documents/pdf-text-service.js";
+import { MountedDocuments } from "../../services/storage/mounted-documents.js";
+import { S3Keys } from "../../utils/s3/s3-keys.js";
+import { S3Store } from "../../services/storage/s3-store.js";
 
 export interface ObjectCreatedEvent {
   detail?: { object?: { key?: string } };
@@ -25,7 +25,7 @@ export class DocumentProcessor {
   private readonly logger = new Logger({ serviceName: "document-processor" });
 
   public async handle(event: ObjectCreatedEvent): Promise<void> {
-    const key = decodeKey(event.detail?.object?.key);
+    const key = S3Keys.decodeEventKey(event.detail?.object?.key);
     const parts = key ? S3Keys.parseProcessingMarker(key) : undefined;
 
     if (!key || !parts) {
@@ -56,7 +56,7 @@ export class DocumentProcessor {
   }
 }
 
-/** S3 event keys arrive URL-encoded with spaces as plus signs. */
-function decodeKey(key: string | undefined): string | undefined {
-  return key ? decodeURIComponent(key.replace(/\+/g, " ")) : undefined;
-}
+let instance: DocumentProcessor | undefined;
+
+/** Built on first invocation and reused for the container's life. */
+export const handler = (event: ObjectCreatedEvent) => (instance ??= new DocumentProcessor()).handle(event);

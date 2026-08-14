@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { LlmService } from "../llm/llm-service.js";
-import type { Passage } from "../types.js";
+import type { Passage } from "../../types/retrieval.js";
 import { PassageBuilder } from "./passage-builder.js";
 import { RipgrepSearch } from "./ripgrep-search.js";
 

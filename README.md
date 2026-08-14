@@ -19,14 +19,17 @@ frontend/                static HTML, CSS, and ES modules — no framework, no b
 
 src/
   config.ts              every environment variable, read in one place
-  types.ts               domain types
-  user-id.ts             the browser-minted UUID that namespaces each visitor
+  types/                 domain types, one file per service that owns them
   handlers/              Lambda entry points, thin: parse, delegate, respond
-  http/                  request parsing and JSON responses
-  storage/               S3 keys, the S3 client, and the S3 Files mount
-  documents/             upload, listing, and PDF text extraction
-  retrieval/             the ripgrep pipeline
-  llm/                   the single LangChain provider/model service
+  services/
+    documents/           presigned uploads, listing, and PDF text extraction
+    retrieval/           the ripgrep pipeline
+    llm/                 the LangChain provider/model service and output parsing
+    storage/             the S3 client wrapper and the S3 Files mount
+  utils/
+    http/                request parsing and JSON responses
+    identity/            the browser-minted UUID that namespaces each visitor
+    s3/                  S3 key layout — building and parsing object keys
 ```
 
 The interesting directory is `retrieval/`, split by responsibility:
@@ -57,14 +60,14 @@ the API is unauthenticated, so anyone with an id can read that namespace. Do not
 
 ## How a question flows
 
-1. `POST /documents/upload-url` returns a presigned URL; the browser PUTs the PDF straight to S3.
-2. `POST /documents/process` writes a marker object. EventBridge invokes the PDF processor, which reads the
+1. `POST /document/upload-url` returns a presigned URL; the browser PUTs the PDF straight to S3.
+2. `POST /document/process` writes a marker object. EventBridge invokes the PDF processor, which reads the
    PDF through the mount and writes page-marked text beside it.
-3. The UI polls `GET /documents` until the text object exists.
-4. `POST /questions` expands the question into search terms, runs ripgrep over the mounted text, ranks the
+3. The UI polls `GET /document` until the text object exists.
+4. `POST /question` expands the question into search terms, runs ripgrep over the mounted text, ranks the
    passages, and writes a request object.
 5. The request object triggers the worker, which asks the model to answer from those passages and writes the
-   answer. The UI polls `GET /questions/{jobId}` until it lands.
+   answer. The UI polls `GET /question/{jobId}` until it lands.
 
 Only `llm-requests/` triggers the worker, so writing the answer cannot recurse.
 

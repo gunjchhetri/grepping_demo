@@ -1,4 +1,4 @@
-import type { LlmProviderName } from "./types.js";
+import type { LlmProviderName } from "./types/llm.js";
 
 /** Single place where the Lambda environment is read. */
 export class AppConfig {

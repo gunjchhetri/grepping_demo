@@ -286,10 +286,10 @@ Resources:
       Policy:
         Version: "2012-10-17"
         Statement:
-          - Sid: AllowQuestionsApiMount
+          - Sid: AllowQuestionApiMount
             Effect: Allow
             Principal:
-              AWS: !GetAtt QuestionsApiFunctionRole.Arn
+              AWS: !GetAtt QuestionApiFunctionRole.Arn
             Action:
               - s3files:ClientMount
             Resource: !Ref DocumentsS3FileSystem
@@ -299,7 +299,7 @@ Resources:
           - Sid: AllowDocumentsApiMount
             Effect: Allow
             Principal:
-              AWS: !GetAtt DocumentsApiFunctionRole.Arn
+              AWS: !GetAtt DocumentApiFunctionRole.Arn
             Action:
               - s3files:ClientMount
             Resource: !Ref DocumentsS3FileSystem
@@ -325,7 +325,7 @@ Resources:
         AllowOrigins: [!Ref FrontendOrigin]
         AllowHeaders: [content-type, x-user-id]
         AllowMethods: [GET, POST, OPTIONS]
-  DocumentsApiFunctionRole:
+  DocumentApiFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -339,7 +339,7 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
-        - PolicyName: DocumentsFileSystemAccess
+        - PolicyName: DocumentApiAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -350,26 +350,31 @@ Resources:
               - Effect: Allow
                 Action: s3:ListBucket
                 Resource: !GetAtt DocumentsBucket.Arn
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
-              - Effect: Allow
-                Action: s3:ListBucket
-                Resource: !GetAtt DocumentsBucket.Arn
                 Condition:
                   StringLike:
                     s3:prefix:
                       - documents/*
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:PutObject
+                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                Resource: !Sub "${DocumentsBucket.Arn}/processing/*"
 
-  DocumentsApiFunction:
+  DocumentApiFunction:
     Type: AWS::Serverless::Function
     Metadata: &BuildMetadata
       BuildMethod: esbuild
       BuildProperties:
         EntryPoints:
-          - handlers/index.ts
+          - handlers/api/document.ts
+          - handlers/api/question.ts
+          - handlers/s3-events/document-processor.ts
+          - handlers/s3-events/question-worker.ts
         External:
           - "@aws-sdk/*"
         Format: cjs
@@ -379,8 +384,8 @@ Resources:
     DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
     Properties:
       CodeUri: src/
-      Handler: handlers/index.documents
-      Role: !GetAtt DocumentsApiFunctionRole.Arn
+      Handler: handlers/api/document.handler
+      Role: !GetAtt DocumentApiFunctionRole.Arn
       Environment:
         Variables:
           DOCUMENTS_BUCKET: !Ref DocumentsBucket
@@ -395,64 +400,22 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Path: /documents
+            Path: /document
             Method: GET
-
-  DocumentUploadFunctionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: lambda.amazonaws.com
-            Action: sts:AssumeRole
-      ManagedPolicyArns:
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-      Policies:
-        - PolicyName: PresignedDocumentUploads
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                Resource: !Sub "${DocumentsBucket.Arn}/processing/*"
-
-  DocumentUploadFunction:
-    Type: AWS::Serverless::Function
-    Metadata: *BuildMetadata
-    Properties:
-      CodeUri: src/
-      Handler: handlers/index.documentUploads
-      Role: !GetAtt DocumentUploadFunctionRole.Arn
-      Environment:
-        Variables:
-          DOCUMENTS_BUCKET: !Ref DocumentsBucket
-      Events:
         CreateUploadUrl:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Path: /documents/upload-url
+            Path: /document/upload-url
             Method: POST
         StartDocumentProcessing:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Path: /documents/process
+            Path: /document/process
             Method: POST
 
-  QuestionsApiFunctionRole:
+  QuestionApiFunctionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
@@ -466,7 +429,7 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
-        - PolicyName: QuestionsApiAccess
+        - PolicyName: QuestionApiAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
@@ -495,14 +458,14 @@ Resources:
                   - s3:GetObjectVersion
                 Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
 
-  QuestionsApiFunction:
+  QuestionApiFunction:
     Type: AWS::Serverless::Function
     Metadata: *BuildMetadata
     DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
     Properties:
       CodeUri: src/
-      Handler: handlers/index.questions
-      Role: !GetAtt QuestionsApiFunctionRole.Arn
+      Handler: handlers/api/question.handler
+      Role: !GetAtt QuestionApiFunctionRole.Arn
       Environment:
         Variables:
           JOBS_BUCKET: !Ref JobsBucket
@@ -519,13 +482,13 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Path: /questions
+            Path: /question
             Method: POST
         GetJob:
           Type: HttpApi
           Properties:
             ApiId: !Ref HttpApi
-            Path: /questions/{jobId}
+            Path: /question/{jobId}
             Method: GET
 
   DocumentProcessingFunction:
@@ -534,7 +497,7 @@ Resources:
     DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
     Properties:
       CodeUri: src/
-      Handler: handlers/index.processDocument
+      Handler: handlers/s3-events/document-processor.handler
       Timeout: 120
       MemorySize: 1024
       Role: !GetAtt DocumentProcessingFunctionRole.Arn
@@ -594,7 +557,7 @@ Resources:
     Metadata: *BuildMetadata
     Properties:
       CodeUri: src/
-      Handler: handlers/index.processJob
+      Handler: handlers/s3-events/question-worker.handler
       Timeout: 120
       Policies:
         - Statement:
@@ -682,15 +645,15 @@ Resources:
         - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs"
         - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
 
-  DocumentsApiLogGroup:
+  DocumentApiLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${DocumentsApiFunction}
+      LogGroupName: !Sub /aws/lambda/${DocumentApiFunction}
       RetentionInDays: 14
-  QuestionsApiLogGroup:
+  QuestionApiLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub /aws/lambda/${QuestionsApiFunction}
+      LogGroupName: !Sub /aws/lambda/${QuestionApiFunction}
       RetentionInDays: 14
   DocumentProcessingLogGroup:
     Type: AWS::Logs::LogGroup
@@ -714,4 +677,4 @@ Outputs:
   S3FilesFileSystemId:
     Value: !Ref DocumentsS3FileSystem
   RetrievalFunctionName:
-    Value: !Ref QuestionsApiFunction
+    Value: !Ref QuestionApiFunction

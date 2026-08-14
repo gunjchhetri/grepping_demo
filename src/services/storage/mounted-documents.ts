@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import { AppConfig } from "../config.js";
+import { AppConfig } from "../../config.js";
 
 /**
  * Reads document objects as ordinary files through the S3 Files mount.
