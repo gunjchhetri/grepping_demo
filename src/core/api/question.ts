@@ -24,8 +24,9 @@ export class QuestionApi {
       const body = this.request.body<QuestionRequestBody>(event.body);
       const question = this.request.requireString(body.question, "question");
       const documentId = typeof body.documentId === "string" ? body.documentId.trim() : "";
+      const classification = await this.questions.classifyGreetingsAndRespond(question);
 
-      if (!documentId && !this.questions.isConversational(question)) {
+      if (!documentId && !classification?.isGreeting) {
         this.response.streamError(responseStream, 400, "documentId is required for document questions");
 
         return;
@@ -34,7 +35,7 @@ export class QuestionApi {
       const stream = this.response.stream(responseStream);
 
       try {
-        for await (const chunk of this.questions.answer(userId, documentId, question)) {
+        for await (const chunk of this.questions.answer(userId, documentId, question, classification)) {
           stream.write(chunk);
         }
 

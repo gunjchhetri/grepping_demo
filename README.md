@@ -27,7 +27,7 @@ flowchart LR
     Queue -. failed messages .-> DLQ
     Bucket <-->|EventBridge sync + object storage| Files
     QuestionApi --> Router{Message intent}
-    Router -->|greeting / thanks / capability| BedrockEndpoint
+    Router -->|classify + respond if greeting| BedrockEndpoint
     Router -->|document question| Search
     Processor -->|read PDF through mount| Files
     Processor -->|PutObject extracted text| S3Endpoint
@@ -108,8 +108,8 @@ API Gateway response streaming
   ▼
 Question API Lambda in private subnet
   │
-  ├─ Greeting / thanks / capability message?
-  │    └─ Stream a direct Bedrock response; do not mount or search the PDF
+  ├─ First LLM call: classify and respond if greeting/small talk
+  │    └─ Return that response immediately; do not mount or search the PDF
   │
   └─ Document question
        ├─ Read document.txt through S3 Files
@@ -123,12 +123,13 @@ Question API Lambda in private subnet
 Browser receives the answer over the open HTTP response
 ```
 
-The question service uses a deterministic allowlist for short conversational messages such as `hello`, `thanks`,
-`how are you`, and `what can you do`. Those messages make one direct streaming model call and never touch S3
-Files, `ripgrep`, or the retrieval path. This avoids spending retrieval work on messages that cannot be answered
-from a PDF, without adding another LLM classifier call. Everything outside that allowlist remains a document
-question and follows the evidence-backed path. A direct conversational request may omit `documentId`; a document
-question without a document id is rejected before the response stream starts.
+The question service always makes a first LLM call named `classifyGreetingsAndRespond`. That call returns JSON
+containing `isGreeting` and, when true, the friendly response. Greetings, thanks, salutations, small talk, and
+capability questions return that response immediately and never touch S3 Files, `ripgrep`, or the retrieval path.
+If `isGreeting` is false, the same request continues into the document RAG path. This means document questions
+pay for the classifier call plus query expansion and answer generation, while greetings are answered in exactly
+one LLM call. A direct conversational request may omit `documentId`; a document question without one is rejected
+before the response stream starts.
 
 The normal document-question path makes one model call for query expansion and one streaming model call for the
 final answer. If precise lexical retrieval returns no passages, the retriever performs one broader, still cautious
@@ -180,19 +181,19 @@ be deployed with Bedrock unless additional egress networking is added.
 
 ## AWS services
 
-| Service                | Role in this project                                        | Important implementation detail                                                                                |
-| ---------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Amazon API Gateway     | Regional REST API and response streaming                    | Routes document operations to Lambda, sends extraction jobs directly to SQS, and streams `/question` responses |
-| AWS Lambda             | Document API, question API, and queue processor             | Node.js 22 on arm64; question and processor functions use the VPC and S3 Files mount                           |
-| Amazon S3              | Durable PDF and extracted-text storage                      | Versioning, AES-256 server-side encryption, public access block, CORS, and incomplete multipart cleanup        |
-| Amazon S3 Files        | POSIX-compatible view of the S3 bucket                      | Mounts the bucket into the two VPC Lambdas; EventBridge synchronization is enabled                             |
-| Amazon SQS             | Asynchronous extraction handoff                             | 30-second delay allows S3 Files propagation; 150-second visibility timeout; five receives before DLQ           |
-| Amazon SQS DLQ         | Failed extraction isolation                                 | Retains failed messages for 14 days                                                                            |
-| Amazon Bedrock Runtime | Direct conversation, query expansion, and answer generation | Access is limited by IAM to the configured foundation model; reached through a VPC interface endpoint          |
-| AWS Secrets Manager    | External-provider API key storage                           | Used for OpenAI or Anthropic credentials; not needed for Bedrock                                               |
-| Amazon EventBridge     | S3 Files synchronization trigger                            | S3 bucket notifications are enabled for S3 Files-managed synchronization                                       |
-| Amazon CloudWatch Logs | Lambda logging                                              | Explicit 14-day retention is configured for all three application Lambdas                                      |
-| AWS IAM                | Service-to-service permissions                              | Separate roles scope S3, SQS, S3 Files, Bedrock, Secrets Manager, and logging access                           |
+| Service                | Role in this project                                                                 | Important implementation detail                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Amazon API Gateway     | Regional REST API and response streaming                                             | Routes document operations to Lambda, sends extraction jobs directly to SQS, and streams `/question` responses |
+| AWS Lambda             | Document API, question API, and queue processor                                      | Node.js 22 on arm64; question and processor functions use the VPC and S3 Files mount                           |
+| Amazon S3              | Durable PDF and extracted-text storage                                               | Versioning, AES-256 server-side encryption, public access block, CORS, and incomplete multipart cleanup        |
+| Amazon S3 Files        | POSIX-compatible view of the S3 bucket                                               | Mounts the bucket into the two VPC Lambdas; EventBridge synchronization is enabled                             |
+| Amazon SQS             | Asynchronous extraction handoff                                                      | 30-second delay allows S3 Files propagation; 150-second visibility timeout; five receives before DLQ           |
+| Amazon SQS DLQ         | Failed extraction isolation                                                          | Retains failed messages for 14 days                                                                            |
+| Amazon Bedrock Runtime | Greeting classification, direct conversation, query expansion, and answer generation | Access is limited by IAM to the configured foundation model; reached through a VPC interface endpoint          |
+| AWS Secrets Manager    | External-provider API key storage                                                    | Used for OpenAI or Anthropic credentials; not needed for Bedrock                                               |
+| Amazon EventBridge     | S3 Files synchronization trigger                                                     | S3 bucket notifications are enabled for S3 Files-managed synchronization                                       |
+| Amazon CloudWatch Logs | Lambda logging                                                                       | Explicit 14-day retention is configured for all three application Lambdas                                      |
+| AWS IAM                | Service-to-service permissions                                                       | Separate roles scope S3, SQS, S3 Files, Bedrock, Secrets Manager, and logging access                           |
 
 ## Infrastructure resources
 
@@ -255,8 +256,8 @@ Document questions use a lexical rather than vector-based retrieval path:
 5. `LlmService.streamAnswer` receives only the ranked passages and must return verbatim evidence.
 6. `ModelOutputParser` rejects unsupported or unverifiable output and returns the fixed no-information message.
 
-Conversational messages use the same configured LLM but skip all retrieval work. The allowlist is intentionally
-narrow so a question that might require PDF evidence cannot accidentally bypass the grounding checks.
+Conversational messages use the same configured LLM for the first classification-and-response call, then skip all
+retrieval work when classified as greetings. Non-greeting messages continue through the evidence-backed path.
 
 No passage, question, chat message, embedding, or answer is persisted. The browser keeps its visible chat history
 in memory for the current page/session; starting a new session clears the UI and generates a new document namespace.
@@ -352,7 +353,7 @@ bash scripts/destroy.sh another-stack-name
 - S3 gateway endpoint -> provides private S3 API access without a NAT Gateway.
 - Bedrock Runtime interface endpoint -> provides private model access for the VPC Lambda and avoids NAT Gateway
   egress for Bedrock, with endpoint pricing and single-AZ availability as explicit trade-offs.
-- Conversation allowlist -> routes greetings and other small-talk directly to the LLM without paying for or
-  executing document retrieval, while keeping ambiguous questions on the evidence-backed path.
+- First-call greeting classification -> lets the LLM classify and answer conversational messages in one call;
+  non-greetings continue through retrieval and evidence validation.
 - Response streaming -> lets the question API send model output over the open API Gateway response.
 - No database -> document status is derived from S3 objects and retrieval passages are ephemeral for this demo.
