@@ -40,6 +40,21 @@ retrieval, and an LLM for reasoning.
 
 ## How it works
 
+```mermaid
+flowchart TD
+    Ask["User asks a message"] --> Classify{"Greeting or<br/>document question?"}
+    Classify -->|"Greeting"| Response["Reply to the user"]
+    Classify -->|"Question"| Query["LLM corrects spelling<br/>and expands the query"]
+    Query --> Search["ripgrep the text, group matches<br/>into passages, keep the top 8"]
+    Search -->|"nothing found: one broader retry"| Query
+    Search --> Answer["LLM answers from those passages"]
+    Answer --> Validate{"Supported by verbatim<br/>evidence?"}
+    Validate -->|"Yes"| Response
+    Validate -->|"No: drop it, send 'not enough information'"| Response
+
+    classDef default fill:#111111,color:#ffffff,stroke:#111111,stroke-width:2px;
+```
+
 ### Saving a document
 
 When a PDF is uploaded, the app reads it once and pulls out the text, line by line, the same way you'd see it on
