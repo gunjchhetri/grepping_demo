@@ -35,11 +35,7 @@ export class QuestionApi {
       const stream = this.response.stream(responseStream);
 
       try {
-        for await (const chunk of this.questions.answer(userId, documentId, question, classification)) {
-          stream.write(chunk);
-        }
-
-        stream.end();
+        stream.end(await this.questions.answer(userId, documentId, question, classification));
       } catch (cause: unknown) {
         stream.end(`\n\n${cause instanceof Error ? cause.message : "Unable to answer question"}`);
       }

@@ -40,6 +40,12 @@ export class RipgrepTextSearch {
     "with",
   ]);
 
+  /**
+   * Returns the line numbers in the file that contain any of the search terms. Line numbers, not text, are the
+   * output here: they are what lets nearby matches be grouped into a passage afterwards.
+   *
+   * Finding nothing is a normal result, not an error, and comes back as an empty array.
+   */
   public async matchingLines(filePath: string, terms: QueryTerms): Promise<number[]> {
     const searchTerms = this.flatten(terms);
 
@@ -60,6 +66,10 @@ export class RipgrepTextSearch {
     }
   }
 
+  /**
+   * Runs `rg`, falling back to plain `grep` when the ripgrep binary is not installed on the machine. The
+   * fallback rewrites the pattern into the simpler syntax `grep` understands.
+   */
   private async run(filePath: string, expression: string): Promise<string> {
     try {
       const { stdout } = await RipgrepTextSearch.execFileAsync(
@@ -84,6 +94,11 @@ export class RipgrepTextSearch {
     }
   }
 
+  /**
+   * Merges the four kinds of search term into one de-duplicated list, drops words too common to be worth
+   * searching for (`the`, `and`, ...) since they would match nearly every line, and caps the total so the
+   * search pattern stays fast.
+   */
   private flatten(terms: QueryTerms): string[] {
     const all = [...terms.exactTerms, ...terms.keywords, ...terms.technicalTerms, ...terms.phrases];
 
@@ -96,10 +111,16 @@ export class RipgrepTextSearch {
     ].slice(0, RipgrepTextSearch.maxTerms);
   }
 
+  /**
+   * Builds one case-insensitive "match any of these" pattern from the terms, e.g. `(?i)(?:battery|warranty)`.
+   * Terms are escaped first so a term containing a character like `.` or `(` is searched for literally rather
+   * than being treated as pattern syntax.
+   */
   private expression(terms: string[]): string {
     return `(?i)(?:${terms.map((term) => term.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&")).join("|")})`;
   }
 
+  /** Reads the line numbers out of the search output, whose lines look like `42:some matching text`. */
   private parseLineNumbers(output: string): number[] {
     return output
       .split("\n")
@@ -108,10 +129,12 @@ export class RipgrepTextSearch {
       .filter(Number.isInteger);
   }
 
+  /** Reads the process exit code. Search tools use exit code 1 to mean "no matches", which is not a failure. */
   private exitCode(error: unknown): number | undefined {
     return (error as { code?: number })?.code;
   }
 
+  /** Reads the system error name. `ENOENT` here means the `rg` binary is missing, which triggers the fallback. */
   private errorCode(error: unknown): string | undefined {
     return (error as { code?: string })?.code;
   }

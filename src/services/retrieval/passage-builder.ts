@@ -8,13 +8,22 @@ interface LineRange {
 
 /** Builds and ranks readable passages from matched document lines. */
 export class PassageBuilder {
-  private static readonly nearbyLines = 12;
-  private static readonly contextLines = 20;
+  // A match window plus the merge gap decides how far apart two hits must be to stay separate passages. Wide
+  // values collapse an entire document into one passage, which leaves the ranking nothing to choose between.
+  private static readonly nearbyLines = 4;
+  private static readonly contextLines = 8;
   private static readonly maxPassages = 8;
   private static readonly pageMarker = /^=== PAGE (\d+) ===$/;
 
   public constructor(private readonly scorer = new PassageScorer()) {}
 
+  /**
+   * Turns a list of matching line numbers into readable passages, best first.
+   *
+   * A single matching line is usually too little to answer from, so each match is widened to include the lines
+   * around it, and matches that end up overlapping become one passage instead of several copies of the same
+   * text. Each passage is then scored and only the strongest few are kept.
+   */
   public build(
     lines: string[],
     matchedLines: number[],
@@ -40,6 +49,12 @@ export class PassageBuilder {
       .slice(0, PassageBuilder.maxPassages);
   }
 
+  /**
+   * Expands each matching line into a block of surrounding lines, then merges blocks that touch.
+   *
+   * With matches on lines 30 and 34 and a context of 8, both blocks cover roughly lines 22-42, so they merge
+   * into one passage rather than two near-identical ones. A match far away on line 300 stays separate.
+   */
   private static ranges(matchedLines: number[], lineCount: number): LineRange[] {
     const sorted = [...new Set(matchedLines)].sort((left, right) => left - right);
     const merged: LineRange[] = [];
@@ -62,6 +77,10 @@ export class PassageBuilder {
     return merged;
   }
 
+  /**
+   * Works out which page number every line belongs to, by counting the `=== PAGE n ===` markers as it goes.
+   * This is what lets an answer cite the page a fact came from.
+   */
   private static pageIndex(lines: string[]): number[] {
     let page = 1;
 

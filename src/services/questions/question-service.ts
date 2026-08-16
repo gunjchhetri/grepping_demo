@@ -9,22 +9,33 @@ export class QuestionService {
     private readonly llm: LlmService,
   ) {}
 
+  /**
+   * Decides whether a message is small talk or a real question about the document. The caller does this before
+   * {@link answer} so it can reject a document question that arrived without a document, and passes the result
+   * back in to avoid asking the model the same thing twice.
+   */
   public classifyGreetingsAndRespond(question: string): Promise<GreetingClassification | undefined> {
     return this.llm.classifyGreetingsAndRespond(question);
   }
 
-  public async *answer(
+  /**
+   * Produces the reply to one message, which is either a greeting response or an answer taken from the
+   * document. Greetings never touch the document, so no file is read and nothing is searched for them.
+   *
+   * The reply is returned whole rather than in pieces. An answer cannot be shown until its supporting evidence
+   * has been checked, and text already sent to a browser cannot be taken back, so there is nothing to hand out
+   * before the complete answer exists.
+   */
+  public async answer(
     userId: string,
     documentId: string,
     question: string,
     classification?: GreetingClassification,
-  ): AsyncIterable<string> {
+  ): Promise<string> {
     const greeting = classification ?? (await this.llm.classifyGreetingsAndRespond(question));
 
     if (greeting?.isGreeting) {
-      yield greeting.response;
-
-      return;
+      return greeting.response;
     }
 
     if (!documentId) {
@@ -38,6 +49,6 @@ export class QuestionService {
       correctedQuestion,
     );
 
-    yield* this.llm.streamAnswer(correctedQuestion, passages);
+    return this.llm.answerFromPassages(correctedQuestion, passages);
   }
 }

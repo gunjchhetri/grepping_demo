@@ -57,7 +57,7 @@ export class ModelOutputParser {
     };
   }
 
-  private static readonly stopWords = new Set([
+  public static readonly stopWords = new Set([
     "about",
     "after",
     "again",

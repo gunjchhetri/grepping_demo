@@ -38,18 +38,6 @@ export class LangChainLanguageModel extends AbstractLanguageModel {
     }
   }
 
-  public async *stream(systemPrompt: string, userPrompt: string): AsyncIterable<string> {
-    const chunks = await (await this.model()).stream([new SystemMessage(systemPrompt), new HumanMessage(userPrompt)]);
-
-    for await (const chunk of chunks) {
-      const text = this.contentText(chunk.content);
-
-      if (text) {
-        yield text;
-      }
-    }
-  }
-
   private async invoke(systemPrompt: string, userPrompt: string): Promise<string> {
     const result = await (await this.model()).invoke([new SystemMessage(systemPrompt), new HumanMessage(userPrompt)]);
 

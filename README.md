@@ -55,20 +55,25 @@ flowchart TD
     classDef default fill:#111111,color:#ffffff,stroke:#111111,stroke-width:2px;
 ```
 
-### Upload
+### Saving a document
 
-The browser uploads the PDF straight to s3 using multi part upload and just make an api call to start processing job (Converting PDF is into
-page-marked text and saved as `document.txt`).
+When a PDF is uploaded, the app reads it once and pulls out the text, line by line, the same way you'd see it on
+the page. That text is saved as a plain `document.txt` file. This only happens once per document, right after
+upload. Nothing here depends on what anyone will ask later.
 
-### Question
+### Answering a question
 
-Every message is classified first. Greetings and small talk are answered right away, with no search at all. A real
-question has its spelling corrected and is expanded into related search terms. `ripgrep` finds the matching lines,
-nearby matches are grouped into passages, and the best 8 are kept. If nothing matched, the query is expanded once
-more, broader, and searched again.
+Every message is checked first: is this a greeting, or a real question about the document?
 
-The LLM then answers from those passages alone and has to quote the evidence it used. The answer is only sent when
-every quote appears verbatim in the passages; otherwise the reply is that the PDF does not have enough information.
+- A greeting gets a reply right away. No file is searched.
+- A real question is searched for. The app looks through `document.txt` line by line for words related to the
+  question (using `ripgrep`, the same idea as the `grep` command but faster), gathers the matching lines together
+  with a bit of surrounding text so each one reads as a full thought, and keeps the best few of those. If nothing
+  matched, it tries again with a wider set of words before giving up.
+
+Only those found passages are shown to the LLM, and it's told to answer using nothing else. It also has to quote
+the exact sentence it used as proof. If that quote isn't a real, exact match in the passages, the app throws the
+answer away and says it doesn't have enough information, rather than risk showing a made-up answer.
 
 ## Run locally
 
