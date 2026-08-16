@@ -1,7 +1,42 @@
 # Grepping
 
-Grepping lets a user upload a PDF and ask questions about it. It turns the PDF into page-marked text, searches that
-text with `ripgrep`, and uses an LLM to answer from the best matching passages.
+Grepping lets users upload a PDF and ask questions about its contents. It converts the PDF into page-marked text,
+searches it using `ripgrep`, and uses an LLM to answer from the most relevant passages.
+
+## Why?
+
+RAG is traditionally built around embeddings and vector databases. Documents are chunked, embedded, stored in a
+vector database, and retrieved through semantic similarity.
+
+With S3 now being accessible as a mounted file system, I wanted to explore a simpler question:
+
+How far can RAG go with just a file system and fast text search?
+
+Grepping replaces vector retrieval with `ripgrep`, a fast alternative to `grep`.
+
+```text
+PDF
+ ↓
+S3
+ ↓
+Page-marked text
+ ↓
+S3 mounted as a file system
+ ↓
+ripgrep
+ ↓
+Relevant passages
+ ↓
+LLM
+ ↓
+Answer + page references
+```
+
+The goal isn't to replace vector databases. Semantic search is still valuable when the question and source use very
+different language.
+
+Instead, Grepping explores how effective a much simpler RAG architecture can be: files for storage, `ripgrep` for
+retrieval, and an LLM for reasoning.
 
 ## How it works
 
