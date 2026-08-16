@@ -71,27 +71,20 @@ served locally by the Node.js command `npm run frontend:dev`.
 
 ```bash
 npm install
-npm run lint
-npm run typecheck
-npm run build
-```
-
-Deploy with Bedrock:
-
-```bash
-sam deploy --guided \
-  --parameter-overrides \
-  LLMProvider=bedrock \
-  LLMModel=amazon.nova-lite-v1:0 \
-  FrontendOrigin=http://localhost:5173
-```
-
-Then configure and start the frontend:
-
-```bash
-npm run frontend:config
+npm run deploy
 npm run frontend:dev
 ```
+
+`npm run deploy` validates the SAM template, builds the Lambdas, deploys the stack, and generates the frontend
+API configuration. The default deployment settings are stored in `samconfig.toml`, including:
+
+```text
+LLMProvider=bedrock
+LLMModel=amazon.nova-lite-v1:0
+```
+
+No manual Bedrock parameter is needed for the normal deployment. `npm run frontend:config` is already called by
+`npm run deploy`; the final command starts the frontend separately.
 
 Open <http://localhost:5173>.
 
@@ -103,6 +96,16 @@ works with Bedrock but cannot make direct outbound calls to OpenAI, Anthropic/Cl
 
 Supporting those providers requires adding an outbound internet path, such as a NAT Gateway, and configuring the
 provider API key through Secrets Manager.
+
+## Deployment parameters
+
+`AllowedValues: [openai, anthropic, bedrock]` is CloudFormation validation. It means `LLMProvider` accepts only
+those three provider names; it does not mean all three providers work with the current network configuration.
+The code has adapters for all three, but the deployed VPC currently supports Bedrock because it has a private
+Bedrock endpoint and no NAT Gateway. `IsBedrockProvider` creates that endpoint only when `LLMProvider=bedrock`.
+
+`LLMSecretArn` is empty for Bedrock. It is needed only when using OpenAI or Anthropic after adding outbound
+network access, and must point to a Secrets Manager secret containing an `apiKey` field.
 
 ## Important limitation
 
