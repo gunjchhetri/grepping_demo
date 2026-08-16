@@ -136,7 +136,7 @@ export class App {
     const record = this.selectedDocument();
     const question = this.view.elements.questionInput.value.trim();
 
-    if (record?.status !== "READY" || !question || this.busy) {
+    if (!question || this.busy) {
       return;
     }
 
@@ -147,13 +147,13 @@ export class App {
 
     this.messages.push(userMessage, assistantMessage);
     this.view.renderConversation(this.messages);
-    this.view.setNotice("Running ripgrep over the document…");
+    this.view.setNotice("Generating a response…");
 
     try {
       let answer = "";
 
       this.view.setNotice("Generating an answer…");
-      await this.api.askStream(record.documentId, question, (chunk) => {
+      await this.api.askStream(record?.documentId ?? "", question, (chunk) => {
         answer += chunk;
         assistantMessage.text = answer;
         this.view.renderConversation(this.messages);
@@ -180,9 +180,7 @@ export class App {
   render() {
     this.view.renderDocuments(this.documents, this.selectedId, (documentId) => this.select(documentId));
     this.view.setActiveDoc(this.selectedDocument());
-    this.view.setAskEnabled(
-      !this.busy && this.selectedDocument()?.status === "READY" && this.view.elements.questionInput.value.trim() !== "",
-    );
+    this.view.setAskEnabled(!this.busy && this.view.elements.questionInput.value.trim() !== "");
   }
 
   select(documentId) {

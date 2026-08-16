@@ -22,8 +22,15 @@ export class QuestionApi {
 
       const userId = this.request.userId(event.headers);
       const body = this.request.body<QuestionRequestBody>(event.body);
-      const documentId = this.request.requireString(body.documentId, "documentId");
       const question = this.request.requireString(body.question, "question");
+      const documentId = typeof body.documentId === "string" ? body.documentId.trim() : "";
+
+      if (!documentId && !this.questions.isConversational(question)) {
+        this.response.streamError(responseStream, 400, "documentId is required for document questions");
+
+        return;
+      }
+
       const stream = this.response.stream(responseStream);
 
       try {

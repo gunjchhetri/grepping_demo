@@ -18,11 +18,34 @@ export class LlmService {
     "When supported is true, answer concisely and cite page numbers when available. Include one or more short, " +
     "verbatim evidence excerpts copied exactly from the passages. Do not infer from nearby keywords, stereotypes, " +
     "or typical animal behavior. If only part of a multi-part question is supported, set supported to false.";
+  private static readonly conversationalPrompt =
+    "You are the conversational front door for a document question-answering application. " +
+    "Reply warmly and briefly to the user's greeting, thanks, or capability question. " +
+    "Do not invent or discuss facts from an uploaded document because no document retrieval was performed. " +
+    "If the user wants document facts, invite them to ask a specific question about the PDF. Return plain text only.";
+  private static readonly conversationalPatterns = [
+    /^(?:hi|hello|hey|hiya|howdy)(?: there)?$/,
+    /^(?:good morning|good afternoon|good evening|good night)$/,
+    /^(?:how are you|how's it going|what's up)$/,
+    /^(?:thanks|thank you|thx|much appreciated)$/,
+    /^(?:who are you|what can you do|help)$/,
+  ];
 
   public constructor(
     private readonly model: AbstractLanguageModel,
     private readonly parser = new ModelOutputParser(),
   ) {}
+
+  /** Recognizes only a small allowlist of non-document messages before retrieval begins. */
+  public isConversational(question: string): boolean {
+    const normalized = question
+      .toLowerCase()
+      .replace(/[!?.,]+/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    return LlmService.conversationalPatterns.some((pattern) => pattern.test(normalized));
+  }
 
   public async expandQuery(question: string, broader = false): Promise<QueryTerms> {
     const instruction = broader
@@ -60,6 +83,11 @@ export class LlmService {
     const answer = this.parseSupportedAnswer(raw, passages);
 
     yield answer?.supported ? answer.answer : LlmService.noAnswerMessage;
+  }
+
+  /** Streams a response for allowlisted conversational messages without document retrieval. */
+  public streamConversational(question: string): AsyncIterable<string> {
+    return this.model.stream(LlmService.conversationalPrompt, question);
   }
 
   private parseSupportedAnswer(raw: string, passages: Passage[]): SupportedAnswer | undefined {
