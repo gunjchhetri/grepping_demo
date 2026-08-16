@@ -66,7 +66,9 @@ flowchart TD
 
 ## Run locally
 
-Prerequisites: Node.js 22+, AWS SAM CLI, Python 3, and an AWS account with the S3 Files resource types.
+Prerequisites: Node.js 22+, AWS SAM CLI, and an AWS account with the S3 Files resource types. Python 3 is
+optional and is used only by `npm run frontend:dev` to serve the static frontend locally with
+`python3 -m http.server`.
 
 ```bash
 npm install
@@ -93,6 +95,15 @@ npm run frontend:dev
 ```
 
 Open <http://localhost:5173>.
+
+## Technical consideration
+
+The question Lambda runs inside a VPC and reaches Amazon Bedrock through a private Bedrock Runtime interface
+VPC endpoint. This project intentionally does not configure a NAT Gateway. As a result, the current deployment
+works with Bedrock but cannot make direct outbound calls to OpenAI, Anthropic/Claude, or other public LLM APIs.
+
+Supporting those providers requires adding an outbound internet path, such as a NAT Gateway, and configuring the
+provider API key through Secrets Manager.
 
 ## Important limitation
 
