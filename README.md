@@ -8,33 +8,20 @@ passages.
 
 ```mermaid
 flowchart TD
-    Upload["User uploads PDF"] --> S3PDF["PDF stored in Amazon S3<br/>via presigned multipart PUT"]
-    S3PDF --> ProcessApi["POST /document/process<br/>API Gateway, no Lambda"]
-    ProcessApi --> Queue["SQS processing queue"]
-    Queue --> ProcessLambda["Document processor Lambda"]
-    ProcessLambda --> MountPDF["Read PDF through<br/>S3 Files mount"]
-    MountPDF --> Extract["Extract page-marked text<br/>with pdf-parse"]
-    Extract --> S3Text["Write document.txt<br/>with the S3 API"]
-    S3Text --> MountText["Text appears in<br/>S3 Files mount"]
+    Upload["User uploads PDF to S3"] --> Queue["POST /document/process<br/>API Gateway enqueues to SQS"]
+    Queue --> Extract["Processor Lambda reads the PDF through the<br/>S3 Files mount and writes page-marked document.txt"]
+    Extract --> Mount[("document.txt on<br/>the S3 Files mount")]
 
-    Ask["User asks a message"] --> QuestionApi["Question API Lambda"]
-    QuestionApi --> Classify{"LLM: greeting<br/>or document question?"}
-    Classify -->|"Greeting / small talk"| Greeting["Use the LLM response<br/>immediately"]
-    Classify -->|"Document question"| Correct["LLM corrects<br/>spelling mistakes"]
-    Correct --> Expand["LLM expands the query,<br/>precise pass then broader retry"]
-    Expand --> Grep["ripgrep searches the mounted text<br/>grep is the fallback"]
-    MountText --> Grep
-    Grep --> Group["Group nearby matching lines<br/>into passages"]
-    Group --> Rank["Score passages and<br/>keep the top 8"]
-    Rank --> Any{"Any passages?"}
-    Any -->|"No, precise pass"| Expand
-    Any -->|"Yes"| Answer["LLM answers from the<br/>selected passages"]
-    Any -->|"No, after retry"| NoAnswer["Fixed not-enough-information reply"]
-    Answer --> Validate{"Supported, with verbatim<br/>evidence in the passages?"}
-    Validate -->|"Yes"| Response["Write to the streaming response"]
-    Validate -->|"No"| NoAnswer
-    Greeting --> Response
-    NoAnswer --> Response
+    Ask["User asks a message"] --> Classify{"Greeting or<br/>document question?"}
+    Classify -->|"Greeting"| Response["Write to the streaming response"]
+    Classify -->|"Question"| Query["LLM corrects spelling<br/>and expands the query"]
+    Query --> Search["ripgrep the mounted text, group matches<br/>into passages, keep the top 8"]
+    Mount --> Search
+    Search -->|"nothing found: one broader retry"| Query
+    Search --> Answer["LLM answers from those passages"]
+    Answer --> Validate{"Supported by verbatim<br/>evidence?"}
+    Validate -->|"Yes"| Response
+    Validate -->|"No: fixed fallback reply"| Response
 
     classDef default fill:#111111,color:#ffffff,stroke:#111111,stroke-width:2px;
 ```
