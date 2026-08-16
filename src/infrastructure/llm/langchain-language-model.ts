@@ -10,6 +10,7 @@ import { AbstractLanguageModel } from "../../contracts/services/llm/abstract-lan
 /** LangChain adapter implementing the LLM service contract. */
 export class LangChainLanguageModel extends AbstractLanguageModel {
   private static readonly requestTimeoutMs = 120_000;
+  private static readonly maxRetries = 8;
   private readonly secrets = new SecretsManagerClient({});
   private modelPromise?: Promise<BaseChatModel>;
 
@@ -69,7 +70,17 @@ export class LangChainLanguageModel extends AbstractLanguageModel {
   private async createModel(): Promise<BaseChatModel> {
     switch (this.provider) {
       case "bedrock":
-        return new ChatBedrockConverse({ model: this.modelName });
+        return new ChatBedrockConverse({
+          model: this.modelName,
+          // Answering one question makes several model calls in quick succession, which is enough to exceed
+          // the per-model request quota. Adaptive retries back off and slow the client down instead of
+          // surfacing a throttling error to the user.
+          maxRetries: LangChainLanguageModel.maxRetries,
+          clientConfig: {
+            maxAttempts: LangChainLanguageModel.maxRetries,
+            retryMode: "adaptive",
+          },
+        });
       case "openai":
         return new ChatOpenAI({ model: this.modelName, apiKey: await this.apiKey() });
       case "anthropic":

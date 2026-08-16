@@ -1,3 +1,4 @@
+import { Logger } from "@aws-lambda-powertools/logger";
 import type { APIGatewayProxyEvent } from "aws-lambda";
 import type { QuestionRequestBody } from "../../types/core/api/question.js";
 import { QuestionService } from "../../services/questions/question-service.js";
@@ -6,6 +7,8 @@ import { RequestParser } from "../../utils/http/request-parser.js";
 
 /** Validates a question request and streams the evidence-backed answer to API Gateway. */
 export class QuestionApi {
+  private readonly logger = new Logger({ serviceName: "question-api" });
+
   public constructor(
     private readonly questions: QuestionService,
     private readonly request: RequestParser,
@@ -39,9 +42,15 @@ export class QuestionApi {
         stream.write(await this.questions.answer(userId, documentId, question, classification));
         stream.end();
       } catch (cause: unknown) {
+        // Logged as well as returned: the caller only ever sees this text appended to a 200 response, so
+        // without a log line the underlying failure leaves no trace anywhere.
+        this.logger.error("Answering the question failed", { error: cause });
+
         stream.end(`\n\n${cause instanceof Error ? cause.message : "Unable to answer question"}`);
       }
     } catch (cause: unknown) {
+      this.logger.error("The question request failed", { error: cause });
+
       this.response.streamError(
         responseStream,
         400,

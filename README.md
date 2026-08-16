@@ -91,7 +91,7 @@ in `samconfig.toml`:
 
 ```text
 LLMProvider=bedrock
-LLMModel=amazon.nova-lite-v1:0
+LLMModel=amazon.nova-pro-v1:0
 ```
 
 Open <http://localhost:5173>.

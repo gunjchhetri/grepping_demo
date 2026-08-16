@@ -5,7 +5,7 @@ stack_name = "db-less-rag-demo"
 resolve_s3 = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
-parameter_overrides = "LLMProvider=bedrock LLMModel=amazon.nova-lite-v1:0"
+parameter_overrides = "LLMProvider=bedrock LLMModel=amazon.nova-pro-v1:0"
 
 [default.build.parameters]
 cached = true
