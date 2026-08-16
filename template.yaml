@@ -48,6 +48,10 @@ Resources:
       BucketName: !Sub
         - "${StackUuid}-documents"
         - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+      # Required by S3 Files, which synchronizes the mount with the bucket through version-specific
+      # APIs (s3:GetObjectVersion, s3:ListBucketVersions), so the file system cannot be created
+      # against an unversioned bucket. The cost is that scripts/destroy.sh must delete object
+      # versions and delete markers before CloudFormation can remove the bucket.
       VersioningConfiguration:
         Status: Enabled
       BucketEncryption:
