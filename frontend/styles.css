@@ -59,16 +59,17 @@ svg { display: block; }
 .chat-hint b { color: #6d6457; font-weight: 600; }
 .spin { animation: spin 1s linear infinite; }
 
-.answer-area:empty { display: none; }
-.answer-area { margin-top: 16px; border: 1px solid #eee5d8; border-radius: 12px; padding: 20px; background: #fffcf6; }
-.answer-heading { display: flex; align-items: center; justify-content: space-between; }
-.answer-kicker { color: #b2673f; font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: .14em; }
-.answer-text { color: #423c34; line-height: 1.65; font-family: Georgia, serif; font-size: 17px; margin: 14px 0 18px; white-space: pre-wrap; }
-.sources { border-top: 1px solid #eee5d8; padding-top: 14px; }
-.sources .eyebrow { color: #b2673f; text-transform: uppercase; letter-spacing: .14em; font-size: 10px; font-weight: 800; }
-.source-card { padding: 10px 0; border-bottom: 1px solid #f0e9de; }
-.source-card span { color: #b2673f; font-size: 10px; font-weight: 800; margin-right: 10px; }
-.source-card p { color: #8d8375; font-size: 11px; margin: 6px 0 0; line-height: 1.4; }
+.conversation:empty { display: none; }
+.conversation { display: grid; gap: 16px; margin-top: 18px; }
+.message { display: grid; gap: 7px; max-width: 88%; }
+.message-user { justify-self: end; justify-items: end; }
+.message-assistant { justify-self: start; }
+.message-label { display: flex; align-items: center; gap: 7px; color: #8f8577; font-size: 10px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+.message-avatar { display: grid; place-items: center; min-width: 27px; height: 22px; padding: 0 7px; border-radius: 7px; font-size: 9px; letter-spacing: .04em; }
+.message-user .message-avatar { color: #fffaf0; background: #b2673f; }
+.message-assistant .message-avatar { color: #5e564b; background: #e9dfd0; }
+.message-bubble { color: #423c34; line-height: 1.6; white-space: pre-wrap; border: 1px solid #eee5d8; border-radius: 13px; padding: 13px 15px; background: #fffcf6; }
+.message-user .message-bubble { color: #fffaf0; background: #28241f; border-color: #28241f; }
 
 footer { margin-top: auto; color: #a79c8e; font-size: 11px; padding-top: 8px; border-top: 1px solid #ece4d6; }
 

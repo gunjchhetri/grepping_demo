@@ -20,7 +20,7 @@ export class View {
       askButton: document.getElementById("ask-button"),
       askIcon: document.querySelector(".ask-icon"),
       activeDoc: document.getElementById("active-doc"),
-      answerArea: document.getElementById("answer-area"),
+      conversation: document.getElementById("conversation"),
       notice: document.getElementById("notice"),
       sessionId: document.getElementById("session-id"),
       resetSession: document.getElementById("reset-session"),
@@ -103,40 +103,22 @@ export class View {
     return row;
   }
 
-  /** Draws the answer and its source passages. */
-  renderAnswer(answer, sources) {
-    const area = this.elements.answerArea;
+  /** Draws the complete conversation, keeping user and AI messages distinct. */
+  renderConversation(messages) {
+    const area = this.elements.conversation;
 
     area.replaceChildren();
 
-    if (!answer) {
-      return;
+    for (const message of messages) {
+      const item = this.element("article", `message message-${message.role}`);
+      const label = message.role === "user" ? "You" : "AI";
+      const labelRow = this.element("div", "message-label");
+      const bubble = this.element("div", "message-bubble", message.text || "Thinking…");
+
+      labelRow.append(this.element("span", "message-avatar", label), this.element("span", "", label));
+      item.append(labelRow, bubble);
+      area.append(item);
     }
-
-    const heading = this.element("div", "answer-heading");
-
-    heading.append(this.element("span", "answer-kicker", "Answer"));
-    area.append(heading, this.element("p", "answer-text", answer));
-
-    if (sources.length === 0) {
-      return;
-    }
-
-    const wrapper = this.element("div", "sources");
-
-    wrapper.append(this.element("p", "eyebrow", "Sources"));
-
-    for (const source of sources) {
-      const card = this.element("div", "source-card");
-
-      card.append(
-        this.element("span", "", `p. ${source.pageNumbers.join(", ")}`),
-        this.element("p", "", `${source.text.slice(0, 180)}…`),
-      );
-      wrapper.append(card);
-    }
-
-    area.append(wrapper);
   }
 
   element(tag, className = "", text = "") {

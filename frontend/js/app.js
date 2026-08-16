@@ -13,6 +13,7 @@ export class App {
     this.api = new ApiClient(this.userId);
     this.documents = [];
     this.selectedId = "";
+    this.messages = [];
     this.busy = false;
   }
 
@@ -69,9 +70,10 @@ export class App {
     this.api = new ApiClient(this.userId);
     this.documents = [];
     this.selectedId = "";
+    this.messages = [];
 
     this.view.setSessionId(this.session.shorten(this.userId));
-    this.view.renderAnswer("", []);
+    this.view.renderConversation(this.messages);
     this.view.setNotice("Started a fresh session. Earlier documents stay under the old id.");
     this.render();
     void this.refreshDocuments();
@@ -139,7 +141,12 @@ export class App {
     }
 
     this.setBusy(true);
-    this.view.renderAnswer("", []);
+
+    const userMessage = { role: "user", text: question };
+    const assistantMessage = { role: "assistant", text: "" };
+
+    this.messages.push(userMessage, assistantMessage);
+    this.view.renderConversation(this.messages);
     this.view.setNotice("Running ripgrep over the document…");
 
     try {
@@ -148,7 +155,8 @@ export class App {
       this.view.setNotice("Generating an answer…");
       await this.api.askStream(record.documentId, question, (chunk) => {
         answer += chunk;
-        this.view.renderAnswer(answer, []);
+        assistantMessage.text = answer;
+        this.view.renderConversation(this.messages);
       });
 
       this.view.setNotice(
@@ -157,6 +165,12 @@ export class App {
           : "Answer ready.",
       );
     } catch (cause) {
+      if (!assistantMessage.text) {
+        this.messages = this.messages.filter((message) => message !== assistantMessage);
+
+        this.view.renderConversation(this.messages);
+      }
+
       this.view.setNotice(ApiClient.describeError(cause, "Question failed"));
     } finally {
       this.setBusy(false);
