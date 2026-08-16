@@ -1,4 +1,4 @@
-# Grepping
+# Grepping(Project name)
 
 Grepping lets users upload a PDF and ask questions about its contents. It converts the PDF into page-marked text,
 searches it using `ripgrep`, and uses an LLM to answer from the most relevant passages.
