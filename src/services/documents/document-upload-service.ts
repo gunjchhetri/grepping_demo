@@ -9,7 +9,7 @@ import type { S3ObjectStore } from "../../infrastructure/storage/s3-object-store
 import { S3Keys } from "../../utils/s3/s3-keys.js";
 
 /** Document business service for uploads, processing initiation, and listing. */
-export class DocumentService {
+export class DocumentUploadService {
   private static readonly uploadUrlTtlSeconds = 900;
   private static readonly multipartPartSizeBytes = 8 * 1024 * 1024;
   private static readonly pdfContentType = "application/pdf";
@@ -18,7 +18,7 @@ export class DocumentService {
   public constructor(private readonly store: S3ObjectStore) {}
 
   public async createUpload(userId: string, contentType: string): Promise<UploadTicket> {
-    if (contentType !== DocumentService.pdfContentType) {
+    if (contentType !== DocumentUploadService.pdfContentType) {
       throw new Error("Only PDF uploads are supported");
     }
 
@@ -30,8 +30,8 @@ export class DocumentService {
       documentId,
       key,
       uploadId,
-      partSize: DocumentService.multipartPartSizeBytes,
-      expiresIn: DocumentService.uploadUrlTtlSeconds,
+      partSize: DocumentUploadService.multipartPartSizeBytes,
+      expiresIn: DocumentUploadService.uploadUrlTtlSeconds,
     };
   }
 
@@ -41,16 +41,16 @@ export class DocumentService {
     uploadId: string,
     partNumber: number,
   ): Promise<UploadPartTicket> {
-    DocumentService.validatePartNumber(partNumber);
+    DocumentUploadService.validatePartNumber(partNumber);
     const key = S3Keys.originalPdf(userId, documentId);
     const uploadUrl = await this.store.presignUploadPart(
       key,
       uploadId,
       partNumber,
-      DocumentService.uploadUrlTtlSeconds,
+      DocumentUploadService.uploadUrlTtlSeconds,
     );
 
-    return { uploadUrl, expiresIn: DocumentService.uploadUrlTtlSeconds };
+    return { uploadUrl, expiresIn: DocumentUploadService.uploadUrlTtlSeconds };
   }
 
   public async completeUpload(
@@ -64,7 +64,7 @@ export class DocumentService {
     }
 
     const normalizedParts = parts.map((part) => {
-      DocumentService.validatePartNumber(part.PartNumber);
+      DocumentUploadService.validatePartNumber(part.PartNumber);
 
       if (typeof part.ETag !== "string" || part.ETag.trim() === "") {
         throw new Error("Each uploaded part must include an ETag");
@@ -101,7 +101,7 @@ export class DocumentService {
 
       const record = documents.get(parts.documentId) ?? {
         documentId: parts.documentId,
-        fileName: DocumentService.displayName,
+        fileName: DocumentUploadService.displayName,
         status: "PROCESSING" as const,
       };
 

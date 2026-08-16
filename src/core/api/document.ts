@@ -5,7 +5,7 @@ import type {
   DocumentUploadRequest,
 } from "../../types/core/api/document.js";
 import type { ApiResponse } from "../../types/utils/http/http-response.js";
-import { DocumentService } from "../../services/documents/document-service.js";
+import { DocumentUploadService } from "../../services/documents/document-upload-service.js";
 import { HttpResponse } from "../../utils/http/http-response.js";
 import { RequestParser } from "../../utils/http/request-parser.js";
 
@@ -13,7 +13,7 @@ import { RequestParser } from "../../utils/http/request-parser.js";
 export class DocumentApi {
   /** Creates the API processor with its business service and HTTP helpers. */
   public constructor(
-    private readonly documents: DocumentService,
+    private readonly documents: DocumentUploadService,
     private readonly request: RequestParser,
     private readonly response: HttpResponse,
   ) {}
