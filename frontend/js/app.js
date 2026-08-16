@@ -1,7 +1,12 @@
-import { ApiClient } from "./api.js";
-import { Icons } from "./icons.js";
-import { Session } from "./session.js";
-import { View } from "./view.js";
+// The bootstrap script cache-busts app.js; pass that same query to its module imports so a
+// changed view.js cannot remain cached alongside a newer app.js.
+const moduleQuery = new window.URL(import.meta.url).search;
+const [{ ApiClient }, { Icons }, { Session }, { View }] = await Promise.all([
+  import(`./api.js${moduleQuery}`),
+  import(`./icons.js${moduleQuery}`),
+  import(`./session.js${moduleQuery}`),
+  import(`./view.js${moduleQuery}`),
+]);
 
 /** Wires the view to the API: upload a PDF, pick one, ask it a question. */
 export class App {
