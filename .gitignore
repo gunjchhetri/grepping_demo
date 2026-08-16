@@ -11,6 +11,7 @@ frontend/config.js
 *.tsbuildinfo
 *.log
 .DS_Store
+.claude/
 tmp/
 temp/
 *.tmp
