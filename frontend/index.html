@@ -7,7 +7,6 @@
     <title>TraceRAG — DB-less document Q&amp;A</title>
     <link rel="stylesheet" href="styles.css" />
     <script src="https://cdn.jsdelivr.net/npm/axios@1.7.9/dist/axios.min.js"></script>
-    <script src="config.js"></script>
   </head>
   <body>
     <main class="shell">
@@ -31,6 +30,15 @@
         <div class="upload-text">
           <strong>Drop a PDF here or click to upload</strong>
           <span>Searched in place with ripgrep — no database, no index.</span>
+        </div>
+        <div class="upload-status" id="upload-status" hidden>
+          <div class="upload-status-line">
+            <span id="upload-status-label"></span>
+            <span id="upload-status-percent"></span>
+          </div>
+          <div class="upload-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="upload-progress-bar"></div>
+          </div>
         </div>
       </section>
 
@@ -56,6 +64,19 @@
       <footer><span id="notice">Ready.</span></footer>
     </main>
 
-    <script type="module" src="js/app.js"></script>
+    <script type="module">
+      const configScript = document.createElement("script");
+      configScript.src = `config.js?cacheBust=${Date.now()}`;
+      configScript.onload = () => {
+        const appScript = document.createElement("script");
+        appScript.type = "module";
+        appScript.src = `js/app.js?cacheBust=${Date.now()}`;
+        document.body.append(appScript);
+      };
+      configScript.onerror = () => {
+        document.querySelector("#notice").textContent = "Could not load frontend configuration.";
+      };
+      document.head.append(configScript);
+    </script>
   </body>
 </html>

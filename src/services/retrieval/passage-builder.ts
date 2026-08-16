@@ -1,4 +1,4 @@
-import type { QueryTerms, ScoredPassage } from "../../types/retrieval.js";
+import type { QueryTerms, ScoredPassage } from "../../types/services/retrieval/document-retriever.js";
 import { PassageScorer } from "./passage-scorer.js";
 
 interface LineRange {
@@ -6,12 +6,7 @@ interface LineRange {
   end: number;
 }
 
-/**
- * Turns matching line numbers into readable passages.
- *
- * Matches close to each other become one passage, each passage is padded with
- * surrounding context, overlapping passages are merged, and the result is ranked.
- */
+/** Builds and ranks readable passages from matched document lines. */
 export class PassageBuilder {
   private static readonly nearbyLines = 12;
   private static readonly contextLines = 20;
@@ -45,7 +40,6 @@ export class PassageBuilder {
       .slice(0, PassageBuilder.maxPassages);
   }
 
-  /** Groups nearby matches, pads each group with context, then merges overlaps. */
   private static ranges(matchedLines: number[], lineCount: number): LineRange[] {
     const sorted = [...new Set(matchedLines)].sort((left, right) => left - right);
     const merged: LineRange[] = [];
@@ -57,8 +51,6 @@ export class PassageBuilder {
         end: Math.min(lineCount, line + PassageBuilder.contextLines),
       };
 
-      // Extend the open range when this match belongs to the same neighbourhood,
-      // which is what keeps one topic in one passage instead of many fragments.
       if (previous && range.start <= previous.end + PassageBuilder.nearbyLines) {
         previous.end = Math.max(previous.end, range.end);
         continue;
@@ -70,7 +62,6 @@ export class PassageBuilder {
     return merged;
   }
 
-  /** Maps every line to the page it belongs to, using the markers the extractor wrote. */
   private static pageIndex(lines: string[]): number[] {
     let page = 1;
 

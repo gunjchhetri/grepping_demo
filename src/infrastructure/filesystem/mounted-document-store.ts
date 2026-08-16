@@ -1,18 +1,11 @@
-import { readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import { isAbsolute, relative, resolve, sep } from "node:path";
-import { AppConfig } from "../../config.js";
 
-/**
- * Reads document objects as ordinary files through the S3 Files mount.
- *
- * This is the whole point of the demo: because S3 content appears on a POSIX path,
- * ripgrep can search it in place with no download, no index, and no vector store.
- */
-export class MountedDocuments {
-  public constructor(private readonly root = AppConfig.documentsMountPath()) {}
+/** Read-only filesystem adapter for the S3 Files document mount. */
+export class MountedDocumentStore {
+  public constructor(private readonly root: string) {}
 
-  /** Resolves an S3 key to its path on the mount, refusing anything outside the root. */
   public pathFor(key: string): string {
     if (isAbsolute(key)) {
       throw new Error("Mounted document paths must be relative keys");
@@ -37,7 +30,14 @@ export class MountedDocuments {
     return readFile(this.pathFor(key));
   }
 
-  /** Resolves a key that must already exist, such as the file handed to ripgrep. */
+  public async readText(key: string): Promise<string> {
+    return readFile(this.pathFor(key), "utf8");
+  }
+
+  public async readJson<T>(key: string): Promise<T> {
+    return JSON.parse(await this.readText(key)) as T;
+  }
+
   public requirePath(key: string): string {
     if (!this.exists(key)) {
       throw new Error(`Extracted document is not available: ${key}`);

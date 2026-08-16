@@ -93,23 +93,37 @@ export class App {
 
   async upload(file) {
     this.setBusy(true);
-    this.view.setNotice(`Uploading ${file.name}…`);
+    this.view.setUploadStatus("Preparing multipart upload…", 0);
+    this.view.setNotice(`Preparing ${file.name}…`);
+    let ticket;
 
     try {
-      const ticket = await this.api.createUpload(file.type || "application/pdf");
+      ticket = await this.api.createUpload(file.type || "application/pdf");
 
-      await this.api.uploadToS3(ticket.uploadUrl, file, (percent) =>
-        this.view.setNotice(`Uploading ${file.name}… ${percent}%`),
-      );
-      await this.api.startProcessing(ticket.documentId, ticket.key);
-      this.view.setNotice("Uploaded to S3. Extracting text…");
+      await this.api.uploadToS3(file, ticket, ({ partNumber, totalParts, percent }) => {
+        this.view.setUploadStatus(`Uploading part ${partNumber} of ${totalParts}`, percent);
+        this.view.setNotice(`Uploading ${file.name} — part ${partNumber} of ${totalParts} (${percent}%)`);
+      });
+      this.view.setUploadStatus("Upload complete", 100);
+      this.view.setNotice("Finalizing upload…");
+
+      await this.api.startProcessing(ticket.documentId);
+      this.view.setUploadStatus("Processing PDF…", 100);
+      this.view.setNotice("Processing PDF text…");
+      await this.refreshDocuments();
 
       await this.api.waitForDocument(ticket.documentId);
       this.selectedId = ticket.documentId;
       await this.refreshDocuments();
+      this.view.setUploadStatus("Ready", 100);
       this.view.setNotice(`${file.name} is ready. Ask it a question.`);
       this.view.elements.questionInput.focus();
     } catch (cause) {
+      if (ticket) {
+        await this.api.abortUpload(ticket.documentId, ticket.uploadId).catch(() => undefined);
+      }
+
+      this.view.setUploadStatus("Upload failed", 0);
       this.view.setNotice(ApiClient.describeError(cause, "Upload failed"));
     } finally {
       this.setBusy(false);
@@ -129,14 +143,19 @@ export class App {
     this.view.setNotice("Running ripgrep over the document…");
 
     try {
-      const { jobId } = await this.api.ask(record.documentId, question);
+      let answer = "";
 
-      this.view.setNotice("Passages retrieved. Waiting for the model…");
+      this.view.setNotice("Generating an answer…");
+      await this.api.askStream(record.documentId, question, (chunk) => {
+        answer += chunk;
+        this.view.renderAnswer(answer, []);
+      });
 
-      const result = await this.api.waitForAnswer(jobId);
-
-      this.view.renderAnswer(result.answer, result.sources ?? []);
-      this.view.setNotice("Answer grounded in passages from the document.");
+      this.view.setNotice(
+        answer.startsWith("The PDF does not provide enough information")
+          ? "The PDF does not provide information on that topic."
+          : "Answer ready.",
+      );
     } catch (cause) {
       this.view.setNotice(ApiClient.describeError(cause, "Question failed"));
     } finally {

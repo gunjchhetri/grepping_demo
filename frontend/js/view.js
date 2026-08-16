@@ -8,6 +8,11 @@ export class View {
     this.icons = icons;
     this.elements = {
       uploadCard: document.getElementById("upload-card"),
+      uploadStatus: document.getElementById("upload-status"),
+      uploadStatusLabel: document.getElementById("upload-status-label"),
+      uploadStatusPercent: document.getElementById("upload-status-percent"),
+      uploadProgress: document.querySelector(".upload-progress"),
+      uploadProgressBar: document.getElementById("upload-progress-bar"),
       fileInput: document.getElementById("file-input"),
       documentList: document.getElementById("document-list"),
       docCount: document.getElementById("doc-count"),
@@ -24,6 +29,17 @@ export class View {
 
   setNotice(message) {
     this.elements.notice.textContent = message;
+  }
+
+  setUploadStatus(message, percent) {
+    const { uploadStatus, uploadStatusLabel, uploadStatusPercent, uploadProgress, uploadProgressBar } = this.elements;
+    const boundedPercent = Math.max(0, Math.min(100, percent));
+
+    uploadStatus.hidden = false;
+    uploadStatusLabel.textContent = message;
+    uploadStatusPercent.textContent = `${boundedPercent}%`;
+    uploadProgress.setAttribute("aria-valuenow", String(boundedPercent));
+    uploadProgressBar.style.width = `${boundedPercent}%`;
   }
 
   setSessionId(text) {
@@ -87,7 +103,7 @@ export class View {
     return row;
   }
 
-  /** Draws the answer and the passages it was grounded in. */
+  /** Draws the answer and its source passages. */
   renderAnswer(answer, sources) {
     const area = this.elements.answerArea;
 
@@ -98,11 +114,8 @@ export class View {
     }
 
     const heading = this.element("div", "answer-heading");
-    const grounded = this.element("span", "grounded-label");
 
-    grounded.innerHTML = '<span class="status-dot"></span>';
-    grounded.append("grounded");
-    heading.append(this.element("span", "answer-kicker", "Answer"), grounded);
+    heading.append(this.element("span", "answer-kicker", "Answer"));
     area.append(heading, this.element("p", "answer-text", answer));
 
     if (sources.length === 0) {

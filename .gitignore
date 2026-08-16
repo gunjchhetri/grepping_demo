@@ -1,9 +1,16 @@
 .aws-sam/
 node_modules/
 dist/
+build/
+.cache/
+.vite/
 .env
 .env.local
 coverage/
 frontend/config.js
 *.tsbuildinfo
 *.log
+.DS_Store
+tmp/
+temp/
+*.tmp

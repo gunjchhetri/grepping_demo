@@ -1,11 +1,12 @@
 /** Calls the HTTP API with axios, carrying this browser's user id on every request. */
 export class ApiClient {
-  static documentPoll = { intervalMs: 1500, attempts: 80 };
-  static answerPoll = { intervalMs: 650, attempts: 30 };
+  static documentPoll = { intervalMs: 30000, attempts: 20 };
 
   constructor(userId, baseUrl = window.APP_CONFIG?.apiUrl ?? "http://localhost:3000") {
+    this.baseUrl = baseUrl.replace(/\/$/, "");
+    this.userId = userId;
     this.http = window.axios.create({
-      baseURL: baseUrl.replace(/\/$/, ""),
+      baseURL: this.baseUrl,
       headers: { "content-type": "application/json", "x-user-id": userId },
     });
   }
@@ -16,27 +17,65 @@ export class ApiClient {
     return data.documents ?? [];
   }
 
-  /** Asks the backend for a short-lived presigned S3 PUT URL. */
+  /** Starts an S3 multipart upload and returns the chunk size to use in the browser. */
   async createUpload(contentType) {
-    const { data } = await this.http.post("/document/upload-url", { contentType });
+    const { data } = await this.http.post("/document/upload/init", { contentType });
 
     return data;
   }
 
-  /**
-   * Uploads the PDF straight to S3. Sent with a bare axios call on purpose: the URL is
-   * signed for content-type only, so none of the app's own headers should travel with it.
-   */
-  async uploadToS3(uploadUrl, file, onProgress) {
-    await window.axios.put(uploadUrl, file, {
-      headers: { "content-type": "application/pdf" },
-      onUploadProgress: ({ loaded, total }) => total && onProgress(Math.round((loaded / total) * 100)),
-    });
+  async createPartUpload(documentId, uploadId, partNumber) {
+    const { data } = await this.http.post("/document/upload/part-url", { documentId, uploadId, partNumber });
+
+    return data;
   }
 
-  /** Tells the backend the upload landed, which starts asynchronous text extraction. */
-  async startProcessing(documentId, key) {
-    await this.http.post("/document/process", { documentId, key });
+  async completeUpload(documentId, uploadId, parts) {
+    await this.http.post("/document/upload/complete", { documentId, uploadId, parts });
+  }
+
+  async abortUpload(documentId, uploadId) {
+    await this.http.post("/document/upload/abort", { documentId, uploadId });
+  }
+
+  /** Queues extraction for an uploaded PDF. API Gateway enqueues it directly and returns 202. */
+  async startProcessing(documentId) {
+    await this.http.post("/document/process", { documentId });
+  }
+
+  /** Uploads 8 MB chunks directly to S3 and completes the multipart upload. */
+  async uploadToS3(file, ticket, onProgress) {
+    const totalParts = Math.ceil(file.size / ticket.partSize);
+    const parts = [];
+    let uploadedBytes = 0;
+
+    for (let partNumber = 1; partNumber <= totalParts; partNumber += 1) {
+      const start = (partNumber - 1) * ticket.partSize;
+      const end = Math.min(start + ticket.partSize, file.size);
+      const chunk = file.slice(start, end);
+      const { uploadUrl } = await this.createPartUpload(ticket.documentId, ticket.uploadId, partNumber);
+
+      onProgress({ partNumber, totalParts, percent: Math.round((uploadedBytes / file.size) * 100) });
+
+      const response = await window.axios.put(uploadUrl, chunk, {
+        onUploadProgress: ({ loaded }) => {
+          const percent = Math.round(((uploadedBytes + loaded) / file.size) * 100);
+
+          onProgress({ partNumber, totalParts, percent });
+        },
+      });
+      const etag = response.headers.etag;
+
+      if (!etag) {
+        throw new Error(`S3 did not return an ETag for part ${partNumber}`);
+      }
+
+      parts.push({ ETag: etag, PartNumber: partNumber });
+      uploadedBytes = end;
+      onProgress({ partNumber, totalParts, percent: Math.round((uploadedBytes / file.size) * 100) });
+    }
+
+    await this.completeUpload(ticket.documentId, ticket.uploadId, parts);
   }
 
   /** Polls the document list until extraction has produced the text object. */
@@ -48,22 +87,53 @@ export class ApiClient {
     });
   }
 
-  /** Submits a question. Retrieval runs inline; the model answers asynchronously. */
-  async ask(documentId, question) {
-    const { data } = await this.http.post("/question", { documentId, question });
-
-    return data;
-  }
-
-  /** Polls one question until the worker has written its answer. */
-  async waitForAnswer(jobId) {
-    return this.poll(ApiClient.answerPoll, async () => {
-      const { data } = await this.http.get(`/question/${jobId}`, {
-        validateStatus: (status) => status === 200 || status === 202,
-      });
-
-      return data.status === "COMPLETED" ? data : undefined;
+  /** Streams the evidence-backed answer from the VPC Lambda through API Gateway. */
+  async askStream(documentId, question, onChunk) {
+    const response = await window.fetch(`${this.baseUrl}/question`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-user-id": this.userId },
+      body: JSON.stringify({ documentId, question }),
     });
+
+    if (!response.ok) {
+      const payload = await response.text();
+      let message = payload || "Question failed";
+
+      try {
+        message = JSON.parse(payload).message ?? message;
+      } catch {
+        // Keep the raw response when the backend did not return JSON.
+      }
+
+      throw new Error(message);
+    }
+
+    if (!response.body) {
+      throw new Error("The browser does not support streamed responses");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new window.TextDecoder();
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) {
+        const remainder = decoder.decode();
+
+        if (remainder) {
+          onChunk(remainder);
+        }
+
+        return;
+      }
+
+      const chunk = decoder.decode(value, { stream: true });
+
+      if (chunk) {
+        onChunk(chunk);
+      }
+    }
   }
 
   /** Repeats `attempt` until it returns a value, or gives up. */

@@ -1,18 +1,16 @@
 import { UserIdentity } from "../identity/user-identity.js";
 
-/** Pulls validated values out of an incoming API Gateway request. */
+/** Parses transport-level values before they enter the application layer. */
 export class RequestParser {
-  public constructor(private readonly identity: UserIdentity = new UserIdentity()) {}
+  public constructor(private readonly identity = new UserIdentity()) {}
 
-  /** Reads and validates the calling session's user id from the request headers. */
   public userId(headers: Record<string, string | undefined> | undefined): string {
     const match = Object.entries(headers ?? {}).find(([key]) => key.toLowerCase() === UserIdentity.header);
 
     return this.identity.parse(match?.[1]);
   }
 
-  /** Parses a request body, rejecting anything that is not JSON. */
-  public body<T>(raw: string | undefined): T {
+  public body<T>(raw: string | null | undefined): T {
     try {
       return JSON.parse(raw ?? "{}") as T;
     } catch {
@@ -20,7 +18,6 @@ export class RequestParser {
     }
   }
 
-  /** Returns a trimmed non-empty string or throws naming the offending field. */
   public requireString(value: unknown, name: string): string {
     if (typeof value !== "string" || value.trim() === "") {
       throw new Error(`${name} is required`);

@@ -1,30 +1,22 @@
 import { randomUUID } from "node:crypto";
+import type {
+  CompletedUploadPart,
+  DocumentRecord,
+  UploadPartTicket,
+  UploadTicket,
+} from "../../types/services/documents/document-service.js";
+import type { S3ObjectStore } from "../../infrastructure/storage/s3-object-store.js";
 import { S3Keys } from "../../utils/s3/s3-keys.js";
-import type { S3Store } from "../storage/s3-store.js";
-import type { DocumentRecord } from "../../types/document.js";
 
-export interface UploadTicket {
-  documentId: string;
-  key: string;
-  uploadUrl: string;
-  expiresIn: number;
-}
-
-/**
- * The document domain: issue presigned uploads, mark finished uploads for extraction,
- * and list what a user has. Every document is a folder of S3 objects — there is no
- * database, so status and listings are derived purely from which objects exist.
- */
+/** Document business service for uploads, processing initiation, and listing. */
 export class DocumentService {
   private static readonly uploadUrlTtlSeconds = 900;
+  private static readonly multipartPartSizeBytes = 8 * 1024 * 1024;
   private static readonly pdfContentType = "application/pdf";
-  // The demo does not keep the uploaded file name anywhere, so every document lists
-  // under the same label.
   private static readonly displayName = "document.pdf";
 
-  public constructor(private readonly store: S3Store) {}
+  public constructor(private readonly store: S3ObjectStore) {}
 
-  /** Returns a short-lived URL the browser uses to PUT the PDF straight to S3. */
   public async createUpload(userId: string, contentType: string): Promise<UploadTicket> {
     if (contentType !== DocumentService.pdfContentType) {
       throw new Error("Only PDF uploads are supported");
@@ -32,34 +24,71 @@ export class DocumentService {
 
     const documentId = `document-${randomUUID()}`;
     const key = S3Keys.originalPdf(userId, documentId);
-    const uploadUrl = await this.store.presignPut(key, contentType, DocumentService.uploadUrlTtlSeconds);
+    const uploadId = await this.store.createMultipartUpload(key, contentType);
 
-    return { documentId, key, uploadUrl, expiresIn: DocumentService.uploadUrlTtlSeconds };
-  }
-
-  /**
-   * Confirms the upload landed and writes the marker that triggers extraction.
-   * The key is rebuilt from the caller's own user id, so one visitor cannot start
-   * processing inside another visitor's namespace.
-   */
-  public async startProcessing(userId: string, documentId: string, key: string): Promise<void> {
-    if (key !== S3Keys.originalPdf(userId, documentId)) {
-      throw new Error("Uploaded document key is invalid");
-    }
-
-    if (!(await this.store.exists(key))) {
-      throw new Error("Uploaded document was not found");
-    }
-
-    await this.store.putJson(S3Keys.processingMarker(userId, documentId), {
-      userId,
+    return {
       documentId,
-      sourceKey: key,
-      createdAt: new Date().toISOString(),
-    });
+      key,
+      uploadId,
+      partSize: DocumentService.multipartPartSizeBytes,
+      expiresIn: DocumentService.uploadUrlTtlSeconds,
+    };
   }
 
-  /** Lists a user's documents, deriving status from which objects each folder holds. */
+  public async createPartUpload(
+    userId: string,
+    documentId: string,
+    uploadId: string,
+    partNumber: number,
+  ): Promise<UploadPartTicket> {
+    DocumentService.validatePartNumber(partNumber);
+    const key = S3Keys.originalPdf(userId, documentId);
+    const uploadUrl = await this.store.presignUploadPart(
+      key,
+      uploadId,
+      partNumber,
+      DocumentService.uploadUrlTtlSeconds,
+    );
+
+    return { uploadUrl, expiresIn: DocumentService.uploadUrlTtlSeconds };
+  }
+
+  public async completeUpload(
+    userId: string,
+    documentId: string,
+    uploadId: string,
+    parts: CompletedUploadPart[],
+  ): Promise<void> {
+    if (!Array.isArray(parts) || parts.length === 0) {
+      throw new Error("At least one uploaded part is required");
+    }
+
+    const normalizedParts = parts.map((part) => {
+      DocumentService.validatePartNumber(part.PartNumber);
+
+      if (typeof part.ETag !== "string" || part.ETag.trim() === "") {
+        throw new Error("Each uploaded part must include an ETag");
+      }
+
+      return { ETag: part.ETag, PartNumber: part.PartNumber };
+    });
+    const partNumbers = new Set(normalizedParts.map((part) => part.PartNumber));
+
+    if (partNumbers.size !== normalizedParts.length) {
+      throw new Error("Uploaded part numbers must be unique");
+    }
+
+    await this.store.completeMultipartUpload(
+      S3Keys.originalPdf(userId, documentId),
+      uploadId,
+      normalizedParts.sort((left, right) => left.PartNumber - right.PartNumber),
+    );
+  }
+
+  public async abortUpload(userId: string, documentId: string, uploadId: string): Promise<void> {
+    await this.store.abortMultipartUpload(S3Keys.originalPdf(userId, documentId), uploadId);
+  }
+
   public async list(userId: string): Promise<DocumentRecord[]> {
     const documents = new Map<string, DocumentRecord>();
 
@@ -80,7 +109,7 @@ export class DocumentService {
         record.uploadedAt = object.lastModified?.toISOString();
       }
 
-      if (parts.fileName === S3Keys.extractedTextFile) {
+      if (parts.fileName === S3Keys.extractedTextFile || parts.fileName.toLowerCase().endsWith(".txt")) {
         record.status = "READY";
       }
 
@@ -88,5 +117,11 @@ export class DocumentService {
     }
 
     return [...documents.values()].sort((left, right) => (right.uploadedAt ?? "").localeCompare(left.uploadedAt ?? ""));
+  }
+
+  private static validatePartNumber(partNumber: number): void {
+    if (!Number.isInteger(partNumber) || partNumber < 1 || partNumber > 10_000) {
+      throw new Error("partNumber must be an integer between 1 and 10000");
+    }
   }
 }

@@ -22,12 +22,17 @@ svg { display: block; }
 
 .lede { font-size: 22px; font-weight: 700; letter-spacing: -.03em; color: #2c2822; }
 
-.upload-card { display: flex; align-items: center; gap: 16px; padding: 22px; border: 1.5px dashed #d8ccb8; border-radius: 14px; background: #fffcf6; transition: border-color .15s, background .15s; }
+.upload-card { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 22px; border: 1.5px dashed #d8ccb8; border-radius: 14px; background: #fffcf6; transition: border-color .15s, background .15s; }
 .upload-card:hover, .upload-card.dragover { border-color: #c78560; background: #fdf6ee; }
 .upload-icon { flex: 0 0 46px; height: 46px; display: grid; place-items: center; color: #b2673f; background: #f7e4d5; border-radius: 11px; }
 .upload-text { display: grid; gap: 3px; }
 .upload-text strong { font-size: 14px; color: #35302a; }
 .upload-text span { font-size: 12px; color: #9a9185; }
+.upload-status { flex: 1 1 100%; display: grid; gap: 7px; margin-top: 6px; }
+.upload-status-line { display: flex; justify-content: space-between; gap: 10px; color: #8f785f; font-size: 11px; }
+.upload-status-line span:last-child { color: #b2673f; font-variant-numeric: tabular-nums; }
+.upload-progress { height: 5px; overflow: hidden; border-radius: 999px; background: #f0e4d5; }
+.upload-progress > div { height: 100%; width: 0; border-radius: inherit; background: #c78560; transition: width .15s ease-out; }
 
 .docs-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .docs-heading h2 { font-size: 15px; letter-spacing: -.02em; }
@@ -58,8 +63,6 @@ svg { display: block; }
 .answer-area { margin-top: 16px; border: 1px solid #eee5d8; border-radius: 12px; padding: 20px; background: #fffcf6; }
 .answer-heading { display: flex; align-items: center; justify-content: space-between; }
 .answer-kicker { color: #b2673f; font-size: 10px; text-transform: uppercase; font-weight: 800; letter-spacing: .14em; }
-.grounded-label { color: #73927c; font-size: 10px; display: flex; align-items: center; gap: 7px; }
-.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #5bb47e; display: inline-block; box-shadow: 0 0 0 3px #dcefe2; }
 .answer-text { color: #423c34; line-height: 1.65; font-family: Georgia, serif; font-size: 17px; margin: 14px 0 18px; white-space: pre-wrap; }
 .sources { border-top: 1px solid #eee5d8; padding-top: 14px; }
 .sources .eyebrow { color: #b2673f; text-transform: uppercase; letter-spacing: .14em; font-size: 10px; font-weight: 800; }

@@ -25,6 +25,7 @@ Parameters:
 Conditions:
   HasLlmSecret: !Not [!Equals [!Ref LLMSecretArn, ""]]
   HasRipgrepLayer: !Not [!Equals [!Ref RipgrepLayerArn, ""]]
+  IsBedrockProvider: !Equals [!Ref LLMProvider, bedrock]
 
 Globals:
   Function:
@@ -41,8 +42,8 @@ Globals:
 Resources:
   DocumentsBucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
     Properties:
       BucketName: !Sub
         - "${StackUuid}-documents"
@@ -70,48 +71,52 @@ Resources:
             Status: Enabled
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
+      # Required by S3 Files itself, not by any rule in this template. S3 Files keeps the mounted
+      # filesystem in sync with the bucket by consuming these events through its own
+      # DO-NOT-DELETE-S3-Files-* EventBridge rule. Turn this off and objects written with the S3 API
+      # (the browser's presigned PUT) never appear under the mount.
       NotificationConfiguration:
         EventBridgeConfiguration:
           EventBridgeEnabled: true
-
-  JobsBucket:
-    Type: AWS::S3::Bucket
-    DependsOn: QuestionWorkerInvokePermission
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
+  # Processing is queue-driven: the browser calls POST /document/process after its S3 upload and
+  # API Gateway puts the message on this queue directly. The bucket publishes no events, so it has
+  # no dependency on the processor and the old bucket -> permission -> processor -> mount -> bucket
+  # CloudFormation cycle cannot form.
+  DocumentProcessingQueue:
+    Type: AWS::SQS::Queue
     Properties:
-      BucketName: !Sub
-        - "${StackUuid}-jobs"
-        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: true
-        BlockPublicPolicy: true
-        IgnorePublicAcls: true
-        RestrictPublicBuckets: true
-      LifecycleConfiguration:
-        Rules:
-          - Id: ExpireQuestionArtifacts
-            Status: Enabled
-            ExpirationInDays: 7
-          - Id: AbortIncompleteMultipartUploads
-            Status: Enabled
-            AbortIncompleteMultipartUpload:
-              DaysAfterInitiation: 7
-      NotificationConfiguration:
-        LambdaConfigurations:
-          - Event: s3:ObjectCreated:Put
-            Function: !GetAtt QuestionWorkerFunction.Arn
-            Filter:
-              S3Key:
-                Rules:
-                  - Name: prefix
-                    Value: llm-requests/
-                  - Name: suffix
-                    Value: .json
+      # An object PUT straight to S3 takes a moment to appear through the S3 Files mount, so the
+      # first delivery is held back and redelivery is quick: retries are the propagation wait.
+      DelaySeconds: 30
+      # Must be at least the processor's Timeout so a slow extraction is not redelivered mid-flight.
+      VisibilityTimeout: 150
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DocumentProcessingDeadLetterQueue.Arn
+        maxReceiveCount: 5
+
+  DocumentProcessingDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+
+  ApiGatewayQueueRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SendToDocumentProcessingQueue
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: sqs:SendMessage
+                Resource: !GetAtt DocumentProcessingQueue.Arn
 
   RagVpc:
     Type: AWS::EC2::VPC
@@ -131,20 +136,7 @@ Resources:
       AvailabilityZone: !Select [0, !GetAZs ""]
       MapPublicIpOnLaunch: false
 
-  RetrievalSubnetB:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref RagVpc
-      CidrBlock: 10.42.2.0/24
-      AvailabilityZone: !Select [1, !GetAZs ""]
-      MapPublicIpOnLaunch: false
-
   RetrievalRouteTableA:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref RagVpc
-
-  RetrievalRouteTableB:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref RagVpc
@@ -155,12 +147,6 @@ Resources:
       RouteTableId: !Ref RetrievalRouteTableA
       SubnetId: !Ref RetrievalSubnetA
 
-  RetrievalRouteTableAssociationB:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      RouteTableId: !Ref RetrievalRouteTableB
-      SubnetId: !Ref RetrievalSubnetB
-
   S3GatewayEndpoint:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -169,12 +155,26 @@ Resources:
       VpcEndpointType: Gateway
       RouteTableIds:
         - !Ref RetrievalRouteTableA
-        - !Ref RetrievalRouteTableB
+
+  BedrockRuntimeVpcEndpoint:
+    Condition: IsBedrockProvider
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      # The question Lambda runs in the private VPC subnet. Bedrock uses this endpoint for private
+      # model calls without a NAT gateway. OpenAI/Anthropic are still code-supported, but their
+      # public APIs require outbound internet access and API keys from Secrets Manager, which this
+      # no-NAT test VPC does not provide.
+      VpcId: !Ref RagVpc
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.bedrock-runtime
+      VpcEndpointType: Interface
+      PrivateDnsEnabled: true
+      SubnetIds: [!Ref RetrievalSubnetA]
+      SecurityGroupIds: [!Ref RetrievalSecurityGroup]
 
   RetrievalSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Allows retrieval Lambda to reach S3 Files over NFS.
+      GroupDescription: Allows retrieval Lambdas to reach S3 Files over NFS and Bedrock over HTTPS.
       VpcId: !Ref RagVpc
       SecurityGroupEgress:
         - IpProtocol: -1
@@ -187,6 +187,15 @@ Resources:
       IpProtocol: tcp
       FromPort: 2049
       ToPort: 2049
+      SourceSecurityGroupId: !Ref RetrievalSecurityGroup
+
+  RetrievalSecurityGroupHttpsIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RetrievalSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
       SourceSecurityGroupId: !Ref RetrievalSecurityGroup
 
   S3FilesServiceRole:
@@ -259,13 +268,6 @@ Resources:
       SubnetId: !Ref RetrievalSubnetA
       SecurityGroups: [!Ref RetrievalSecurityGroup]
 
-  S3FilesMountTargetB:
-    Type: AWS::S3Files::MountTarget
-    Properties:
-      FileSystemId: !Ref DocumentsS3FileSystem
-      SubnetId: !Ref RetrievalSubnetB
-      SecurityGroups: [!Ref RetrievalSecurityGroup]
-
   DocumentsS3FilesAccessPoint:
     Type: AWS::S3Files::AccessPoint
     Properties:
@@ -296,17 +298,7 @@ Resources:
             Condition:
               StringEquals:
                 s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
-          - Sid: AllowDocumentsApiMount
-            Effect: Allow
-            Principal:
-              AWS: !GetAtt DocumentApiFunctionRole.Arn
-            Action:
-              - s3files:ClientMount
-            Resource: !Ref DocumentsS3FileSystem
-            Condition:
-              StringEquals:
-                s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
-          - Sid: AllowDocumentProcessorReadWrite
+          - Sid: AllowDocumentProcessorMount
             Effect: Allow
             Principal:
               AWS: !GetAtt DocumentProcessingFunctionRole.Arn
@@ -317,14 +309,129 @@ Resources:
               StringEquals:
                 s3files:AccessPointArn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
 
-  HttpApi:
-    Type: AWS::Serverless::HttpApi
+  RestApi:
+    Type: AWS::Serverless::Api
     Properties:
-      StageName: $default
-      CorsConfiguration:
-        AllowOrigins: [!Ref FrontendOrigin]
-        AllowHeaders: [content-type, x-user-id]
-        AllowMethods: [GET, POST, OPTIONS]
+      StageName: prod
+      EndpointConfiguration: REGIONAL
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'content-type,x-user-id'"
+        AllowOrigin: !Sub "'${FrontendOrigin}'"
+      DefinitionBody:
+        openapi: 3.0.1
+        info:
+          title: Document Q&A API
+          version: "1.0"
+        paths:
+          /document:
+            get:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  # Use the deterministic function name instead of GetAtt. This keeps the API
+                  # definition from depending directly on the Lambda resource during deployment.
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionArn}/invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-document-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          /document/upload/init:
+            post:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionArn}/invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-document-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          /document/upload/part-url:
+            post:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionArn}/invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-document-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          /document/upload/complete:
+            post:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionArn}/invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-document-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          /document/upload/abort:
+            post:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${FunctionArn}/invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-document-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+          /document/process:
+            post:
+              # No Lambda in the write path: API Gateway enqueues the job itself. The processor
+              # validates the user id and document id when it drains the message.
+              responses:
+                "202":
+                  description: Extraction queued
+                  headers:
+                    Access-Control-Allow-Origin:
+                      schema:
+                        type: string
+              x-amazon-apigateway-integration:
+                type: aws
+                httpMethod: POST
+                credentials: !GetAtt ApiGatewayQueueRole.Arn
+                uri: !Sub "arn:${AWS::Partition}:apigateway:${AWS::Region}:sqs:path/${AWS::AccountId}/${DocumentProcessingQueue.QueueName}"
+                passthroughBehavior: never
+                requestParameters:
+                  integration.request.header.Content-Type: "'application/x-www-form-urlencoded'"
+                requestTemplates:
+                  application/json: >-
+                    Action=SendMessage&MessageBody=$util.urlEncode("{""userId"":""$util.escapeJavaScript($input.params('x-user-id'))"",""documentId"":""$util.escapeJavaScript($input.path('$.documentId'))""}")
+                responses:
+                  default:
+                    statusCode: "202"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: !Sub "'${FrontendOrigin}'"
+                    responseTemplates:
+                      application/json: '{"status":"PROCESSING"}'
+          /question:
+            post:
+              x-amazon-apigateway-integration:
+                type: aws_proxy
+                httpMethod: POST
+                uri: !Sub
+                  - "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2021-11-15/functions/${FunctionArn}/response-streaming-invocations"
+                  - FunctionArn: !Sub
+                      - "arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:${StackUuid}-question-api"
+                      - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+                responseTransferMode: STREAM
+
+  DocumentApiInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref DocumentApiFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/*
+
+  QuestionApiInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref QuestionApiFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${RestApi}/*/POST/question
   DocumentApiFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -337,16 +444,11 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
       Policies:
         - PolicyName: DocumentApiAccess
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
-              - Effect: Allow
-                Action:
-                  - s3files:ClientMount
-                Resource: !Ref DocumentsS3FileSystem
               - Effect: Allow
                 Action: s3:ListBucket
                 Resource: !GetAtt DocumentsBucket.Arn
@@ -359,12 +461,8 @@ Resources:
                   - s3:GetObject
                   - s3:GetObjectVersion
                   - s3:PutObject
+                  - s3:AbortMultipartUpload
                 Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
-              - Effect: Allow
-                Action:
-                  - s3:PutObject
-                Resource: !Sub "${DocumentsBucket.Arn}/processing/*"
-
   DocumentApiFunction:
     Type: AWS::Serverless::Function
     Metadata: &BuildMetadata
@@ -373,48 +471,23 @@ Resources:
         EntryPoints:
           - handlers/api/document.ts
           - handlers/api/question.ts
-          - handlers/s3-events/document-processor.ts
-          - handlers/s3-events/question-worker.ts
+          - handlers/queue/document-processor.ts
         External:
           - "@aws-sdk/*"
         Format: cjs
         Minify: false
         Sourcemap: true
         Target: es2022
-    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
     Properties:
       CodeUri: src/
-      Handler: handlers/api/document.handler
+      Handler: api/document.handler
+      FunctionName: !Sub
+        - "${StackUuid}-document-api"
+        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
       Role: !GetAtt DocumentApiFunctionRole.Arn
       Environment:
         Variables:
           DOCUMENTS_BUCKET: !Ref DocumentsBucket
-      VpcConfig:
-        SecurityGroupIds: [!Ref RetrievalSecurityGroup]
-        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
-      FileSystemConfigs:
-        - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
-          LocalMountPath: /mnt/documents
-      Events:
-        ListDocuments:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /document
-            Method: GET
-        CreateUploadUrl:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /document/upload-url
-            Method: POST
-        StartDocumentProcessing:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /document/process
-            Method: POST
-
   QuestionApiFunctionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -437,67 +510,55 @@ Resources:
                 Action: s3files:ClientMount
                 Resource: !Ref DocumentsS3FileSystem
               - Effect: Allow
-                Action: s3:PutObject
-                Resource: !Sub "${JobsBucket.Arn}/llm-requests/*"
-              - Effect: Allow
-                Action: s3:GetObject
-                Resource:
-                  - !Sub "${JobsBucket.Arn}/llm-requests/*"
-                  - !Sub "${JobsBucket.Arn}/llm-responses/*"
-              - Effect: Allow
-                Action: s3:ListBucket
-                Resource: !GetAtt JobsBucket.Arn
-                Condition:
-                  StringLike:
-                    s3:prefix:
-                      - llm-requests/*
-                      - llm-responses/*
-              - Effect: Allow
                 Action:
                   - s3:GetObject
                   - s3:GetObjectVersion
                 Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                Resource: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${LLMModel}"
+              - Effect: Allow
+                Action: secretsmanager:GetSecretValue
+                Resource:
+                  !If [
+                    HasLlmSecret,
+                    !Ref LLMSecretArn,
+                    !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:__not_configured__",
+                  ]
 
   QuestionApiFunction:
     Type: AWS::Serverless::Function
     Metadata: *BuildMetadata
-    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
+    DependsOn: S3FilesMountTargetA
     Properties:
       CodeUri: src/
-      Handler: handlers/api/question.handler
+      Handler: api/question.handler
+      FunctionName: !Sub
+        - "${StackUuid}-question-api"
+        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+      Timeout: 120
       Role: !GetAtt QuestionApiFunctionRole.Arn
       Environment:
         Variables:
-          JOBS_BUCKET: !Ref JobsBucket
           DOCUMENTS_MOUNT_PATH: /mnt/documents
       VpcConfig:
         SecurityGroupIds: [!Ref RetrievalSecurityGroup]
-        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
+        SubnetIds: [!Ref RetrievalSubnetA]
       FileSystemConfigs:
         - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
           LocalMountPath: /mnt/documents
       Layers: !If [HasRipgrepLayer, [!Ref RipgrepLayerArn], !Ref AWS::NoValue]
-      Events:
-        AskQuestion:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /question
-            Method: POST
-        GetJob:
-          Type: HttpApi
-          Properties:
-            ApiId: !Ref HttpApi
-            Path: /question/{jobId}
-            Method: GET
-
   DocumentProcessingFunction:
     Type: AWS::Serverless::Function
     Metadata: *BuildMetadata
-    DependsOn: [S3FilesMountTargetA, S3FilesMountTargetB]
+    DependsOn: S3FilesMountTargetA
     Properties:
       CodeUri: src/
-      Handler: handlers/s3-events/document-processor.handler
+      Handler: queue/document-processor.handler
+      # Extraction is off the request path now, so it can run longer than an API call.
+      # DocumentProcessingQueue.VisibilityTimeout must stay >= this value.
       Timeout: 120
       MemorySize: 1024
       Role: !GetAtt DocumentProcessingFunctionRole.Arn
@@ -506,10 +567,16 @@ Resources:
           DOCUMENTS_BUCKET: !Ref DocumentsBucket
       VpcConfig:
         SecurityGroupIds: [!Ref RetrievalSecurityGroup]
-        SubnetIds: [!Ref RetrievalSubnetA, !Ref RetrievalSubnetB]
+        SubnetIds: [!Ref RetrievalSubnetA]
       FileSystemConfigs:
         - Arn: !GetAtt DocumentsS3FilesAccessPoint.AccessPointArn
           LocalMountPath: /mnt/documents
+      Events:
+        ExtractionRequested:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt DocumentProcessingQueue.Arn
+            BatchSize: 1
 
   DocumentProcessingFunctionRole:
     Type: AWS::IAM::Role
@@ -529,121 +596,21 @@ Resources:
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
+              # The mount is read-only: the PDF is read through it, but the extracted text is written
+              # with PutObject because the access point's uid 1000 cannot write into the per-document
+              # directory that the presigned upload created.
               - Effect: Allow
-                Action:
-                  - s3files:ClientMount
+                Action: s3files:ClientMount
                 Resource: !Ref DocumentsS3FileSystem
-              - Effect: Allow
-                Action:
-                  - s3:GetObject
-                  - s3:GetObjectVersion
-                Resource:
-                  - !Sub "${DocumentsBucket.Arn}/documents/*"
-                  - !Sub "${DocumentsBucket.Arn}/processing/*"
-              - Effect: Allow
-                Action: s3:ListBucket
-                Resource: !GetAtt DocumentsBucket.Arn
-                Condition:
-                  StringLike:
-                    s3:prefix:
-                      - documents/*
-                      - processing/*
               - Effect: Allow
                 Action: s3:PutObject
                 Resource: !Sub "${DocumentsBucket.Arn}/documents/*"
-
-  QuestionWorkerFunction:
-    Type: AWS::Serverless::Function
-    Metadata: *BuildMetadata
-    Properties:
-      CodeUri: src/
-      Handler: handlers/s3-events/question-worker.handler
-      Timeout: 120
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action: s3:GetObject
-              Resource:
-                - !Sub
-                  - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-requests/*"
-                  - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-                - !Sub
-                  - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-responses/*"
-                  - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-            - Effect: Allow
-              Action: s3:ListBucket
-              Resource: !Sub
-                - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs"
-                - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-              Condition:
-                StringLike:
-                  s3:prefix:
-                    - llm-requests/*
-                    - llm-responses/*
-            - Effect: Allow
-              Action: s3:PutObject
-              Resource: !Sub
-                - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs/llm-responses/*"
-                - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-            - Effect: Allow
-              Action: secretsmanager:GetSecretValue
-              Resource:
-                !If [
-                  HasLlmSecret,
-                  !Ref LLMSecretArn,
-                  !Sub "arn:${AWS::Partition}:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:__not_configured__",
-                ]
-            - Effect: Allow
-              Action:
-                - bedrock:InvokeModel
-                - bedrock:InvokeModelWithResponseStream
-              Resource: !Sub "arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${LLMModel}"
-      Environment:
-        Variables:
-          JOBS_BUCKET: !Sub
-            - "${StackUuid}-jobs"
-            - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
-
-  DocumentProcessingInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref DocumentProcessingFunction
-      Principal: events.amazonaws.com
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !GetAtt DocumentProcessingEventRule.Arn
-
-  DocumentProcessingEventRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Description: Routes document-bucket object-created events to the mounted document processor.
-      EventPattern:
-        source:
-          - aws.s3
-        detail-type:
-          - Object Created
-        detail:
-          bucket:
-            name:
-              - !Ref DocumentsBucket
-          object:
-            key:
-              - prefix: processing/
-      State: ENABLED
-      Targets:
-        - Arn: !GetAtt DocumentProcessingFunction.Arn
-          Id: DocumentProcessingFunction
-
-  QuestionWorkerInvokePermission:
-    Type: AWS::Lambda::Permission
-    Properties:
-      Action: lambda:InvokeFunction
-      FunctionName: !Ref QuestionWorkerFunction
-      Principal: s3.amazonaws.com
-      SourceAccount: !Ref AWS::AccountId
-      SourceArn: !Sub
-        - "arn:${AWS::Partition}:s3:::${StackUuid}-jobs"
-        - StackUuid: !Select [2, !Split ["/", !Ref AWS::StackId]]
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !GetAtt DocumentProcessingQueue.Arn
 
   DocumentApiLogGroup:
     Type: AWS::Logs::LogGroup
@@ -660,20 +627,12 @@ Resources:
     Properties:
       LogGroupName: !Sub /aws/lambda/${DocumentProcessingFunction}
       RetentionInDays: 14
-  QuestionWorkerLogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties:
-      LogGroupName: !Sub /aws/lambda/${QuestionWorkerFunction}
-      RetentionInDays: 14
-
 Outputs:
   ApiUrl:
-    Description: HTTP API base URL for the frontend.
-    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}
+    Description: REST API base URL for the frontend.
+    Value: !Sub https://${RestApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/prod
   DocumentsBucketName:
     Value: !Ref DocumentsBucket
-  JobsBucketName:
-    Value: !Ref JobsBucket
   S3FilesFileSystemId:
     Value: !Ref DocumentsS3FileSystem
   RetrievalFunctionName:

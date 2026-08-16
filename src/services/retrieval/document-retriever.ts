@@ -1,29 +1,22 @@
-import { readFile } from "node:fs/promises";
+import type { Passage } from "../../types/services/retrieval/document-retriever.js";
+import type { MountedDocumentStore } from "../../infrastructure/filesystem/mounted-document-store.js";
 import type { LlmService } from "../llm/llm-service.js";
-import type { Passage } from "../../types/retrieval.js";
+import type { RipgrepTextSearch } from "../../infrastructure/retrieval/ripgrep-text-search.js";
 import { PassageBuilder } from "./passage-builder.js";
-import { RipgrepSearch } from "./ripgrep-search.js";
 
-/**
- * The retrieval pipeline, end to end:
- *
- *   question -> model-generated search terms -> ripgrep -> grouped passages -> ranked passages
- *
- * No embeddings, no index, no vector store. The document is searched where it lies.
- */
+/** Coordinates query expansion, lexical search, passage construction, and ranking. */
 export class DocumentRetriever {
   public constructor(
+    private readonly files: MountedDocumentStore,
     private readonly llm: LlmService,
-    private readonly search = new RipgrepSearch(),
+    private readonly search: RipgrepTextSearch,
     private readonly builder = new PassageBuilder(),
   ) {}
 
-  /** Finds the passages most likely to answer a question about one document. */
-  public async retrieve(filePath: string, documentId: string, question: string): Promise<Passage[]> {
-    const lines = (await readFile(filePath, "utf8")).split(/\r?\n/);
+  public async retrieve(documentKey: string, documentId: string, question: string): Promise<Passage[]> {
+    const filePath = this.files.requirePath(documentKey);
+    const lines = (await this.files.readText(documentKey)).split(/\r?\n/);
     const precise = await this.rank(filePath, lines, documentId, question, false);
-    // A precise expansion can be too narrow to match anything. Widen once before
-    // concluding the document has nothing to say about the question.
     const passages = precise.length > 0 ? precise : await this.rank(filePath, lines, documentId, question, true);
 
     return passages.map(({ id, pageNumbers, text }) => ({ id, pageNumbers, text }));
