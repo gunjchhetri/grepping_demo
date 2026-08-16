@@ -7,10 +7,6 @@ text with `ripgrep`, and uses an LLM to answer from the best matching passages.
 
 ```mermaid
 flowchart TD
-    Upload["User uploads PDF"] --> Queue["Extraction is queued"]
-    Queue --> Extract["PDF is turned into<br/>page-marked text"]
-    Extract --> Mount[("document.txt")]
-
     Ask["User asks a message"] --> Classify{"Greeting or<br/>document question?"}
     Classify -->|"Greeting"| Response["Reply to the user"]
     Classify -->|"Question"| Query["LLM corrects spelling<br/>and expands the query"]
@@ -26,8 +22,8 @@ flowchart TD
 
 ### Upload
 
-The browser uploads the PDF straight to storage and extraction is queued in the background. The PDF is turned into
-page-marked text and saved as `document.txt` next to the original.
+The browser uploads the PDF straight to s3 using multi part upload and just make an api call to start processing job (Converting PDF is into
+page-marked text and saved as `document.txt`).
 
 ### Question
 
@@ -65,3 +61,4 @@ Open <http://localhost:5173>.
 The stack reaches Amazon Bedrock through a private VPC endpoint and deliberately has no NAT Gateway. The deployment
 therefore works with Bedrock but cannot call OpenAI, Anthropic/Claude, or other public LLM APIs directly. Supporting
 those requires an outbound internet path and the provider API key in Secrets Manager.
+Also don't forget to destroy the stack as vpc endpoint has a cost asociated to it.
