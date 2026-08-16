@@ -15,6 +15,9 @@
     "format": "prettier --write \"src/**/*.ts\" \"frontend/js/*.js\" \"scripts/*.mjs\" \"*.{mjs,json,yaml,md}\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"frontend/js/*.js\" \"scripts/*.mjs\" \"*.{mjs,json,yaml,md}\"",
     "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "frontend:dev": "node scripts/serve-frontend.mjs"
   },
   "dependencies": {
@@ -31,10 +34,13 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/aws-lambda": "^8.10.145",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.21",
     "@types/pdf-parse": "^1.1.4",
     "eslint": "^10.8.1",
+    "jest": "^30.4.2",
     "prettier": "^3.9.6",
+    "ts-jest": "^29.4.12",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.67.0"
   }

@@ -34,6 +34,21 @@ export default tseslint.config(
     },
   },
   {
+    // Jest unit tests. The globals come from the runner rather than an import.
+    files: ["tests/**/*.ts"],
+    languageOptions: {
+      globals: {
+        afterEach: "readonly",
+        beforeEach: "readonly",
+        describe: "readonly",
+        expect: "readonly",
+        it: "readonly",
+        jest: "readonly",
+        process: "readonly",
+      },
+    },
+  },
+  {
     files: ["**/*.{ts,tsx,js}"],
     rules: {
       curly: ["error", "all"],

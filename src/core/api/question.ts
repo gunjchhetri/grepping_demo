@@ -35,7 +35,9 @@ export class QuestionApi {
       const stream = this.response.stream(responseStream);
 
       try {
-        stream.end(await this.questions.answer(userId, documentId, question, classification));
+        // The wrapped response stream ignores a payload passed to end(), so the body must be written first.
+        stream.write(await this.questions.answer(userId, documentId, question, classification));
+        stream.end();
       } catch (cause: unknown) {
         stream.end(`\n\n${cause instanceof Error ? cause.message : "Unable to answer question"}`);
       }
