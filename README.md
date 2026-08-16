@@ -66,9 +66,8 @@ flowchart TD
 
 ## Run locally
 
-Prerequisites: Node.js 22+, AWS SAM CLI, and an AWS account with the S3 Files resource types. Python 3 is
-optional and is used only by `npm run frontend:dev` to serve the static frontend locally with
-`python3 -m http.server`.
+Prerequisites: Node.js 22+, AWS SAM CLI, and an AWS account with the S3 Files resource types. The frontend is
+served locally by the Node.js command `npm run frontend:dev`.
 
 ```bash
 npm install

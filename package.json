@@ -12,10 +12,10 @@
     "destroy": "bash scripts/destroy.sh",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"frontend/js/*.js\" \"*.{mjs,json,yaml,md}\"",
-    "format:check": "prettier --check \"src/**/*.ts\" \"frontend/js/*.js\" \"*.{mjs,json,yaml,md}\"",
+    "format": "prettier --write \"src/**/*.ts\" \"frontend/js/*.js\" \"scripts/*.mjs\" \"*.{mjs,json,yaml,md}\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"frontend/js/*.js\" \"scripts/*.mjs\" \"*.{mjs,json,yaml,md}\"",
     "typecheck": "tsc --noEmit",
-    "frontend:dev": "python3 -m http.server 5173 --directory frontend"
+    "frontend:dev": "node scripts/serve-frontend.mjs"
   },
   "dependencies": {
     "@aws-lambda-powertools/logger": "^2.34.0",

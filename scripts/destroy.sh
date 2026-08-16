@@ -17,19 +17,23 @@ empty_bucket() {
   local object_count
 
   versions_json="$(aws s3api list-object-versions --bucket "$bucket_name" --output json)"
-  delete_json="$(printf '%s' "$versions_json" | python3 -c '
-import json
-import sys
-
-data = json.load(sys.stdin)
-objects = [
-    {"Key": item["Key"], "VersionId": item["VersionId"]}
-    for section in ("Versions", "DeleteMarkers")
-    for item in data.get(section, [])
-]
-print(json.dumps({"Objects": objects, "Quiet": True}))
+  delete_json="$(printf '%s' "$versions_json" | node -e '
+let input = "";
+process.stdin.on("data", (chunk) => { input += chunk; });
+process.stdin.on("end", () => {
+  const data = JSON.parse(input);
+  const objects = [
+    ...(data.Versions ?? []),
+    ...(data.DeleteMarkers ?? []),
+  ].map((item) => ({ Key: item.Key, VersionId: item.VersionId }));
+  process.stdout.write(JSON.stringify({ Objects: objects, Quiet: true }));
+});
 ')"
-  object_count="$(printf '%s' "$delete_json" | python3 -c 'import json, sys; print(len(json.load(sys.stdin)["Objects"]))')"
+  object_count="$(printf '%s' "$delete_json" | node -e '
+let input = "";
+process.stdin.on("data", (chunk) => { input += chunk; });
+process.stdin.on("end", () => process.stdout.write(String(JSON.parse(input).Objects.length)));
+')"
 
   if [[ "$object_count" -gt 0 ]]; then
     aws s3api delete-objects --bucket "$bucket_name" --delete "$delete_json"
