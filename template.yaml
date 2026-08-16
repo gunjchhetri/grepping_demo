@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: DB-less RAG demo using S3 Files, ripgrep, and provider-agnostic LangChain LLMs.
+Description: Grepping PDF question answering using S3 Files, ripgrep, and provider-agnostic LangChain LLMs.
 
 Parameters:
   LLMProvider:

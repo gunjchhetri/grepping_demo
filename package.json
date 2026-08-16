@@ -2,7 +2,7 @@
   "name": "db-less-rag-s3-files",
   "version": "1.0.0",
   "private": true,
-  "description": "DB-less RAG with S3 Files, ripgrep, and provider-agnostic LangChain LLMs.",
+  "description": "Grepping PDF question answering with S3 Files, ripgrep, and provider-agnostic LangChain LLMs.",
   "scripts": {
     "build": "sam build",
     "sam:validate": "sam validate",
