@@ -31,8 +31,13 @@ export class QuestionService {
       throw new Error("documentId is required for document questions");
     }
 
-    const passages = await this.retriever.retrieve(S3Keys.extractedText(userId, documentId), documentId, question);
+    const correctedQuestion = await this.llm.correctSpelling(question);
+    const passages = await this.retriever.retrieve(
+      S3Keys.extractedText(userId, documentId),
+      documentId,
+      correctedQuestion,
+    );
 
-    yield* this.llm.streamAnswer(question, passages);
+    yield* this.llm.streamAnswer(correctedQuestion, passages);
   }
 }

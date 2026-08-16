@@ -20,7 +20,8 @@ flowchart TD
     Ask[User asks a message] --> QuestionApi[Question API Lambda]
     QuestionApi --> Classify{LLM: greeting\nor document question?}
     Classify -->|Greeting / small talk| Greeting[Return the LLM response\nimmediately]
-    Classify -->|Document question| Expand[LLM expands the query\nwith related terms]
+    Classify -->|Document question| Correct[LLM corrects\nspelling mistakes]
+    Correct --> Expand[LLM expands the query\nwith related terms]
     Expand --> Grep[ripgrep searches\nthe mounted text]
     MountText --> Grep
     Grep --> Group[Group nearby matching lines\ninto passages]
@@ -30,7 +31,7 @@ flowchart TD
     Validate --> Response[Stream answer to user]
 
     classDef black fill:#111111,color:#ffffff,stroke:#111111,stroke-width:2px;
-    class Upload,S3PDF,ProcessApi,Queue,ProcessLambda,MountPDF,Extract,S3Text,MountText,Ask,QuestionApi,Classify,Greeting,Expand,Grep,Group,Rank,Answer,Validate,Response black;
+    class Upload,S3PDF,ProcessApi,Queue,ProcessLambda,MountPDF,Extract,S3Text,MountText,Ask,QuestionApi,Classify,Greeting,Correct,Expand,Grep,Group,Rank,Answer,Validate,Response black;
 ```
 
 ### File flow
@@ -46,11 +47,12 @@ flowchart TD
 1. The question Lambda first calls `classifyGreetingsAndRespond` on the LLM.
 2. If the message is a greeting, thanks, or small talk, the LLM response is returned immediately. No file search
    or retrieval happens.
-3. If it is a document question, the LLM expands the query with related terms and phrases.
-4. `ripgrep` searches the mounted text file using those terms.
-5. Nearby matching lines are grouped into passages and ranked by relevance.
-6. The LLM receives the selected passages and writes an answer only from that evidence.
-7. The answer is checked for matching evidence and streamed back to the browser.
+3. If it is a document question, `correctSpelling` fixes spelling and typing mistakes without changing the intent.
+4. The LLM expands the corrected query with related terms and phrases.
+5. `ripgrep` searches the mounted text file using those terms.
+6. Nearby matching lines are grouped into passages and ranked by relevance.
+7. The LLM receives the selected passages and writes an answer only from that evidence.
+8. The answer is checked for matching evidence and streamed back to the browser.
 
 ## AWS services used
 

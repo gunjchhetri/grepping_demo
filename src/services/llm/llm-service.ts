@@ -30,6 +30,10 @@ export class LlmService {
     "about this application. When isGreeting is true, write a brief, friendly response in response. " +
     "Do not invent or discuss facts from an uploaded document because retrieval has not happened. " +
     "When isGreeting is false, set response to an empty string. Do not answer the document question in this step.";
+  private static readonly spellingPrompt =
+    "Correct only spelling and obvious typing mistakes in the user's document question. " +
+    "Preserve the original meaning, named entities, numbers, and requested details. Do not answer the question " +
+    'or add information. Return only valid JSON with exactly this shape: {"question":"..."}.';
 
   public constructor(
     private readonly model: AbstractLanguageModel,
@@ -71,6 +75,21 @@ export class LlmService {
       return this.parser.toQueryTerms(this.parser.parseJson(raw));
     } catch {
       return this.parser.fallbackTerms(question);
+    }
+  }
+
+  /** Corrects spelling before retrieval without changing the user's intent. */
+  public async correctSpelling(question: string): Promise<string> {
+    try {
+      const value = this.parser.parseJson(await this.model.complete(LlmService.spellingPrompt, question));
+      const record =
+        value !== null && typeof value === "object" && !Array.isArray(value)
+          ? (value as Record<string, unknown>)
+          : undefined;
+
+      return typeof record?.question === "string" && record.question.trim() ? record.question.trim() : question;
+    } catch {
+      return question;
     }
   }
 
